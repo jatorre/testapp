@@ -55,7 +55,7 @@ export function FilePanel() {
   const [preview, setPreview] = useState<Preview | null>(null);
 
   const refresh = useCallback(async () => {
-    const list = await listFiles('/');
+    const list = (await listFiles('/')).filter((f) => !/^\/(bin|usr|dev|proc)\//.test(f.path));
     setFiles(list);
     setPreview((p) => (p && !list.some((f) => f.path === p.path) ? null : p));
   }, []);
