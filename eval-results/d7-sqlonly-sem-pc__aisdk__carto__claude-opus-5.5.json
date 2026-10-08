@@ -1,0 +1,274 @@
+{
+  "summary": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "status": "done",
+    "steps": 4,
+    "toolCalls": 3,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 3
+    },
+    "usage": {
+      "inputTokens": 5486,
+      "outputTokens": 2105,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 30195,
+    "toolMs": 7068,
+    "llmMs": 23127,
+    "maxToolOutputChars": 673,
+    "files": [],
+    "charts": 0,
+    "answer": "**Houston TX ships the most revenue to customers outside its own country in 2023:** about **$139K gross** (2,015 items), or **about $108K net** after removing cancelled and returned items. It's first by both measures.\n\n**How \"outside its own country\" works here:** all 10 distribution centers are in the US, so this just means sales to customers whose country isn't the United States. I linked each item to a center through the product's assigned center (`products.distribution_center_id`), used the customer's country from `users`, and counted items created in 2023.\n\n| Distribution center | Net foreign revenue | Gross foreign revenue | Foreign share of center's revenue |\n|---|---|---|---|\n| **Houston TX** | **$108.3K** | **$139.4K** | 78.7% |\n| Memphis TN | $86.9K | $116.6K | 78.7% |\n| Chicago IL | $86.3K | $117.2K | 78.5% |\n| Mobile AL | $79.8K | $101.3K | 77.6% |\n| Philadelphia PA | $66.4K | $86.3K | 75.3% |\n| … | … | … | … |\n| Charleston SC (lowest) | $43.2K | $57.6K | 79.0% |\n\n**Why Houston wins:** it's the biggest center overall ($177K total gross revenue, about 19% more than Chicago or Memphis). Its foreign share (about 79%) is about the same as every other center's (75–79%). So Houston leads because it sells more in total, not because it's more focused on foreign customers. Its lead over Memphis and Chicago (about 25% net) is clear. Memphis and Chicago are essentially tied for second.\n\n**Confidence:** high that Houston ranks first in this dataset. Low that this means anything about real shipping. Caveats:\n- **This is synthetic data.** Products are assigned to centers at random, which is why every center's foreign share is about 78%. That matches the customer mix (about 80% of users are outside the US, mainly China and Brazil).\n- **There's no actual shipment record.** The center comes from the product's assignment, not from tracking where an order shipped from.\n- **Customer country comes from the user's profile address,** not the shipping address on each order.\n- **The dataset is regenerated from time to time,** so the exact amounts will shift if you rerun this. The ranking has generally held.\n- **Gross vs. net:** gross counts all item sale prices; net leaves out cancelled and returned items. Houston is first either way."
+  },
+  "run": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "prompt": "Which distribution center ships the most revenue to customers outside its own country in 2023?",
+    "id": "run_muzfga0x",
+    "startedAt": 1791457350081,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01EcVu1KzKQJx9ESEdxNapbc",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT * FROM `bigquery-public-data.thelook_ecommerce.distribution_centers` ORDER BY id"
+        },
+        "startedAt": 1791457354411,
+        "output": "rows=10 bytesProcessed=809 B sessionTotal=809 B\nid,name,latitude,longitude,distribution_center_geom\n1,Memphis TN,35.1174,-89.9711,POINT(-89.9711 35.1174)\n2,Chicago IL,41.8369,-87.6847,POINT(-87.6847 41.8369)\n3,Houston TX,29.7604,-95.3698,POINT(-95.3698 29.7604)\n4,Los Angeles CA,34.05,-118.25,POINT(-118.25 34.05)\n5,New Orleans LA,29.95,-90.0667,POINT(-90.0667 29.95)\n6,Port Authority of New York/New Jersey NY/NJ,40.634,-73.7834,POINT(-73.7834 40.634)\n7,Philadelphia PA,39.95,-75.1667,POINT(-75.1667 39.95)\n8,Mobile AL,30.6944,-88.0431,POINT(-88.0431 30.6944)\n9,Charleston SC,32.7833,-79.9333,POINT(-79.9333 32.7833)\n10,Savannah GA,32.0167,-81.1167,POINT(-81.1167 32.0167)",
+        "durationMs": 3743,
+        "outputChars": 673
+      },
+      {
+        "id": "toolu_vrtx_01GEMtsNyKW72ys1CjdkAoi8",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT country, COUNT(*) n FROM `bigquery-public-data.thelook_ecommerce.users` GROUP BY 1 ORDER BY 2 DESC"
+        },
+        "startedAt": 1791457361638,
+        "output": "rows=16 bytesProcessed=968.2 KB sessionTotal=969.0 KB\ncountry,n\nChina,33937\nUnited States,22360\nBrasil,14779\nSouth Korea,5325\nFrance,4772\nUnited Kingdom,4592\nGermany,4234\nSpain,4009\nJapan,2394\nAustralia,2127\nBelgium,1224\nPoland,227\nColombia,13\nEspaña,5\nDeutschland,1\nAustria,1",
+        "durationMs": 1451,
+        "outputChars": 276
+      },
+      {
+        "id": "toolu_vrtx_01Lbi9FUTQvqyhA4BZ7itnUw",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT dc.name,\n  ROUND(SUM(IF(oi.status NOT IN ('Cancelled','Returned') AND u.country!='United States', oi.sale_price,0)),0) net_intl_rev,\n  ROUND(SUM(IF(u.country!='United States', oi.sale_price,0)),0) gross_intl_rev,\n  ROUND(SUM(oi.sale_price),0) gross_total_rev,\n  ROUND(SAFE_DIVIDE(SUM(IF(u.country!='United States', oi.sale_price,0)),SUM(oi.sale_price))*100,1) intl_pct,\n  COUNTIF(u.country!='United States') intl_items\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON p.id=oi.product_id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON dc.id=p.distribution_center_id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON u.id=oi.user_id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\nGROUP BY 1 ORDER BY net_intl_rev DESC"
+        },
+        "startedAt": 1791457369322,
+        "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=10.4 MB\nname,net_intl_rev,gross_intl_rev,gross_total_rev,intl_pct,intl_items\nHouston TX,108279,139399,177053,78.7,2015\nMemphis TN,86918,116601,148179,78.7,2028\nChicago IL,86295,117172,149202,78.5,2116\nMobile AL,79847,101256,130475,77.6,1527\nPhiladelphia PA,66381,86325,114570,75.3,1349\nLos Angeles CA,61763,82687,104917,78.8,1469\nPort Authority of New York/New Jersey NY/NJ,61111,82693,105036,78.7,1405\nNew Orleans LA,50069,66600,85491,77.9,1078\nSavannah GA,49807,65775,83838,78.5,1021\nCharleston SC,43161,57613,72963,79,1408",
+        "durationMs": 1874,
+        "outputChars": 568
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 644,
+          "outputTokens": 298,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 4347,
+        "at": 1791457358156
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 1154,
+          "outputTokens": 270,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 2096,
+        "at": 1791457363090
+      },
+      {
+        "step": 3,
+        "usage": {
+          "inputTokens": 1412,
+          "outputTokens": 680,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 5352,
+        "at": 1791457371197
+      },
+      {
+        "step": 4,
+        "usage": {
+          "inputTokens": 2276,
+          "outputTokens": 857,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 966,
+        "at": 1791457380274
+      }
+    ],
+    "events": [
+      {
+        "t": 4331,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01EcVu1KzKQJx9ESEdxNapbc",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT * FROM `bigquery-public-data.thelook_ecommerce.distribution_centers` ORDER BY id"
+          },
+          "startedAt": 1791457354411
+        }
+      },
+      {
+        "t": 8073,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01EcVu1KzKQJx9ESEdxNapbc",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=809 B sessionTotal=809 B\nid,name,latitude,longitude,distribution_center_geom\n1,Memphis TN,35.1174,-89.9711,POINT(-89.9711 35.1174)\n2,Chicago IL,41.8369,-87.6847,POINT(-87.6847 41.8369)\n3,Houston TX,29.7604,-95.3698,POINT(-95.3698 29.7604)\n4,Los Angeles CA,34.05,-118.25,POINT(-118.25 34.05)\n5,New Orleans LA,29.95,-90.0667,POINT(-90.0667 29.95)\n6,Port Authority of New York/New Jersey NY/NJ,40.634,-73.7834,POINT(-73.7834 40.634)\n7,Philadelphia PA,39.95,-75.1667,POINT(-75.1667 39.95)\n8,Mobile AL,30.6944,-88.0431,POINT(-88.0431 30.6944)\n9,Charleston SC,32.7833,-79.9333,POINT(-79.9333 32.7833)\n10,Savannah GA,32.0167,-81.1167,POINT(-81.1167 32.0167)",
+          "durationMs": 3743,
+          "outputChars": 673
+        }
+      },
+      {
+        "t": 8075,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 644,
+            "outputTokens": 298,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 4347
+        }
+      },
+      {
+        "t": 11557,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01GEMtsNyKW72ys1CjdkAoi8",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT country, COUNT(*) n FROM `bigquery-public-data.thelook_ecommerce.users` GROUP BY 1 ORDER BY 2 DESC"
+          },
+          "startedAt": 1791457361638
+        }
+      },
+      {
+        "t": 13008,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01GEMtsNyKW72ys1CjdkAoi8",
+          "name": "run_sql",
+          "output": "rows=16 bytesProcessed=968.2 KB sessionTotal=969.0 KB\ncountry,n\nChina,33937\nUnited States,22360\nBrasil,14779\nSouth Korea,5325\nFrance,4772\nUnited Kingdom,4592\nGermany,4234\nSpain,4009\nJapan,2394\nAustralia,2127\nBelgium,1224\nPoland,227\nColombia,13\nEspaña,5\nDeutschland,1\nAustria,1",
+          "durationMs": 1451,
+          "outputChars": 276
+        }
+      },
+      {
+        "t": 13009,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 1154,
+            "outputTokens": 270,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 2096
+        }
+      },
+      {
+        "t": 15764,
+        "type": "text-delta",
+        "data": "All 10 DCs are in the US, so \"outside its own country\" means customers whose country isn't the United States."
+      },
+      {
+        "t": 19241,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01Lbi9FUTQvqyhA4BZ7itnUw",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT dc.name,\n  ROUND(SUM(IF(oi.status NOT IN ('Cancelled','Returned') AND u.country!='United States', oi.sale_price,0)),0) net_intl_rev,\n  ROUND(SUM(IF(u.country!='United States', oi.sale_price,0)),0) gross_intl_rev,\n  ROUND(SUM(oi.sale_price),0) gross_total_rev,\n  ROUND(SAFE_DIVIDE(SUM(IF(u.country!='United States', oi.sale_price,0)),SUM(oi.sale_price))*100,1) intl_pct,\n  COUNTIF(u.country!='United States') intl_items\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON p.id=oi.product_id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON dc.id=p.distribution_center_id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON u.id=oi.user_id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\nGROUP BY 1 ORDER BY net_intl_rev DESC"
+          },
+          "startedAt": 1791457369322
+        }
+      },
+      {
+        "t": 21115,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01Lbi9FUTQvqyhA4BZ7itnUw",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=10.4 MB\nname,net_intl_rev,gross_intl_rev,gross_total_rev,intl_pct,intl_items\nHouston TX,108279,139399,177053,78.7,2015\nMemphis TN,86918,116601,148179,78.7,2028\nChicago IL,86295,117172,149202,78.5,2116\nMobile AL,79847,101256,130475,77.6,1527\nPhiladelphia PA,66381,86325,114570,75.3,1349\nLos Angeles CA,61763,82687,104917,78.8,1469\nPort Authority of New York/New Jersey NY/NJ,61111,82693,105036,78.7,1405\nNew Orleans LA,50069,66600,85491,77.9,1078\nSavannah GA,49807,65775,83838,78.5,1021\nCharleston SC,43161,57613,72963,79,1408",
+          "durationMs": 1874,
+          "outputChars": 568
+        }
+      },
+      {
+        "t": 21116,
+        "type": "step-finish",
+        "data": {
+          "step": 3,
+          "usage": {
+            "inputTokens": 1412,
+            "outputTokens": 680,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 5352
+        }
+      },
+      {
+        "t": 29227,
+        "type": "text-delta",
+        "data": "**Houston TX ships the most revenue to customers outside its own country in 2023:** about **$139K gross** (2,015 items), or **about $108K net** after removing cancelled and returned items. It's first by both measures.\n\n**How \"outside its own country\" works here:** all 10 distribution centers are in the US, so this just means sales to customers whose country isn't the United States. I linked each item to a center through the product's assigned center (`products.distribution_center_id`), used the customer's country from `users`, and counted items created in 2023.\n\n| Distribution center | Net foreign revenue | Gross foreign revenue | Foreign share of center's revenue |\n|---|---|---|---|\n| **Houston TX** | **$108.3K** | **$139.4K** | 78.7% |\n| Memphis TN | $86.9K | $116.6K | 78.7% |\n| Chicago IL | $86.3K | $117.2K | 78.5% |\n| Mobile AL | $79.8K | $101.3K | 77.6% |\n| Philadelphia PA | $66.4K | $86.3K | 75.3% |\n| … | … | … | … |\n| Charleston SC (lowest) | $43.2K | $57.6K | 79.0% |\n\n**Why Houston wins:** it's the biggest center overall ($177K total gross revenue, about 19% more than Chicago or Memphis). Its foreign share (about 79%) is about the same as every other center's (75–79%). So Houston leads because it sells more in total, not because it's more focused on foreign customers. Its lead over Memphis and Chicago (about 25% net) is clear. Memphis and Chicago are essentially tied for second.\n\n**Confidence:** high that Houston ranks first in this dataset. Low that this means anything about real shipping. Caveats:\n- **This is synthetic data.** Products are assigned to centers at random, which is why every center's foreign share is about 78%. That matches the customer mix (about 80% of users are outside the US, mainly China and Brazil).\n- **There's no actual shipment record.** The center comes from the product's assignment, not from tracking where an order shipped from.\n- **Customer country comes from the user's profile address,** not the shipping address on each order.\n- **The dataset is regenerated from time to time,** so the exact amounts will shift if you rerun this. The ranking has generally held.\n- **Gross vs. net:** gross counts all item sale prices; net leaves out cancelled and returned items. Houston is first either way."
+      },
+      {
+        "t": 30193,
+        "type": "step-finish",
+        "data": {
+          "step": 4,
+          "usage": {
+            "inputTokens": 2276,
+            "outputTokens": 857,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 966
+        }
+      },
+      {
+        "t": 30195,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 5486,
+            "outputTokens": 2105,
+            "cachedInputTokens": 0
+          },
+          "steps": 4,
+          "durationMs": 30030
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 5486,
+        "outputTokens": 2105,
+        "cachedInputTokens": 0
+      },
+      "steps": 4,
+      "toolCalls": 3,
+      "toolErrors": 0,
+      "wallMs": 30195,
+      "toolMs": 7068,
+      "llmMs": 23127,
+      "outputChars": 1517
+    },
+    "finalText": "**Houston TX ships the most revenue to customers outside its own country in 2023:** about **$139K gross** (2,015 items), or **about $108K net** after removing cancelled and returned items. It's first by both measures.\n\n**How \"outside its own country\" works here:** all 10 distribution centers are in the US, so this just means sales to customers whose country isn't the United States. I linked each item to a center through the product's assigned center (`products.distribution_center_id`), used the customer's country from `users`, and counted items created in 2023.\n\n| Distribution center | Net foreign revenue | Gross foreign revenue | Foreign share of center's revenue |\n|---|---|---|---|\n| **Houston TX** | **$108.3K** | **$139.4K** | 78.7% |\n| Memphis TN | $86.9K | $116.6K | 78.7% |\n| Chicago IL | $86.3K | $117.2K | 78.5% |\n| Mobile AL | $79.8K | $101.3K | 77.6% |\n| Philadelphia PA | $66.4K | $86.3K | 75.3% |\n| … | … | … | … |\n| Charleston SC (lowest) | $43.2K | $57.6K | 79.0% |\n\n**Why Houston wins:** it's the biggest center overall ($177K total gross revenue, about 19% more than Chicago or Memphis). Its foreign share (about 79%) is about the same as every other center's (75–79%). So Houston leads because it sells more in total, not because it's more focused on foreign customers. Its lead over Memphis and Chicago (about 25% net) is clear. Memphis and Chicago are essentially tied for second.\n\n**Confidence:** high that Houston ranks first in this dataset. Low that this means anything about real shipping. Caveats:\n- **This is synthetic data.** Products are assigned to centers at random, which is why every center's foreign share is about 78%. That matches the customer mix (about 80% of users are outside the US, mainly China and Brazil).\n- **There's no actual shipment record.** The center comes from the product's assignment, not from tracking where an order shipped from.\n- **Customer country comes from the user's profile address,** not the shipping address on each order.\n- **The dataset is regenerated from time to time,** so the exact amounts will shift if you rerun this. The ranking has generally held.\n- **Gross vs. net:** gross counts all item sale prices; net leaves out cancelled and returned items. Houston is first either way.",
+    "endedAt": 1791457380276
+  }
+}

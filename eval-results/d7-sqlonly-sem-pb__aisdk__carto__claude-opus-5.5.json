@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 1642,
+      "outputTokens": 830,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 12989,
+    "toolMs": 1683,
+    "llmMs": 11306,
+    "maxToolOutputChars": 208,
+    "files": [],
+    "charts": 0,
+    "answer": "Here are the top 5 countries by 2023 revenue:\n\n| Rank | Country | Revenue | Orders |\n|---|---|---|---|\n| 1 | China | $300,437 | 3,489 |\n| 2 | United States | $194,733 | 2,333 |\n| 3 | Brasil | $132,263 | 1,513 |\n| 4 | South Korea | $51,443 | 607 |\n| 5 | Germany | $40,169 | 455 |\n\n**What stands out:**\n- China, the US and Brazil are far ahead of everyone else. Together they bring in about $627K, more than 4 times the next two combined.\n- Below the top 3 the numbers bunch up. Germany is only about $760 ahead of France ($39,412, 6th), so 5th place could change depending on how revenue is defined.\n- Spend per order is about the same everywhere, roughly $83–88. The gaps between countries come from how many orders each places, not how much each order is worth.\n\n**How I calculated it:**\n- Revenue is the total sale price of items ordered in 2023, by the date the item was ordered. Tax, shipping and discounts aren't in this data.\n- I left out items with a status of Cancelled or Returned. Including them would make every number bigger and could change the order near the bottom.\n- Country is the customer's country from their user profile, not the shipping address.\n\n**How confident I am:** High for the ranking of the top 4, and only moderate for Germany at 5th because it's so close to France. This is a made-up demo dataset (\"thelook\"), so read these as illustrations, not real business results. \"Brasil\" is spelled the way the data spells it."
+  },
+  "run": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "prompt": "What was revenue by country in 2023? Top 5.",
+    "id": "run_muzfdzh9",
+    "startedAt": 1791457243101,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01HEKohynsaLafKTesUR7Cj6",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT u.country, ROUND(SUM(oi.sale_price),2) revenue, COUNT(DISTINCT oi.order_id) orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id=u.id\nWHERE oi.status NOT IN ('Cancelled','Returned')\nAND oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\nGROUP BY 1 ORDER BY revenue DESC LIMIT 6"
+        },
+        "startedAt": 1791457246823,
+        "output": "rows=6 bytesProcessed=9.0 MB sessionTotal=9.0 MB\ncountry,revenue,orders\nChina,300436.7,3489\nUnited States,194733.42,2333\nBrasil,132263.34,1513\nSouth Korea,51443.37,607\nGermany,40169.28,455\nFrance,39412.31,469",
+        "durationMs": 1683,
+        "outputChars": 208
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 635,
+          "outputTokens": 260,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 3470,
+        "at": 1791457248508
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 1007,
+          "outputTokens": 570,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 212,
+        "at": 1791457256089
+      }
+    ],
+    "events": [
+      {
+        "t": 3722,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01HEKohynsaLafKTesUR7Cj6",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT u.country, ROUND(SUM(oi.sale_price),2) revenue, COUNT(DISTINCT oi.order_id) orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id=u.id\nWHERE oi.status NOT IN ('Cancelled','Returned')\nAND oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\nGROUP BY 1 ORDER BY revenue DESC LIMIT 6"
+          },
+          "startedAt": 1791457246823
+        }
+      },
+      {
+        "t": 5405,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01HEKohynsaLafKTesUR7Cj6",
+          "name": "run_sql",
+          "output": "rows=6 bytesProcessed=9.0 MB sessionTotal=9.0 MB\ncountry,revenue,orders\nChina,300436.7,3489\nUnited States,194733.42,2333\nBrasil,132263.34,1513\nSouth Korea,51443.37,607\nGermany,40169.28,455\nFrance,39412.31,469",
+          "durationMs": 1683,
+          "outputChars": 208
+        }
+      },
+      {
+        "t": 5407,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 635,
+            "outputTokens": 260,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 3470
+        }
+      },
+      {
+        "t": 12777,
+        "type": "text-delta",
+        "data": "Here are the top 5 countries by 2023 revenue:\n\n| Rank | Country | Revenue | Orders |\n|---|---|---|---|\n| 1 | China | $300,437 | 3,489 |\n| 2 | United States | $194,733 | 2,333 |\n| 3 | Brasil | $132,263 | 1,513 |\n| 4 | South Korea | $51,443 | 607 |\n| 5 | Germany | $40,169 | 455 |\n\n**What stands out:**\n- China, the US and Brazil are far ahead of everyone else. Together they bring in about $627K, more than 4 times the next two combined.\n- Below the top 3 the numbers bunch up. Germany is only about $760 ahead of France ($39,412, 6th), so 5th place could change depending on how revenue is defined.\n- Spend per order is about the same everywhere, roughly $83–88. The gaps between countries come from how many orders each places, not how much each order is worth.\n\n**How I calculated it:**\n- Revenue is the total sale price of items ordered in 2023, by the date the item was ordered. Tax, shipping and discounts aren't in this data.\n- I left out items with a status of Cancelled or Returned. Including them would make every number bigger and could change the order near the bottom.\n- Country is the customer's country from their user profile, not the shipping address.\n\n**How confident I am:** High for the ranking of the top 4, and only moderate for Germany at 5th because it's so close to France. This is a made-up demo dataset (\"thelook\"), so read these as illustrations, not real business results. \"Brasil\" is spelled the way the data spells it."
+      },
+      {
+        "t": 12988,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 1007,
+            "outputTokens": 570,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 212
+        }
+      },
+      {
+        "t": 12989,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 1642,
+            "outputTokens": 830,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 12774
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 1642,
+        "outputTokens": 830,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 12989,
+      "toolMs": 1683,
+      "llmMs": 11306,
+      "outputChars": 208
+    },
+    "finalText": "Here are the top 5 countries by 2023 revenue:\n\n| Rank | Country | Revenue | Orders |\n|---|---|---|---|\n| 1 | China | $300,437 | 3,489 |\n| 2 | United States | $194,733 | 2,333 |\n| 3 | Brasil | $132,263 | 1,513 |\n| 4 | South Korea | $51,443 | 607 |\n| 5 | Germany | $40,169 | 455 |\n\n**What stands out:**\n- China, the US and Brazil are far ahead of everyone else. Together they bring in about $627K, more than 4 times the next two combined.\n- Below the top 3 the numbers bunch up. Germany is only about $760 ahead of France ($39,412, 6th), so 5th place could change depending on how revenue is defined.\n- Spend per order is about the same everywhere, roughly $83–88. The gaps between countries come from how many orders each places, not how much each order is worth.\n\n**How I calculated it:**\n- Revenue is the total sale price of items ordered in 2023, by the date the item was ordered. Tax, shipping and discounts aren't in this data.\n- I left out items with a status of Cancelled or Returned. Including them would make every number bigger and could change the order near the bottom.\n- Country is the customer's country from their user profile, not the shipping address.\n\n**How confident I am:** High for the ranking of the top 4, and only moderate for Germany at 5th because it's so close to France. This is a made-up demo dataset (\"thelook\"), so read these as illustrations, not real business results. \"Brasil\" is spelled the way the data spells it.",
+    "endedAt": 1791457256090
+  }
+}

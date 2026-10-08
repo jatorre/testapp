@@ -59,6 +59,10 @@ export interface UiMessage {
   runId?: string;
   /** User messages: attachment ids sent with the prompt. */
   attachments?: string[];
+  /** User messages: map annotation ids sent with the prompt (demo 10). */
+  annotations?: string[];
+  /** User messages: the text the model got when it differs from `text` (e.g. + annotation context). */
+  modelText?: string;
 }
 
 export function newRun(p: Pick<RunLog, 'demoId' | 'harnessId' | 'model' | 'prompt'>): RunLog {

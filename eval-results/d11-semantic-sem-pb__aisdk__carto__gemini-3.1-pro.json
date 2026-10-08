@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 7694,
+      "outputTokens": 921,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 15012,
+    "toolMs": 1699,
+    "llmMs": 13313,
+    "maxToolOutputChars": 213,
+    "files": [],
+    "charts": 0,
+    "answer": "In 2023, China and the United States were the clear leaders in net revenue, generating nearly half a million dollars combined. \n\n**Top 5 Countries by Net Revenue (2023):**\n1. **China**: $300,437\n2. **United States**: $194,733\n3. **Brazil**: $132,263\n4. **South Korea**: $51,443\n5. **Germany**: $40,169\n\n*Confidence & Caveats:* \n- **Confidence:** High. Calculated using actual item sale prices tied directly to the exact order timestamp (`order_items.created_at`). Spelling variations for Germany, Spain, and Brazil were normalized.\n- **Caveats:** Revenue reported is *net revenue* (excluding 'Cancelled' and 'Returned' items). Gross numbers would be slightly higher. Timeframes are in UTC."
+  },
+  "run": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "prompt": "What was revenue by country in 2023? Top 5.",
+    "id": "run_muzfftz4",
+    "startedAt": 1791457329280,
+    "status": "done",
+    "tools": [
+      {
+        "id": "call_4963443__thought__AY89a1/vMUVyl7b8Chn3qaXAg4rOC0k4m+bUEoJfHjFaWy6m+djXGAnusTjW8idnFajusPL/qRYlW+qn655VADpSNxyIB6cGlWjiMuBsGCa9xnB+jPHc/Y5nwbC//w86aARo8Bq8b4ICjB1WWEopVPlDTzFfJLFowaaRJA1Tiz6s0qnxSlala/H9VEHVOTz8TF/PzNlhtTo7aWM2Lg1rXiWXCxDXsTZ8bRThflyT/pp08MSygHXQoVtbQvIpyvrasFhNA4c1zS2ZtqnvuLrheTmoYK76tLc+S+QAQEU95S5feX8IXebmxX2hKPNedgrDIdD79k4krJkoGE8dp/3dlyDYgRYeTNxOB2THGnFQWWbv34jH/IjFUfSuxSCpOdgg8TAdbj8axXoxBEO+OUN287pKiyvaOlIHPXd8rrN2RcNLtzbg4rlEoK4R7zYlkpwB2mFChGpE5ruHbOrCds/Wxw9cKa9Hfx+qdRtVAdq0CHTKhoZOL0EEMzrD/aO2DNdVAc7HNo4lDveg/JPQgjlIh+xkeCbo9xN4McA3OrjFRutTZe90peQEMh31cbOGYbBINzaIfkoY+kpHF7gE30uxPh7N/ltirZS1RCF7JkQBUjNu2IhlsepM3JozcGFhHwNa4NwXfFBmSVc+llLOrlTyAaC73nI80XXreR0/pKuE0rbU16njvxWPLKmrMGv1yHKbatTu/+lueuYBGlECuaNqrsowFEVkiuVi42EpqIcdOqSBR4mtbFxCnSo3ypt7xzRGs24lFVZGn85WPf+N/PXsP12HUgmA2rBya5FygcBbgCJIP46JiwYhSPFiYb9/Pvwm9+4IVEzqtQ/eIOZWVEwquQ3MpuxpT+ahL1RM4QDMNtRwcntS7vsJ7BX9rlW5AvNsRU/JD8jN+aR1o/Hnhnb8HQcRYV0ACjDdhaSVnd6Iz0ofMcAbsET4+hkIA0JMEjA4YwScieP7auBB64fMbEomq74oeXGItJWBv2gHbv/ekdOirak9wXUEV585LjBHcDbk/Ak53798xElY910kxkbVdkqZJTYd7BM/0Kqsy7oCuQynKhab8EpiilK3D4diodeXBZJysVeHMInxkl5qxu318+3WQY3KrbjJuDtCkSIlhxMEv1TlxGKrPczrJjTWqUHG6u9Nv1TgCxRQolp+gEnGvHJcB3ieC/HFViH/8MB7xEJIQ90ZDzCeJLs0+DWMPEkUxE0sTlLypjQ0aJ3jeRYJE8e4rBmxq/DLD8J2qYigTa/e5Qt2bUroPcH/qCcbWr2NbOShNOcIdVxWueVCv+cXQEIRIdTeP4J6ooScpXhV14GJQLChObrx7gzJYSZ+WJoU+OcwiISzJclc43FTzcAT1K8hgmNNP9jkJ241AkuGP9WDl8oZbs2ZkpZ1BPXo29jafX/bPp4i+Nmc0IZhKHts9sgf2xeLanknpVya6/pnaYSyjjukibyhYw8SDd19/BCiqbR+5OjnUetNSAb5EZBv3yTJDFnVVCZu4bn1F2yhKxbKDLWtaAjBAiKguejRDcnhz3/1+gRWtA27v2ZabXWWBMr+D9FcnfAdXt7m3ZgzTw2+iQv8UzIo3/pBBLuXgon5zgcBEfuVGXuwOsERj+rfIgF7AYrPvhtXp5DlR7At/bT7KK30qBtLjQbcvG9sVaAl9SpqD8ELVOLnNZJ2/N41sLZTYimXW5/vVeWW3rDlwPvXboRJBSr8BMB01rnamcwwvyowxwoPB2fd1RTKMJ37f8JkZplQheEyowf6TgnhI4kJiZzPz3/GIhCxjaASpnFilHEfycqKwQoiaqZuUOrzO+2JQ7+f71VJsnRZNeuIfQ==",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT \n  CASE users.country \n    WHEN 'Deutschland' THEN 'Germany' \n    WHEN 'España' THEN 'Spain' \n    WHEN 'Brasil' THEN 'Brazil' \n    ELSE users.country \n  END AS country_clean,\n  SUM(order_items.sale_price) AS net_revenue\nFROM `bigquery-public-data.thelook_ecommerce.order_items` AS order_items\nJOIN `bigquery-public-data.thelook_ecommerce.users` AS users\n  ON order_items.user_id = users.id\nWHERE order_items.created_at >= '2023-01-01' \n  AND order_items.created_at < '2024-01-01'\n  AND order_items.status NOT IN ('Cancelled', 'Returned')\nGROUP BY 1\nORDER BY net_revenue DESC\nLIMIT 5"
+        },
+        "startedAt": 1791457338057,
+        "output": "rows=5 bytesProcessed=7.6 MB sessionTotal=7.6 MB\ncountry_clean,net_revenue\nChina,300436.70032405853\nUnited States,194733.4203377962\nBrazil,132263.3402070999\nSouth Korea,51443.37000846863\nGermany,40169.280004024506",
+        "durationMs": 1699,
+        "outputChars": 213
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 3494,
+          "outputTokens": 576,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1745,
+        "at": 1791457339758
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 4200,
+          "outputTokens": 345,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1646,
+        "at": 1791457344291
+      }
+    ],
+    "events": [
+      {
+        "t": 8777,
+        "type": "tool-call",
+        "data": {
+          "id": "call_4963443__thought__AY89a1/vMUVyl7b8Chn3qaXAg4rOC0k4m+bUEoJfHjFaWy6m+djXGAnusTjW8idnFajusPL/qRYlW+qn655VADpSNxyIB6cGlWjiMuBsGCa9xnB+jPHc/Y5nwbC//w86aARo8Bq8b4ICjB1WWEopVPlDTzFfJLFowaaRJA1Tiz6s0qnxSlala/H9VEHVOTz8TF/PzNlhtTo7aWM2Lg1rXiWXCxDXsTZ8bRThflyT/pp08MSygHXQoVtbQvIpyvrasFhNA4c1zS2ZtqnvuLrheTmoYK76tLc+S+QAQEU95S5feX8IXebmxX2hKPNedgrDIdD79k4krJkoGE8dp/3dlyDYgRYeTNxOB2THGnFQWWbv34jH/IjFUfSuxSCpOdgg8TAdbj8axXoxBEO+OUN287pKiyvaOlIHPXd8rrN2RcNLtzbg4rlEoK4R7zYlkpwB2mFChGpE5ruHbOrCds/Wxw9cKa9Hfx+qdRtVAdq0CHTKhoZOL0EEMzrD/aO2DNdVAc7HNo4lDveg/JPQgjlIh+xkeCbo9xN4McA3OrjFRutTZe90peQEMh31cbOGYbBINzaIfkoY+kpHF7gE30uxPh7N/ltirZS1RCF7JkQBUjNu2IhlsepM3JozcGFhHwNa4NwXfFBmSVc+llLOrlTyAaC73nI80XXreR0/pKuE0rbU16njvxWPLKmrMGv1yHKbatTu/+lueuYBGlECuaNqrsowFEVkiuVi42EpqIcdOqSBR4mtbFxCnSo3ypt7xzRGs24lFVZGn85WPf+N/PXsP12HUgmA2rBya5FygcBbgCJIP46JiwYhSPFiYb9/Pvwm9+4IVEzqtQ/eIOZWVEwquQ3MpuxpT+ahL1RM4QDMNtRwcntS7vsJ7BX9rlW5AvNsRU/JD8jN+aR1o/Hnhnb8HQcRYV0ACjDdhaSVnd6Iz0ofMcAbsET4+hkIA0JMEjA4YwScieP7auBB64fMbEomq74oeXGItJWBv2gHbv/ekdOirak9wXUEV585LjBHcDbk/Ak53798xElY910kxkbVdkqZJTYd7BM/0Kqsy7oCuQynKhab8EpiilK3D4diodeXBZJysVeHMInxkl5qxu318+3WQY3KrbjJuDtCkSIlhxMEv1TlxGKrPczrJjTWqUHG6u9Nv1TgCxRQolp+gEnGvHJcB3ieC/HFViH/8MB7xEJIQ90ZDzCeJLs0+DWMPEkUxE0sTlLypjQ0aJ3jeRYJE8e4rBmxq/DLD8J2qYigTa/e5Qt2bUroPcH/qCcbWr2NbOShNOcIdVxWueVCv+cXQEIRIdTeP4J6ooScpXhV14GJQLChObrx7gzJYSZ+WJoU+OcwiISzJclc43FTzcAT1K8hgmNNP9jkJ241AkuGP9WDl8oZbs2ZkpZ1BPXo29jafX/bPp4i+Nmc0IZhKHts9sgf2xeLanknpVya6/pnaYSyjjukibyhYw8SDd19/BCiqbR+5OjnUetNSAb5EZBv3yTJDFnVVCZu4bn1F2yhKxbKDLWtaAjBAiKguejRDcnhz3/1+gRWtA27v2ZabXWWBMr+D9FcnfAdXt7m3ZgzTw2+iQv8UzIo3/pBBLuXgon5zgcBEfuVGXuwOsERj+rfIgF7AYrPvhtXp5DlR7At/bT7KK30qBtLjQbcvG9sVaAl9SpqD8ELVOLnNZJ2/N41sLZTYimXW5/vVeWW3rDlwPvXboRJBSr8BMB01rnamcwwvyowxwoPB2fd1RTKMJ37f8JkZplQheEyowf6TgnhI4kJiZzPz3/GIhCxjaASpnFilHEfycqKwQoiaqZuUOrzO+2JQ7+f71VJsnRZNeuIfQ==",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT \n  CASE users.country \n    WHEN 'Deutschland' THEN 'Germany' \n    WHEN 'España' THEN 'Spain' \n    WHEN 'Brasil' THEN 'Brazil' \n    ELSE users.country \n  END AS country_clean,\n  SUM(order_items.sale_price) AS net_revenue\nFROM `bigquery-public-data.thelook_ecommerce.order_items` AS order_items\nJOIN `bigquery-public-data.thelook_ecommerce.users` AS users\n  ON order_items.user_id = users.id\nWHERE order_items.created_at >= '2023-01-01' \n  AND order_items.created_at < '2024-01-01'\n  AND order_items.status NOT IN ('Cancelled', 'Returned')\nGROUP BY 1\nORDER BY net_revenue DESC\nLIMIT 5"
+          },
+          "startedAt": 1791457338057
+        }
+      },
+      {
+        "t": 10476,
+        "type": "tool-result",
+        "data": {
+          "id": "call_4963443__thought__AY89a1/vMUVyl7b8Chn3qaXAg4rOC0k4m+bUEoJfHjFaWy6m+djXGAnusTjW8idnFajusPL/qRYlW+qn655VADpSNxyIB6cGlWjiMuBsGCa9xnB+jPHc/Y5nwbC//w86aARo8Bq8b4ICjB1WWEopVPlDTzFfJLFowaaRJA1Tiz6s0qnxSlala/H9VEHVOTz8TF/PzNlhtTo7aWM2Lg1rXiWXCxDXsTZ8bRThflyT/pp08MSygHXQoVtbQvIpyvrasFhNA4c1zS2ZtqnvuLrheTmoYK76tLc+S+QAQEU95S5feX8IXebmxX2hKPNedgrDIdD79k4krJkoGE8dp/3dlyDYgRYeTNxOB2THGnFQWWbv34jH/IjFUfSuxSCpOdgg8TAdbj8axXoxBEO+OUN287pKiyvaOlIHPXd8rrN2RcNLtzbg4rlEoK4R7zYlkpwB2mFChGpE5ruHbOrCds/Wxw9cKa9Hfx+qdRtVAdq0CHTKhoZOL0EEMzrD/aO2DNdVAc7HNo4lDveg/JPQgjlIh+xkeCbo9xN4McA3OrjFRutTZe90peQEMh31cbOGYbBINzaIfkoY+kpHF7gE30uxPh7N/ltirZS1RCF7JkQBUjNu2IhlsepM3JozcGFhHwNa4NwXfFBmSVc+llLOrlTyAaC73nI80XXreR0/pKuE0rbU16njvxWPLKmrMGv1yHKbatTu/+lueuYBGlECuaNqrsowFEVkiuVi42EpqIcdOqSBR4mtbFxCnSo3ypt7xzRGs24lFVZGn85WPf+N/PXsP12HUgmA2rBya5FygcBbgCJIP46JiwYhSPFiYb9/Pvwm9+4IVEzqtQ/eIOZWVEwquQ3MpuxpT+ahL1RM4QDMNtRwcntS7vsJ7BX9rlW5AvNsRU/JD8jN+aR1o/Hnhnb8HQcRYV0ACjDdhaSVnd6Iz0ofMcAbsET4+hkIA0JMEjA4YwScieP7auBB64fMbEomq74oeXGItJWBv2gHbv/ekdOirak9wXUEV585LjBHcDbk/Ak53798xElY910kxkbVdkqZJTYd7BM/0Kqsy7oCuQynKhab8EpiilK3D4diodeXBZJysVeHMInxkl5qxu318+3WQY3KrbjJuDtCkSIlhxMEv1TlxGKrPczrJjTWqUHG6u9Nv1TgCxRQolp+gEnGvHJcB3ieC/HFViH/8MB7xEJIQ90ZDzCeJLs0+DWMPEkUxE0sTlLypjQ0aJ3jeRYJE8e4rBmxq/DLD8J2qYigTa/e5Qt2bUroPcH/qCcbWr2NbOShNOcIdVxWueVCv+cXQEIRIdTeP4J6ooScpXhV14GJQLChObrx7gzJYSZ+WJoU+OcwiISzJclc43FTzcAT1K8hgmNNP9jkJ241AkuGP9WDl8oZbs2ZkpZ1BPXo29jafX/bPp4i+Nmc0IZhKHts9sgf2xeLanknpVya6/pnaYSyjjukibyhYw8SDd19/BCiqbR+5OjnUetNSAb5EZBv3yTJDFnVVCZu4bn1F2yhKxbKDLWtaAjBAiKguejRDcnhz3/1+gRWtA27v2ZabXWWBMr+D9FcnfAdXt7m3ZgzTw2+iQv8UzIo3/pBBLuXgon5zgcBEfuVGXuwOsERj+rfIgF7AYrPvhtXp5DlR7At/bT7KK30qBtLjQbcvG9sVaAl9SpqD8ELVOLnNZJ2/N41sLZTYimXW5/vVeWW3rDlwPvXboRJBSr8BMB01rnamcwwvyowxwoPB2fd1RTKMJ37f8JkZplQheEyowf6TgnhI4kJiZzPz3/GIhCxjaASpnFilHEfycqKwQoiaqZuUOrzO+2JQ7+f71VJsnRZNeuIfQ==",
+          "name": "run_sql",
+          "output": "rows=5 bytesProcessed=7.6 MB sessionTotal=7.6 MB\ncountry_clean,net_revenue\nChina,300436.70032405853\nUnited States,194733.4203377962\nBrazil,132263.3402070999\nSouth Korea,51443.37000846863\nGermany,40169.280004024506",
+          "durationMs": 1699,
+          "outputChars": 213
+        }
+      },
+      {
+        "t": 10478,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 3494,
+            "outputTokens": 576,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1745
+        }
+      },
+      {
+        "t": 13365,
+        "type": "text-delta",
+        "data": "In 2023, China and the United States were the clear leaders in net revenue, generating nearly half a million dollars combined. \n\n**Top 5 Countries by Net Revenue (2023):**\n1. **China**: $300,437\n2. **United States**: $194,733\n3. **Brazil**: $132,263\n4. **South Korea**: $51,443\n5. **Germany**: $40,169\n\n*Confidence & Caveats:* \n- **Confidence:** High. Calculated using actual item sale prices tied directly to the exact order timestamp (`order_items.created_at`). Spelling variations for Germany, Spain, and Brazil were normalized.\n- **Caveats:** Revenue reported is *net revenue* (excluding 'Cancelled' and 'Returned' items). Gross numbers would be slightly higher. Timeframes are in UTC."
+      },
+      {
+        "t": 15011,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 4200,
+            "outputTokens": 345,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1646
+        }
+      },
+      {
+        "t": 15012,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 7694,
+            "outputTokens": 921,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 12555
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 7694,
+        "outputTokens": 921,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 15012,
+      "toolMs": 1699,
+      "llmMs": 13313,
+      "outputChars": 213
+    },
+    "finalText": "In 2023, China and the United States were the clear leaders in net revenue, generating nearly half a million dollars combined. \n\n**Top 5 Countries by Net Revenue (2023):**\n1. **China**: $300,437\n2. **United States**: $194,733\n3. **Brazil**: $132,263\n4. **South Korea**: $51,443\n5. **Germany**: $40,169\n\n*Confidence & Caveats:* \n- **Confidence:** High. Calculated using actual item sale prices tied directly to the exact order timestamp (`order_items.created_at`). Spelling variations for Germany, Spain, and Brazil were normalized.\n- **Caveats:** Revenue reported is *net revenue* (excluding 'Cancelled' and 'Returned' items). Gross numbers would be slightly higher. Timeframes are in UTC.",
+    "endedAt": 1791457344292
+  }
+}

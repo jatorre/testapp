@@ -1,0 +1,560 @@
+{
+ "connection": "carto_dw",
+ "entries": {
+  "bigquery-public-data.geo_us_boundaries.counties": {
+   "table": "bigquery-public-data.geo_us_boundaries.counties",
+   "rows": 3233,
+   "bytes": 191293967,
+   "columns": [
+    {
+     "name": "geo_id",
+     "type": "STRING"
+    },
+    {
+     "name": "state_fips_code",
+     "type": "STRING"
+    },
+    {
+     "name": "county_fips_code",
+     "type": "STRING"
+    },
+    {
+     "name": "county_gnis_code",
+     "type": "STRING"
+    },
+    {
+     "name": "county_name",
+     "type": "STRING"
+    },
+    {
+     "name": "lsad_name",
+     "type": "STRING"
+    },
+    {
+     "name": "lsad_code",
+     "type": "STRING"
+    },
+    {
+     "name": "fips_class_code",
+     "type": "STRING"
+    },
+    {
+     "name": "mtfcc_feature_class_code",
+     "type": "STRING"
+    },
+    {
+     "name": "csa_fips_code",
+     "type": "STRING"
+    },
+    {
+     "name": "cbsa_fips_code",
+     "type": "STRING"
+    },
+    {
+     "name": "met_div_fips_code",
+     "type": "STRING"
+    },
+    {
+     "name": "functional_status",
+     "type": "STRING"
+    },
+    {
+     "name": "area_land_meters",
+     "type": "INTEGER"
+    },
+    {
+     "name": "area_water_meters",
+     "type": "INTEGER"
+    },
+    {
+     "name": "int_point_lat",
+     "type": "FLOAT"
+    },
+    {
+     "name": "int_point_lon",
+     "type": "FLOAT"
+    },
+    {
+     "name": "int_point_geom",
+     "type": "GEOGRAPHY"
+    },
+    {
+     "name": "county_geom",
+     "type": "GEOGRAPHY"
+    }
+   ],
+   "geomField": "int_point_geom",
+   "lastModified": 1590690932279,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.geo_us_boundaries.states": {
+   "table": "bigquery-public-data.geo_us_boundaries.states",
+   "rows": 56,
+   "bytes": 22298343,
+   "columns": [
+    {
+     "name": "geo_id",
+     "type": "STRING"
+    },
+    {
+     "name": "region_code",
+     "type": "STRING"
+    },
+    {
+     "name": "division_code",
+     "type": "STRING"
+    },
+    {
+     "name": "state_fips_code",
+     "type": "STRING"
+    },
+    {
+     "name": "state_gnis_code",
+     "type": "STRING"
+    },
+    {
+     "name": "state",
+     "type": "STRING"
+    },
+    {
+     "name": "state_name",
+     "type": "STRING"
+    },
+    {
+     "name": "lsad_code",
+     "type": "STRING"
+    },
+    {
+     "name": "mtfcc_feature_class_code",
+     "type": "STRING"
+    },
+    {
+     "name": "functional_status",
+     "type": "STRING"
+    },
+    {
+     "name": "area_land_meters",
+     "type": "INTEGER"
+    },
+    {
+     "name": "area_water_meters",
+     "type": "INTEGER"
+    },
+    {
+     "name": "int_point_lat",
+     "type": "FLOAT"
+    },
+    {
+     "name": "int_point_lon",
+     "type": "FLOAT"
+    },
+    {
+     "name": "int_point_geom",
+     "type": "GEOGRAPHY"
+    },
+    {
+     "name": "state_geom",
+     "type": "GEOGRAPHY"
+    }
+   ],
+   "geomField": "int_point_geom",
+   "lastModified": 1574269541695,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.thelook_ecommerce.distribution_centers": {
+   "table": "bigquery-public-data.thelook_ecommerce.distribution_centers",
+   "rows": 10,
+   "bytes": 809,
+   "columns": [
+    {
+     "name": "id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "name",
+     "type": "STRING"
+    },
+    {
+     "name": "latitude",
+     "type": "FLOAT"
+    },
+    {
+     "name": "longitude",
+     "type": "FLOAT"
+    },
+    {
+     "name": "distribution_center_geom",
+     "type": "GEOGRAPHY"
+    }
+   ],
+   "geomField": "distribution_center_geom",
+   "lastModified": 1791427889329,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.thelook_ecommerce.events": {
+   "table": "bigquery-public-data.thelook_ecommerce.events",
+   "rows": 2425817,
+   "bytes": 385219764,
+   "columns": [
+    {
+     "name": "id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "user_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "sequence_number",
+     "type": "INTEGER"
+    },
+    {
+     "name": "session_id",
+     "type": "STRING"
+    },
+    {
+     "name": "created_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "ip_address",
+     "type": "STRING"
+    },
+    {
+     "name": "city",
+     "type": "STRING"
+    },
+    {
+     "name": "state",
+     "type": "STRING"
+    },
+    {
+     "name": "postal_code",
+     "type": "STRING"
+    },
+    {
+     "name": "browser",
+     "type": "STRING"
+    },
+    {
+     "name": "traffic_source",
+     "type": "STRING"
+    },
+    {
+     "name": "uri",
+     "type": "STRING"
+    },
+    {
+     "name": "event_type",
+     "type": "STRING"
+    }
+   ],
+   "geomField": null,
+   "lastModified": 1791427866399,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.thelook_ecommerce.inventory_items": {
+   "table": "bigquery-public-data.thelook_ecommerce.inventory_items",
+   "rows": 488851,
+   "bytes": 81062534,
+   "columns": [
+    {
+     "name": "id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "product_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "created_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "sold_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "cost",
+     "type": "FLOAT"
+    },
+    {
+     "name": "product_category",
+     "type": "STRING"
+    },
+    {
+     "name": "product_name",
+     "type": "STRING"
+    },
+    {
+     "name": "product_brand",
+     "type": "STRING"
+    },
+    {
+     "name": "product_retail_price",
+     "type": "FLOAT"
+    },
+    {
+     "name": "product_department",
+     "type": "STRING"
+    },
+    {
+     "name": "product_sku",
+     "type": "STRING"
+    },
+    {
+     "name": "product_distribution_center_id",
+     "type": "INTEGER"
+    }
+   ],
+   "geomField": null,
+   "lastModified": 1791427862380,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.thelook_ecommerce.order_items": {
+   "table": "bigquery-public-data.thelook_ecommerce.order_items",
+   "rows": 181162,
+   "bytes": 13596416,
+   "columns": [
+    {
+     "name": "id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "order_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "user_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "product_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "inventory_item_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "status",
+     "type": "STRING"
+    },
+    {
+     "name": "created_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "shipped_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "delivered_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "returned_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "sale_price",
+     "type": "FLOAT"
+    }
+   ],
+   "geomField": null,
+   "lastModified": 1791427859229,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.thelook_ecommerce.orders": {
+   "table": "bigquery-public-data.thelook_ecommerce.orders",
+   "rows": 124987,
+   "bytes": 6755215,
+   "columns": [
+    {
+     "name": "order_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "user_id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "status",
+     "type": "STRING"
+    },
+    {
+     "name": "gender",
+     "type": "STRING"
+    },
+    {
+     "name": "created_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "returned_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "shipped_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "delivered_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "num_of_item",
+     "type": "INTEGER"
+    }
+   ],
+   "geomField": null,
+   "lastModified": 1791427860446,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.thelook_ecommerce.products": {
+   "table": "bigquery-public-data.thelook_ecommerce.products",
+   "rows": 29120,
+   "bytes": 4285975,
+   "columns": [
+    {
+     "name": "id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "cost",
+     "type": "FLOAT"
+    },
+    {
+     "name": "category",
+     "type": "STRING"
+    },
+    {
+     "name": "name",
+     "type": "STRING"
+    },
+    {
+     "name": "brand",
+     "type": "STRING"
+    },
+    {
+     "name": "retail_price",
+     "type": "FLOAT"
+    },
+    {
+     "name": "department",
+     "type": "STRING"
+    },
+    {
+     "name": "sku",
+     "type": "STRING"
+    },
+    {
+     "name": "distribution_center_id",
+     "type": "INTEGER"
+    }
+   ],
+   "geomField": null,
+   "lastModified": 1791427858933,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  },
+  "bigquery-public-data.thelook_ecommerce.users": {
+   "table": "bigquery-public-data.thelook_ecommerce.users",
+   "rows": 100000,
+   "bytes": 19815483,
+   "columns": [
+    {
+     "name": "id",
+     "type": "INTEGER"
+    },
+    {
+     "name": "first_name",
+     "type": "STRING"
+    },
+    {
+     "name": "last_name",
+     "type": "STRING"
+    },
+    {
+     "name": "email",
+     "type": "STRING"
+    },
+    {
+     "name": "age",
+     "type": "INTEGER"
+    },
+    {
+     "name": "gender",
+     "type": "STRING"
+    },
+    {
+     "name": "state",
+     "type": "STRING"
+    },
+    {
+     "name": "street_address",
+     "type": "STRING"
+    },
+    {
+     "name": "postal_code",
+     "type": "STRING"
+    },
+    {
+     "name": "city",
+     "type": "STRING"
+    },
+    {
+     "name": "country",
+     "type": "STRING"
+    },
+    {
+     "name": "latitude",
+     "type": "FLOAT"
+    },
+    {
+     "name": "longitude",
+     "type": "FLOAT"
+    },
+    {
+     "name": "traffic_source",
+     "type": "STRING"
+    },
+    {
+     "name": "created_at",
+     "type": "TIMESTAMP"
+    },
+    {
+     "name": "user_geom",
+     "type": "GEOGRAPHY"
+    }
+   ],
+   "geomField": "user_geom",
+   "lastModified": 1791427881391,
+   "via": "connections-api",
+   "fetchedAt": 1791460000000,
+   "version": "2026-10-08.1"
+  }
+ },
+ "stats": {
+  "fromMemory": 0,
+  "fromStorage": 0,
+  "fetched": 9,
+  "failed": 0,
+  "ms": 0
+ }
+}

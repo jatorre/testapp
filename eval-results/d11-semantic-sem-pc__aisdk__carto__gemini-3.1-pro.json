@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 8295,
+      "outputTokens": 1392,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 16368,
+    "toolMs": 1585,
+    "llmMs": 14783,
+    "maxToolOutputChars": 427,
+    "files": [],
+    "charts": 0,
+    "answer": "In 2023, the **Houston TX** distribution center shipped the most net revenue to customers outside its own country (i.e., outside the United States). \n\n**Top Distribution Centers (International Net Revenue in 2023):**\n1. **Houston TX:** $108,279\n2. **Memphis TN:** $86,918\n3. **Chicago IL:** $86,295\n\n*Note: These figures reflect net revenue (excluding cancelled and returned items) based on the date the item was ordered. Since all 10 distribution centers are located in the United States, \"outside its own country\" corresponds to orders shipped to customers with a country other than the US.*"
+  },
+  "run": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "prompt": "Which distribution center ships the most revenue to customers outside its own country in 2023?",
+    "id": "run_muzfkh3e",
+    "startedAt": 1791457545866,
+    "status": "done",
+    "tools": [
+      {
+        "id": "call_4899035__thought__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",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT\n  dc.name AS distribution_center_name,\n  SUM(oi.sale_price) AS net_revenue\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id = u.id\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON p.distribution_center_id = dc.id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\n  AND oi.status NOT IN ('Cancelled', 'Returned')\n  AND u.country != 'United States'\nGROUP BY dc.name\nORDER BY net_revenue DESC;"
+        },
+        "startedAt": 1791457556103,
+        "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=9.5 MB\ndistribution_center_name,net_revenue\nHouston TX,108278.96009135246\nMemphis TN,86917.66015100479\nChicago IL,86294.63002872467\nMobile AL,79846.55014801025\nPhiladelphia PA,66380.75009012222\nLos Angeles CA,61762.50015544891\nPort Authority of New York/New Jersey NY/NJ,61111.00998258591\nNew Orleans LA,50069.470155239105\nSavannah GA,49807.43994688988\nCharleston SC,43160.83997154236",
+        "durationMs": 1585,
+        "outputChars": 427
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 3498,
+          "outputTokens": 1044,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1657,
+        "at": 1791457557690
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 4797,
+          "outputTokens": 348,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1211,
+        "at": 1791457562232
+      }
+    ],
+    "events": [
+      {
+        "t": 10237,
+        "type": "tool-call",
+        "data": {
+          "id": "call_4899035__thought__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",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT\n  dc.name AS distribution_center_name,\n  SUM(oi.sale_price) AS net_revenue\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id = u.id\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON p.distribution_center_id = dc.id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\n  AND oi.status NOT IN ('Cancelled', 'Returned')\n  AND u.country != 'United States'\nGROUP BY dc.name\nORDER BY net_revenue DESC;"
+          },
+          "startedAt": 1791457556103
+        }
+      },
+      {
+        "t": 11822,
+        "type": "tool-result",
+        "data": {
+          "id": "call_4899035__thought__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",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=9.5 MB\ndistribution_center_name,net_revenue\nHouston TX,108278.96009135246\nMemphis TN,86917.66015100479\nChicago IL,86294.63002872467\nMobile AL,79846.55014801025\nPhiladelphia PA,66380.75009012222\nLos Angeles CA,61762.50015544891\nPort Authority of New York/New Jersey NY/NJ,61111.00998258591\nNew Orleans LA,50069.470155239105\nSavannah GA,49807.43994688988\nCharleston SC,43160.83997154236",
+          "durationMs": 1585,
+          "outputChars": 427
+        }
+      },
+      {
+        "t": 11824,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 3498,
+            "outputTokens": 1044,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1657
+        }
+      },
+      {
+        "t": 15155,
+        "type": "text-delta",
+        "data": "In 2023, the **Houston TX** distribution center shipped the most net revenue to customers outside its own country (i.e., outside the United States). \n\n**Top Distribution Centers (International Net Revenue in 2023):**\n1. **Houston TX:** $108,279\n2. **Memphis TN:** $86,918\n3. **Chicago IL:** $86,295\n\n*Note: These figures reflect net revenue (excluding cancelled and returned items) based on the date the item was ordered. Since all 10 distribution centers are located in the United States, \"outside its own country\" corresponds to orders shipped to customers with a country other than the US.*"
+      },
+      {
+        "t": 16366,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 4797,
+            "outputTokens": 348,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1211
+        }
+      },
+      {
+        "t": 16368,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 8295,
+            "outputTokens": 1392,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 15007
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 8295,
+        "outputTokens": 1392,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 16368,
+      "toolMs": 1585,
+      "llmMs": 14783,
+      "outputChars": 427
+    },
+    "finalText": "In 2023, the **Houston TX** distribution center shipped the most net revenue to customers outside its own country (i.e., outside the United States). \n\n**Top Distribution Centers (International Net Revenue in 2023):**\n1. **Houston TX:** $108,279\n2. **Memphis TN:** $86,918\n3. **Chicago IL:** $86,295\n\n*Note: These figures reflect net revenue (excluding cancelled and returned items) based on the date the item was ordered. Since all 10 distribution centers are located in the United States, \"outside its own country\" corresponds to orders shipped to customers with a country other than the US.*",
+    "endedAt": 1791457562234
+  }
+}

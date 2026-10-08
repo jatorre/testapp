@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-sonnet-5",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 1768,
+      "outputTokens": 1056,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 15286,
+    "toolMs": 1877,
+    "llmMs": 13409,
+    "maxToolOutputChars": 188,
+    "files": [],
+    "charts": 0,
+    "answer": "## 2023 Revenue by Country — Top 5\n\n| Rank | Country | Revenue | Orders |\n|------|---------|---------|--------|\n| 1 | China | $300,436.70 | 3,489 |\n| 2 | United States | $194,733.42 | 2,333 |\n| 3 | Brasil | $132,263.34 | 1,513 |\n| 4 | South Korea | $51,443.37 | 607 |\n| 5 | Germany | $40,169.28 | 455 |\n\n**What happened:** China was the top revenue generator in 2023, contributing ~$300K — roughly 54% more than the #2 market, the United States ($195K). Together, China, the US, and Brazil account for the vast majority of top-5 revenue, with a steep drop-off to South Korea and Germany (~4th and 5th place, each under $52K).\n\n**Top drivers:**\n- **China's lead** is driven by both higher order volume (3,489 orders) and strong average order value (~$86/order).\n- **US** has a similar average order value (~$83/order) but fewer orders, suggesting comparable customer spending behavior but smaller order volume in this dataset.\n- **Brazil** rounds out the top 3 with ~1,513 orders at ~$87/order — consistent average order value across the top three countries.\n\n**Confidence:** High for the relative ranking and order-of-magnitude figures, based on direct aggregation of `order_items` joined to `users` by country, filtered to exclude cancelled/returned items.\n\n**Caveats:**\n- Revenue is based on `sale_price` from `order_items`; this is a synthetic/demo dataset (thelook_ecommerce), not real sales data — absolute dollar figures are illustrative, not production-scale.\n- Country is attributed via user's registered country, not necessarily shipping destination.\n- Excluded \"Cancelled\" and \"Returned\" line items; including them would change totals slightly.\n- Did not currency-adjust (assumes all `sale_price` values are in consistent units, likely USD)."
+  },
+  "run": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-sonnet-5",
+    "prompt": "What was revenue by country in 2023? Top 5.",
+    "id": "run_muzfer7w",
+    "startedAt": 1791457279052,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_012LJQ2Hi8zGmzHcigxBnN81",
+        "name": "run_sql",
+        "input": {
+          "sql": "\nSELECT u.country, ROUND(SUM(oi.sale_price),2) AS revenue, COUNT(DISTINCT oi.order_id) AS orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status NOT IN ('Cancelled','Returned')\nGROUP BY u.country\nORDER BY revenue DESC\nLIMIT 5\n"
+        },
+        "startedAt": 1791457284013,
+        "output": "rows=5 bytesProcessed=9.0 MB sessionTotal=9.0 MB\ncountry,revenue,orders\nChina,300436.7,3489\nUnited States,194733.42,2333\nBrasil,132263.34,1513\nSouth Korea,51443.37,607\nGermany,40169.28,455",
+        "durationMs": 1877,
+        "outputChars": 188
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 701,
+          "outputTokens": 389,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 3638,
+        "at": 1791457285892
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 1067,
+          "outputTokens": 667,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 6729,
+        "at": 1791457294336
+      }
+    ],
+    "events": [
+      {
+        "t": 4961,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_012LJQ2Hi8zGmzHcigxBnN81",
+          "name": "run_sql",
+          "input": {
+            "sql": "\nSELECT u.country, ROUND(SUM(oi.sale_price),2) AS revenue, COUNT(DISTINCT oi.order_id) AS orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status NOT IN ('Cancelled','Returned')\nGROUP BY u.country\nORDER BY revenue DESC\nLIMIT 5\n"
+          },
+          "startedAt": 1791457284013
+        }
+      },
+      {
+        "t": 6838,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_012LJQ2Hi8zGmzHcigxBnN81",
+          "name": "run_sql",
+          "output": "rows=5 bytesProcessed=9.0 MB sessionTotal=9.0 MB\ncountry,revenue,orders\nChina,300436.7,3489\nUnited States,194733.42,2333\nBrasil,132263.34,1513\nSouth Korea,51443.37,607\nGermany,40169.28,455",
+          "durationMs": 1877,
+          "outputChars": 188
+        }
+      },
+      {
+        "t": 6840,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 701,
+            "outputTokens": 389,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 3638
+        }
+      },
+      {
+        "t": 8555,
+        "type": "text-delta",
+        "data": "## 2023 Revenue by Country — Top 5\n\n| Rank | Country | Revenue | Orders |\n|------|---------|---------|--------|\n| 1 | China | $300,436.70 | 3,489 |\n| 2 | United States | $194,733.42 | 2,333 |\n| 3 | Brasil | $132,263.34 | 1,513 |\n| 4 | South Korea | $51,443.37 | 607 |\n| 5 | Germany | $40,169.28 | 455 |\n\n**What happened:** China was the top revenue generator in 2023, contributing ~$300K — roughly 54% more than the #2 market, the United States ($195K). Together, China, the US, and Brazil account for the vast majority of top-5 revenue, with a steep drop-off to South Korea and Germany (~4th and 5th place, each under $52K).\n\n**Top drivers:**\n- **China's lead** is driven by both higher order volume (3,489 orders) and strong average order value (~$86/order).\n- **US** has a similar average order value (~$83/order) but fewer orders, suggesting comparable customer spending behavior but smaller order volume in this dataset.\n- **Brazil** rounds out the top 3 with ~1,513 orders at ~$87/order — consistent average order value across the top three countries.\n\n**Confidence:** High for the relative ranking and order-of-magnitude figures, based on direct aggregation of `order_items` joined to `users` by country, filtered to exclude cancelled/returned items.\n\n**Caveats:**\n- Revenue is based on `sale_price` from `order_items`; this is a synthetic/demo dataset (thelook_ecommerce), not real sales data — absolute dollar figures are illustrative, not production-scale.\n- Country is attributed via user's registered country, not necessarily shipping destination.\n- Excluded \"Cancelled\" and \"Returned\" line items; including them would change totals slightly.\n- Did not currency-adjust (assumes all `sale_price` values are in consistent units, likely USD)."
+      },
+      {
+        "t": 15284,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 1067,
+            "outputTokens": 667,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 6729
+        }
+      },
+      {
+        "t": 15286,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 1768,
+            "outputTokens": 1056,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 15138
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 1768,
+        "outputTokens": 1056,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 15286,
+      "toolMs": 1877,
+      "llmMs": 13409,
+      "outputChars": 188
+    },
+    "finalText": "## 2023 Revenue by Country — Top 5\n\n| Rank | Country | Revenue | Orders |\n|------|---------|---------|--------|\n| 1 | China | $300,436.70 | 3,489 |\n| 2 | United States | $194,733.42 | 2,333 |\n| 3 | Brasil | $132,263.34 | 1,513 |\n| 4 | South Korea | $51,443.37 | 607 |\n| 5 | Germany | $40,169.28 | 455 |\n\n**What happened:** China was the top revenue generator in 2023, contributing ~$300K — roughly 54% more than the #2 market, the United States ($195K). Together, China, the US, and Brazil account for the vast majority of top-5 revenue, with a steep drop-off to South Korea and Germany (~4th and 5th place, each under $52K).\n\n**Top drivers:**\n- **China's lead** is driven by both higher order volume (3,489 orders) and strong average order value (~$86/order).\n- **US** has a similar average order value (~$83/order) but fewer orders, suggesting comparable customer spending behavior but smaller order volume in this dataset.\n- **Brazil** rounds out the top 3 with ~1,513 orders at ~$87/order — consistent average order value across the top three countries.\n\n**Confidence:** High for the relative ranking and order-of-magnitude figures, based on direct aggregation of `order_items` joined to `users` by country, filtered to exclude cancelled/returned items.\n\n**Caveats:**\n- Revenue is based on `sale_price` from `order_items`; this is a synthetic/demo dataset (thelook_ecommerce), not real sales data — absolute dollar figures are illustrative, not production-scale.\n- Country is attributed via user's registered country, not necessarily shipping destination.\n- Excluded \"Cancelled\" and \"Returned\" line items; including them would change totals slightly.\n- Did not currency-adjust (assumes all `sale_price` values are in consistent units, likely USD).",
+    "endedAt": 1791457294338
+  }
+}

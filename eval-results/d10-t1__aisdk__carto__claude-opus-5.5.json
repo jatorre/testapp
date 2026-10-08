@@ -1,0 +1,70 @@
+{
+  "summary": {
+    "task": "t1",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "status": "error",
+    "error": "litellm.BadRequestError: Vertex_aiException BadRequestError - b'{\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"tools.6.custom.input_schema: JSON schema is invalid. It must match JSON Schema draft 2020-12 (https://json-schema.org/draft/2020-12). Learn more about tool use at https:",
+    "steps": 0,
+    "toolCalls": 0,
+    "toolErrors": 0,
+    "toolCounts": {},
+    "usage": {
+      "inputTokens": 0,
+      "outputTokens": 0,
+      "cachedInputTokens": 0
+    },
+    "stepInput": [],
+    "wallMs": 2050,
+    "toolMs": 0,
+    "llmMs": 2050,
+    "screenshots": [],
+    "layers": [],
+    "grade": {
+      "screenshots": 0,
+      "cartoLayers": 0,
+      "geojsonLayers": 0,
+      "styles": 0,
+      "annotates": 0,
+      "sql": 0,
+      "regions": [],
+      "correct": false
+    }
+  },
+  "run": {
+    "demoId": "d10-map",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "prompt": "Show me where thelook customers are in the US and explain the spatial pattern.",
+    "id": "run_muzfpfb6",
+    "startedAt": 1791457776834,
+    "status": "error",
+    "tools": [],
+    "steps": [],
+    "events": [
+      {
+        "t": 2049,
+        "type": "error",
+        "data": {
+          "message": "litellm.BadRequestError: Vertex_aiException BadRequestError - b'{\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"tools.6.custom.input_schema: JSON schema is invalid. It must match JSON Schema draft 2020-12 (https://json-schema.org/draft/2020-12). Learn more about tool use at https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview.\"},\"request_id\":\"req_vrtx_011CfpfcHbayHYLoGX3E1jmf\"}'. Received Model Group=carto::claude-opus-5.5\nAvailable Model Group Fallbacks=None"
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 0,
+        "outputTokens": 0,
+        "cachedInputTokens": 0
+      },
+      "steps": 0,
+      "toolCalls": 0,
+      "toolErrors": 0,
+      "wallMs": 2050,
+      "toolMs": 0,
+      "llmMs": 2050,
+      "outputChars": 0
+    },
+    "error": "litellm.BadRequestError: Vertex_aiException BadRequestError - b'{\"type\":\"error\",\"error\":{\"type\":\"invalid_request_error\",\"message\":\"tools.6.custom.input_schema: JSON schema is invalid. It must match JSON Schema draft 2020-12 (https://json-schema.org/draft/2020-12). Learn more about tool use at https://platform.claude.com/docs/en/agents-and-tools/tool-use/overview.\"},\"request_id\":\"req_vrtx_011CfpfcHbayHYLoGX3E1jmf\"}'. Received Model Group=carto::claude-opus-5.5\nAvailable Model Group Fallbacks=None",
+    "endedAt": 1791457778884
+  }
+}

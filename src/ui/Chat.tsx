@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { captureLatest } from '../attachments/capture';
 import { addFile, addImage, getAttachment, type Attachment } from '../attachments/store';
 import { ChartView } from './ChartView';
@@ -80,6 +80,8 @@ export interface ChatProps {
   onStop: () => void;
   onClear: () => void;
   blurb: string;
+  /** Extra controls above the input (e.g. the map demo's annotation chips). */
+  composerExtra?: ReactNode;
 }
 
 export function Chat(p: ChatProps) {
@@ -143,6 +145,9 @@ export function Chat(p: ChatProps) {
                 {!!m.attachments?.length && (
                   <div className="att-chips">{m.attachments.map((id) => <AttachmentChip key={id} id={id} />)}</div>
                 )}
+                {!!m.annotations?.length && (
+                  <div className="att-chips">{m.annotations.map((id) => <span key={id} className="att-chip" data-testid="msg-annotation"><span className="ann-id user">{id}</span></span>)}</div>
+                )}
                 {m.text}
               </div>
             ) : (
@@ -174,6 +179,7 @@ export function Chat(p: ChatProps) {
             </button>
           ))}
         </div>
+        {p.composerExtra}
         {(pending.length > 0 || attachError) && (
           <div className="att-chips">
             {pending.map((id) => <AttachmentChip key={id} id={id} onRemove={() => setPending((ids) => ids.filter((x) => x !== id))} />)}

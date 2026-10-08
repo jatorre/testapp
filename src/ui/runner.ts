@@ -80,10 +80,14 @@ export async function executeRun(o: ExecuteRunOptions): Promise<RunLog> {
     o.onRun?.(run);
   };
   try {
-    const [llm, { tools }] = await Promise.all([resolveLlm(o.model), loadDemoTools(o.demo)]);
+    const [llm, { tools }, semantic] = await Promise.all([
+      resolveLlm(o.model),
+      loadDemoTools(o.demo),
+      o.demo.semantic ? import('../semantic').then((m) => m.semanticPromptFor(o.demo.semantic!, o.signal)) : '',
+    ]);
     const text = await getHarness(o.harnessId).run({
       llm,
-      system: o.demo.system,
+      system: semantic ? `${o.demo.system}\n\n${semantic}` : o.demo.system,
       messages: [...(o.history ?? []), toUserMessage(o.prompt, o.attachments)],
       tools,
       maxSteps: o.demo.maxSteps,

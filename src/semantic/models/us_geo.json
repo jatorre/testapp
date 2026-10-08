@@ -1,0 +1,44 @@
+{
+  "id": "us_geo",
+  "version": "2026-10-08.1",
+  "title": "US Census boundaries (for maps)",
+  "description": "US state and county polygons from bigquery-public-data.geo_us_boundaries (TIGER/Line). Verified against BigQuery on 2026-10-08.",
+  "rules": [
+    "Boundary geometries are heavy: select state_geom / county_geom only when drawing a map; use int_point_lat/int_point_lon for labels or point maps. Non-geometry columns cost ~KBs."
+  ],
+  "sources": [
+    {
+      "name": "us_states",
+      "table": "bigquery-public-data.geo_us_boundaries.states",
+      "description": "US states, DC and territories (56 rows incl. PR, GU, VI, AS, MP).",
+      "grain": "one row per state or territory",
+      "primary_key": "state_fips_code",
+      "geo": { "lat": "int_point_lat", "lon": "int_point_lon", "geography": "state_geom" },
+      "columns": {
+        "state": { "description": "2-letter postal code, e.g. 'CA'" },
+        "state_name": { "description": "full name, e.g. 'California'; joins users.state for US users" },
+        "state_fips_code": { "description": "2-digit FIPS, e.g. '06'" },
+        "area_land_meters": { "unit": "m2" },
+        "state_geom": { "description": "polygon (GEOGRAPHY), ~22 MB for all states" }
+      }
+    },
+    {
+      "name": "us_counties",
+      "table": "bigquery-public-data.geo_us_boundaries.counties",
+      "description": "US counties and equivalents (3,233 rows).",
+      "grain": "one row per county",
+      "primary_key": "geo_id",
+      "geo": { "lat": "int_point_lat", "lon": "int_point_lon", "geography": "county_geom" },
+      "columns": {
+        "geo_id": { "description": "5-digit state+county FIPS" },
+        "county_name": { "description": "e.g. 'Harris'" },
+        "state_fips_code": { "description": "joins us_states.state_fips_code" },
+        "county_geom": { "description": "polygon (GEOGRAPHY), ~190 MB for all counties: filter by state first" }
+      }
+    }
+  ],
+  "relationships": [
+    { "from": "us_counties.state_fips_code", "to": "us_states.state_fips_code", "cardinality": "many_to_one" }
+  ],
+  "metrics": []
+}

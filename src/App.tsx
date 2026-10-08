@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HARNESSES } from './agent/harnesses';
 import { getCartoInfo, type CartoInfo } from './carto/info';
 import { DEMOS } from './demos';
@@ -10,6 +10,11 @@ import { RunLogPanel } from './ui/RunLogPanel';
 import { TopBar } from './ui/TopBar';
 import { applyEventToMessage, type RunLog, type ToolRow, type UiMessage } from './ui/runlog';
 import { executeRun, loadDemoTools, msg, runEval, type EvalRequest, type ToolLoad } from './ui/runner';
+import { AnnotationChips } from './map/AnnotationChips';
+import { addAnnotation, annotationContext, clearAnnotationSelection, listLayerInfos, selectedAnnotations, type Geometry } from './map/store';
+
+// deck.gl + MapLibre are only downloaded when the map demo is opened.
+const MapPane = lazy(() => import('./map/MapPane'));
 
 const store = {
   get(k: string) {
@@ -38,6 +43,10 @@ declare global {
     __seedFile?: (path: string, content: string) => Promise<void>;
     /** Dev-only: add an attachment from base64 bytes (evals/tests); resolves with its summary (id, sheets…). */
     __addAttachment?: (name: string, mime: string, base64: string) => Promise<ReturnType<typeof attachmentSummary>>;
+    /** Dev-only: add a user map annotation (demo 10); returns its id (A1, A2…). */
+    __addAnnotation?: (geometry: Geometry, note?: string) => string;
+    /** Dev-only: layer metadata of the map (demo 10). */
+    __mapLayers?: () => ReturnType<typeof listLayerInfos>;
   }
 }
 
@@ -122,6 +131,8 @@ export default function App() {
     window.__seedFile = vfsWriteFile;
     window.__addAttachment = async (name, mime, b64) =>
       attachmentSummary(await addFile(new File([Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))], name, { type: mime })));
+    window.__addAnnotation = (g, note) => addAnnotation(g, note).id;
+    window.__mapLayers = listLayerInfos;
   }
   useEffect(() => {
     window.__runEval = async (req) => {
@@ -135,8 +146,16 @@ export default function App() {
   const send = async (prompt: string, attachments: string[] = []) => {
     const history = messages
       .filter((m) => m.text.trim())
-      .map((m) => (m.role === 'user' ? toUserMessage(m.text, m.attachments) : { role: m.role, content: m.text }));
-    setMessages((ms) => [...ms, { role: 'user', text: prompt, parts: [], attachments }, { role: 'assistant', text: '', parts: [] }]);
+      .map((m) => (m.role === 'user' ? toUserMessage(m.modelText ?? m.text, m.attachments) : { role: m.role, content: m.text }));
+    // Map demo: selected annotations go with the message as structured context (frozen at send time).
+    const annotations = demo.tools.includes('map') ? selectedAnnotations() : [];
+    const modelText = annotations.length ? prompt + annotationContext(annotations) : undefined;
+    if (annotations.length) clearAnnotationSelection();
+    setMessages((ms) => [
+      ...ms,
+      { role: 'user', text: prompt, parts: [], attachments, ...(modelText ? { modelText, annotations } : {}) },
+      { role: 'assistant', text: '', parts: [] },
+    ]);
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     setRunning(true);
@@ -144,7 +163,7 @@ export default function App() {
       demo,
       harnessId,
       model,
-      prompt,
+      prompt: modelText ?? prompt,
       attachments,
       history,
       signal: ctrl.signal,
@@ -223,8 +242,14 @@ export default function App() {
           </details>
         )}
       </div>
-      <div className="panes">
-        <FilePanel />
+      <div className={demo.tools.includes('map') ? 'panes with-map' : 'panes'}>
+        {demo.tools.includes('map') ? (
+          <Suspense fallback={<section className="pane map-pane muted">Loading map…</section>}>
+            <MapPane />
+          </Suspense>
+        ) : (
+          <FilePanel />
+        )}
         <Chat
           messages={messages}
           toolRows={toolRows}
@@ -234,6 +259,7 @@ export default function App() {
           errors={errors}
           blurb={demo.blurb}
           attachEnabled={demo.tools.includes('attach')}
+          composerExtra={demo.tools.includes('map') ? <AnnotationChips /> : undefined}
           onSend={send}
           onStop={() => abortRef.current?.abort()}
           onClear={() => setMessages([])}

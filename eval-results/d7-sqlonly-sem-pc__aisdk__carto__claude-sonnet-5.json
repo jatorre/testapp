@@ -1,0 +1,390 @@
+{
+  "summary": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-sonnet-5",
+    "status": "done",
+    "steps": 6,
+    "toolCalls": 5,
+    "toolErrors": 1,
+    "toolCounts": {
+      "run_sql": 5
+    },
+    "usage": {
+      "inputTokens": 10241,
+      "outputTokens": 2725,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 32561,
+    "toolMs": 4247,
+    "llmMs": 28314,
+    "maxToolOutputChars": 634,
+    "files": [],
+    "charts": 0,
+    "answer": "## Answer\n\n**Houston, TX distribution center ships the most revenue to customers outside the U.S. in 2023** — note that all 10 TheLook distribution centers are U.S.-based, so \"outside its own country\" here effectively means shipments to **international (non‑U.S.) customers**.\n\n### Top driver (2023, non‑cancelled order items)\n\n| Rank | Distribution Center | Int'l Revenue | Int'l Items | Total Revenue | Int'l Share of Revenue |\n|---|---|---|---|---|---|\n| 1 | **Houston, TX** | **$120,859** | 1,718 | $153,920 | 78.5% |\n| 2 | Chicago, IL | $98,080 | 1,769 | $125,467 | 78.2% |\n| 3 | Memphis, TN | $96,713 | 1,727 | $123,097 | 78.6% |\n| 4 | Mobile, AL | $88,726 | 1,328 | $113,498 | 78.2% |\n| 5 | Philadelphia, PA | $73,748 | 1,160 | $96,815 | 76.2% |\n\nHouston leads by roughly **$22,800 (23%) over the second-place Chicago DC**, driven by a combination of higher per-order average sale price and strong volume (1,718 international line items). Notably, international revenue consistently represents ~76-79% of each DC's total revenue across the board — this is a structural feature of the dataset (most synthetic customers in TheLook are generated as non-U.S.), not a Houston-specific anomaly, so Houston's rank is really driven by its larger overall order volume/revenue rather than an unusually high international mix.\n\n### Caveats\n- **No country field exists on `distribution_centers`** — all centers are physically in the U.S., so \"own country\" is assumed to be the U.S. for all of them. If the intended question was about cross-region/state shipping, the result would differ.\n- Excluded `status = 'Cancelled'` items; returned/cancelled orders could change magnitudes slightly if included or excluded differently.\n- This is simulated/synthetic test data (TheLook is a fictional dataset), so the ~78% international-revenue share across all centers suggests the user geography distribution is essentially uniform regardless of DC — the \"cross-border\" framing may not carry real business meaning here.\n- Confidence: **High** for the numbers as computed from the data; **Low-Medium** for business interpretation, since the premise (DCs having a \"home country\" other than the US) doesn't hold in this schema."
+  },
+  "run": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::claude-sonnet-5",
+    "prompt": "Which distribution center ships the most revenue to customers outside its own country in 2023?",
+    "id": "run_muzfhcnp",
+    "startedAt": 1791457400149,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01BAtaS2r4sPhwE2mWCEABMC",
+        "name": "run_sql",
+        "input": {
+          "sql": "\nSELECT\n  dc.id AS dc_id,\n  dc.name AS dc_name,\n  dc.country AS dc_country,\n  SUM(oi.sale_price) AS cross_border_revenue,\n  COUNT(*) AS cross_border_items\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p\n  ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc\n  ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status != 'Cancelled'\n  AND u.country != dc.country\nGROUP BY dc_id, dc_name, dc_country\nORDER BY cross_border_revenue DESC\n"
+        },
+        "startedAt": 1791457406590,
+        "output": "Error: BigQuery rejected the query: Name country not found inside dc at [16:23]",
+        "error": "BigQuery rejected the query: Name country not found inside dc at [16:23]",
+        "durationMs": 1635,
+        "outputChars": 79
+      },
+      {
+        "id": "toolu_vrtx_01NuHpYb3tRDjakBZuxhRUMU",
+        "name": "run_sql",
+        "input": {
+          "sql": "\nSELECT column_name, data_type\nFROM `bigquery-public-data.thelook_ecommerce.INFORMATION_SCHEMA.COLUMNS`\nWHERE table_name = 'distribution_centers'\n"
+        },
+        "startedAt": 1791457410318,
+        "output": "rows=5 bytesProcessed=10.0 MB sessionTotal=10.0 MB\ncolumn_name,data_type\nid,INT64\nname,STRING\nlatitude,FLOAT64\nlongitude,FLOAT64\ndistribution_center_geom,GEOGRAPHY",
+        "durationMs": 682,
+        "outputChars": 163
+      },
+      {
+        "id": "toolu_vrtx_01XLETkRSndWq3YRsdSYkLES",
+        "name": "run_sql",
+        "input": {
+          "sql": "\nSELECT id, name FROM `bigquery-public-data.thelook_ecommerce.distribution_centers` ORDER BY id\n"
+        },
+        "startedAt": 1791457412985,
+        "output": "rows=10 bytesProcessed=249 B sessionTotal=10.0 MB\nid,name\n1,Memphis TN\n2,Chicago IL\n3,Houston TX\n4,Los Angeles CA\n5,New Orleans LA\n6,Port Authority of New York/New Jersey NY/NJ\n7,Philadelphia PA\n8,Mobile AL\n9,Charleston SC\n10,Savannah GA",
+        "durationMs": 654,
+        "outputChars": 237
+      },
+      {
+        "id": "toolu_vrtx_01Hqv82N5gptayt8849sWGzM",
+        "name": "run_sql",
+        "input": {
+          "sql": "\nSELECT\n  dc.id AS dc_id,\n  dc.name AS dc_name,\n  SUM(oi.sale_price) AS intl_revenue,\n  COUNT(*) AS intl_items,\n  COUNT(DISTINCT u.country) AS countries_served\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p\n  ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc\n  ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status != 'Cancelled'\n  AND u.country != 'United States'\nGROUP BY dc_id, dc_name\nORDER BY intl_revenue DESC\n"
+        },
+        "startedAt": 1791457418439,
+        "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=19.5 MB\ndc_id,dc_name,intl_revenue,intl_items,countries_served\n3,Houston TX,120859.48010993004,1718,11\n2,Chicago IL,98079.9000376463,1769,11\n1,Memphis TN,96712.9601764679,1727,12\n8,Mobile AL,88725.90016078949,1328,11\n7,Philadelphia PA,73748.37009263039,1160,12\n4,Los Angeles CA,71062.76018047333,1257,12\n6,Port Authority of New York/New Jersey NY/NJ,69893.98997735977,1183,11\n10,Savannah GA,56375.65995430946,848,12\n5,New Orleans LA,55085.650153160095,899,11\n9,Charleston SC,48803.889983177185,1202,11",
+        "durationMs": 629,
+        "outputChars": 544
+      },
+      {
+        "id": "toolu_vrtx_01Akbs9iQ83fNGvbjtN97hNX",
+        "name": "run_sql",
+        "input": {
+          "sql": "\nSELECT\n  dc.id AS dc_id,\n  dc.name AS dc_name,\n  SUM(oi.sale_price) AS total_revenue,\n  SUM(CASE WHEN u.country != 'United States' THEN oi.sale_price ELSE 0 END) AS intl_revenue\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p\n  ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc\n  ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status != 'Cancelled'\nGROUP BY dc_id, dc_name\nORDER BY intl_revenue DESC\n"
+        },
+        "startedAt": 1791457422466,
+        "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=28.9 MB\ndc_id,dc_name,total_revenue,intl_revenue\n3,Houston TX,153920.00015091896,120859.48010993004\n2,Chicago IL,125466.9400806427,98079.9000376463\n1,Memphis TN,123096.67026686668,96712.9601764679\n8,Mobile AL,113498.34018659592,88725.90016078949\n7,Philadelphia PA,96815.47016191483,73748.37009263039\n4,Los Angeles CA,90687.61022520065,71062.76018047333\n6,Port Authority of New York/New Jersey NY/NJ,90146.33996582031,69893.98997735977\n10,Savannah GA,71064.92996907234,56375.65995430946\n5,New Orleans LA,71404.44019794464,55085.650153160095\n9,Charleston SC,62253.6799890995,48803.889983177185",
+        "durationMs": 647,
+        "outputChars": 634
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 710,
+          "outputTokens": 640,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 4308,
+        "at": 1791457408227
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 1143,
+          "outputTokens": 156,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1398,
+        "at": 1791457411001
+      },
+      {
+        "step": 3,
+        "usage": {
+          "inputTokens": 1365,
+          "outputTokens": 143,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1197,
+        "at": 1791457413640
+      },
+      {
+        "step": 4,
+        "usage": {
+          "inputTokens": 1605,
+          "outputTokens": 537,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 3713,
+        "at": 1791457419068
+      },
+      {
+        "step": 5,
+        "usage": {
+          "inputTokens": 2347,
+          "outputTokens": 413,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 3081,
+        "at": 1791457423114
+      },
+      {
+        "step": 6,
+        "usage": {
+          "inputTokens": 3071,
+          "outputTokens": 836,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 8853,
+        "at": 1791457432709
+      }
+    ],
+    "events": [
+      {
+        "t": 6441,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01BAtaS2r4sPhwE2mWCEABMC",
+          "name": "run_sql",
+          "input": {
+            "sql": "\nSELECT\n  dc.id AS dc_id,\n  dc.name AS dc_name,\n  dc.country AS dc_country,\n  SUM(oi.sale_price) AS cross_border_revenue,\n  COUNT(*) AS cross_border_items\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p\n  ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc\n  ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status != 'Cancelled'\n  AND u.country != dc.country\nGROUP BY dc_id, dc_name, dc_country\nORDER BY cross_border_revenue DESC\n"
+          },
+          "startedAt": 1791457406590
+        }
+      },
+      {
+        "t": 8076,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01BAtaS2r4sPhwE2mWCEABMC",
+          "name": "run_sql",
+          "output": "Error: BigQuery rejected the query: Name country not found inside dc at [16:23]",
+          "error": "BigQuery rejected the query: Name country not found inside dc at [16:23]",
+          "durationMs": 1635,
+          "outputChars": 79
+        }
+      },
+      {
+        "t": 8078,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 710,
+            "outputTokens": 640,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 4308
+        }
+      },
+      {
+        "t": 10169,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01NuHpYb3tRDjakBZuxhRUMU",
+          "name": "run_sql",
+          "input": {
+            "sql": "\nSELECT column_name, data_type\nFROM `bigquery-public-data.thelook_ecommerce.INFORMATION_SCHEMA.COLUMNS`\nWHERE table_name = 'distribution_centers'\n"
+          },
+          "startedAt": 1791457410318
+        }
+      },
+      {
+        "t": 10851,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01NuHpYb3tRDjakBZuxhRUMU",
+          "name": "run_sql",
+          "output": "rows=5 bytesProcessed=10.0 MB sessionTotal=10.0 MB\ncolumn_name,data_type\nid,INT64\nname,STRING\nlatitude,FLOAT64\nlongitude,FLOAT64\ndistribution_center_geom,GEOGRAPHY",
+          "durationMs": 682,
+          "outputChars": 163
+        }
+      },
+      {
+        "t": 10852,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 1143,
+            "outputTokens": 156,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1398
+        }
+      },
+      {
+        "t": 12836,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01XLETkRSndWq3YRsdSYkLES",
+          "name": "run_sql",
+          "input": {
+            "sql": "\nSELECT id, name FROM `bigquery-public-data.thelook_ecommerce.distribution_centers` ORDER BY id\n"
+          },
+          "startedAt": 1791457412985
+        }
+      },
+      {
+        "t": 13490,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01XLETkRSndWq3YRsdSYkLES",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=249 B sessionTotal=10.0 MB\nid,name\n1,Memphis TN\n2,Chicago IL\n3,Houston TX\n4,Los Angeles CA\n5,New Orleans LA\n6,Port Authority of New York/New Jersey NY/NJ\n7,Philadelphia PA\n8,Mobile AL\n9,Charleston SC\n10,Savannah GA",
+          "durationMs": 654,
+          "outputChars": 237
+        }
+      },
+      {
+        "t": 13491,
+        "type": "step-finish",
+        "data": {
+          "step": 3,
+          "usage": {
+            "inputTokens": 1365,
+            "outputTokens": 143,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1197
+        }
+      },
+      {
+        "t": 15206,
+        "type": "text-delta",
+        "data": "All distribution centers in this dataset are located in the United States, so \"shipping outside its own country\" means shipping to non‑US customers."
+      },
+      {
+        "t": 18290,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01Hqv82N5gptayt8849sWGzM",
+          "name": "run_sql",
+          "input": {
+            "sql": "\nSELECT\n  dc.id AS dc_id,\n  dc.name AS dc_name,\n  SUM(oi.sale_price) AS intl_revenue,\n  COUNT(*) AS intl_items,\n  COUNT(DISTINCT u.country) AS countries_served\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p\n  ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc\n  ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status != 'Cancelled'\n  AND u.country != 'United States'\nGROUP BY dc_id, dc_name\nORDER BY intl_revenue DESC\n"
+          },
+          "startedAt": 1791457418439
+        }
+      },
+      {
+        "t": 18919,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01Hqv82N5gptayt8849sWGzM",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=19.5 MB\ndc_id,dc_name,intl_revenue,intl_items,countries_served\n3,Houston TX,120859.48010993004,1718,11\n2,Chicago IL,98079.9000376463,1769,11\n1,Memphis TN,96712.9601764679,1727,12\n8,Mobile AL,88725.90016078949,1328,11\n7,Philadelphia PA,73748.37009263039,1160,12\n4,Los Angeles CA,71062.76018047333,1257,12\n6,Port Authority of New York/New Jersey NY/NJ,69893.98997735977,1183,11\n10,Savannah GA,56375.65995430946,848,12\n5,New Orleans LA,55085.650153160095,899,11\n9,Charleston SC,48803.889983177185,1202,11",
+          "durationMs": 629,
+          "outputChars": 544
+        }
+      },
+      {
+        "t": 18919,
+        "type": "step-finish",
+        "data": {
+          "step": 4,
+          "usage": {
+            "inputTokens": 1605,
+            "outputTokens": 537,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 3713
+        }
+      },
+      {
+        "t": 22317,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01Akbs9iQ83fNGvbjtN97hNX",
+          "name": "run_sql",
+          "input": {
+            "sql": "\nSELECT\n  dc.id AS dc_id,\n  dc.name AS dc_name,\n  SUM(oi.sale_price) AS total_revenue,\n  SUM(CASE WHEN u.country != 'United States' THEN oi.sale_price ELSE 0 END) AS intl_revenue\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p\n  ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc\n  ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u\n  ON oi.user_id = u.id\nWHERE EXTRACT(YEAR FROM oi.created_at) = 2023\n  AND oi.status != 'Cancelled'\nGROUP BY dc_id, dc_name\nORDER BY intl_revenue DESC\n"
+          },
+          "startedAt": 1791457422466
+        }
+      },
+      {
+        "t": 22964,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01Akbs9iQ83fNGvbjtN97hNX",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=28.9 MB\ndc_id,dc_name,total_revenue,intl_revenue\n3,Houston TX,153920.00015091896,120859.48010993004\n2,Chicago IL,125466.9400806427,98079.9000376463\n1,Memphis TN,123096.67026686668,96712.9601764679\n8,Mobile AL,113498.34018659592,88725.90016078949\n7,Philadelphia PA,96815.47016191483,73748.37009263039\n4,Los Angeles CA,90687.61022520065,71062.76018047333\n6,Port Authority of New York/New Jersey NY/NJ,90146.33996582031,69893.98997735977\n10,Savannah GA,71064.92996907234,56375.65995430946\n5,New Orleans LA,71404.44019794464,55085.650153160095\n9,Charleston SC,62253.6799890995,48803.889983177185",
+          "durationMs": 647,
+          "outputChars": 634
+        }
+      },
+      {
+        "t": 22965,
+        "type": "step-finish",
+        "data": {
+          "step": 5,
+          "usage": {
+            "inputTokens": 2347,
+            "outputTokens": 413,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 3081
+        }
+      },
+      {
+        "t": 23707,
+        "type": "text-delta",
+        "data": "## Answer\n\n**Houston, TX distribution center ships the most revenue to customers outside the U.S. in 2023** — note that all 10 TheLook distribution centers are U.S.-based, so \"outside its own country\" here effectively means shipments to **international (non‑U.S.) customers**.\n\n### Top driver (2023, non‑cancelled order items)\n\n| Rank | Distribution Center | Int'l Revenue | Int'l Items | Total Revenue | Int'l Share of Revenue |\n|---|---|---|---|---|---|\n| 1 | **Houston, TX** | **$120,859** | 1,718 | $153,920 | 78.5% |\n| 2 | Chicago, IL | $98,080 | 1,769 | $125,467 | 78.2% |\n| 3 | Memphis, TN | $96,713 | 1,727 | $123,097 | 78.6% |\n| 4 | Mobile, AL | $88,726 | 1,328 | $113,498 | 78.2% |\n| 5 | Philadelphia, PA | $73,748 | 1,160 | $96,815 | 76.2% |\n\nHouston leads by roughly **$22,800 (23%) over the second-place Chicago DC**, driven by a combination of higher per-order average sale price and strong volume (1,718 international line items). Notably, international revenue consistently represents ~76-79% of each DC's total revenue across the board — this is a structural feature of the dataset (most synthetic customers in TheLook are generated as non-U.S.), not a Houston-specific anomaly, so Houston's rank is really driven by its larger overall order volume/revenue rather than an unusually high international mix.\n\n### Caveats\n- **No country field exists on `distribution_centers`** — all centers are physically in the U.S., so \"own country\" is assumed to be the U.S. for all of them. If the intended question was about cross-region/state shipping, the result would differ.\n- Excluded `status = 'Cancelled'` items; returned/cancelled orders could change magnitudes slightly if included or excluded differently.\n- This is simulated/synthetic test data (TheLook is a fictional dataset), so the ~78% international-revenue share across all centers suggests the user geography distribution is essentially uniform regardless of DC — the \"cross-border\" framing may not carry real business meaning here.\n- Confidence: **High** for the numbers as computed from the data; **Low-Medium** for business interpretation, since the premise (DCs having a \"home country\" other than the US) doesn't hold in this schema."
+      },
+      {
+        "t": 32560,
+        "type": "step-finish",
+        "data": {
+          "step": 6,
+          "usage": {
+            "inputTokens": 3071,
+            "outputTokens": 836,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 8853
+        }
+      },
+      {
+        "t": 32561,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 10241,
+            "outputTokens": 2725,
+            "cachedInputTokens": 0
+          },
+          "steps": 6,
+          "durationMs": 32446
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 10241,
+        "outputTokens": 2725,
+        "cachedInputTokens": 0
+      },
+      "steps": 6,
+      "toolCalls": 5,
+      "toolErrors": 1,
+      "wallMs": 32561,
+      "toolMs": 4247,
+      "llmMs": 28314,
+      "outputChars": 1657
+    },
+    "finalText": "## Answer\n\n**Houston, TX distribution center ships the most revenue to customers outside the U.S. in 2023** — note that all 10 TheLook distribution centers are U.S.-based, so \"outside its own country\" here effectively means shipments to **international (non‑U.S.) customers**.\n\n### Top driver (2023, non‑cancelled order items)\n\n| Rank | Distribution Center | Int'l Revenue | Int'l Items | Total Revenue | Int'l Share of Revenue |\n|---|---|---|---|---|---|\n| 1 | **Houston, TX** | **$120,859** | 1,718 | $153,920 | 78.5% |\n| 2 | Chicago, IL | $98,080 | 1,769 | $125,467 | 78.2% |\n| 3 | Memphis, TN | $96,713 | 1,727 | $123,097 | 78.6% |\n| 4 | Mobile, AL | $88,726 | 1,328 | $113,498 | 78.2% |\n| 5 | Philadelphia, PA | $73,748 | 1,160 | $96,815 | 76.2% |\n\nHouston leads by roughly **$22,800 (23%) over the second-place Chicago DC**, driven by a combination of higher per-order average sale price and strong volume (1,718 international line items). Notably, international revenue consistently represents ~76-79% of each DC's total revenue across the board — this is a structural feature of the dataset (most synthetic customers in TheLook are generated as non-U.S.), not a Houston-specific anomaly, so Houston's rank is really driven by its larger overall order volume/revenue rather than an unusually high international mix.\n\n### Caveats\n- **No country field exists on `distribution_centers`** — all centers are physically in the U.S., so \"own country\" is assumed to be the U.S. for all of them. If the intended question was about cross-region/state shipping, the result would differ.\n- Excluded `status = 'Cancelled'` items; returned/cancelled orders could change magnitudes slightly if included or excluded differently.\n- This is simulated/synthetic test data (TheLook is a fictional dataset), so the ~78% international-revenue share across all centers suggests the user geography distribution is essentially uniform regardless of DC — the \"cross-border\" framing may not carry real business meaning here.\n- Confidence: **High** for the numbers as computed from the data; **Low-Medium** for business interpretation, since the premise (DCs having a \"home country\" other than the US) doesn't hold in this schema.",
+    "endedAt": 1791457432710
+  }
+}

@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 11110,
+      "outputTokens": 1107,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 18553,
+    "toolMs": 1555,
+    "llmMs": 16998,
+    "maxToolOutputChars": 420,
+    "files": [],
+    "charts": 0,
+    "answer": "**Top 5 countries by revenue in 2023**\n\nChina brought in the most revenue in 2023, at about **$300K, or 34% of the total**. The top 5 countries together made up about 81% of the year's **$888K**.\n\n| # | Country | Revenue (net) | Gross revenue | Orders (net) |\n|---|---|---|---|---|\n| 1 | China | $300,437 | $399,859 | 3,489 |\n| 2 | United States | $194,733 | $255,602 | 2,333 |\n| 3 | Brazil | $132,263 | $173,627 | 1,513 |\n| 4 | South Korea | $51,443 | $66,643 | 607 |\n| 5 | Germany | $40,169 | $53,248 | 455 |\n\n- **The top 3 are far ahead.** China, the US and Brazil together account for about 70% of revenue. South Korea, in 4th, has less than 40% of Brazil's revenue.\n- **5th place is very close.** France ($39,412) and the UK ($37,766) are within about $2.4K of Germany. On gross revenue (every item ordered, including cancelled and returned ones), the **UK would be 5th** at $54,119 versus Germany's $53,248. That's because a larger share of the UK's orders were cancelled or returned.\n\n**How I counted it**\n- \"Revenue\" here means net revenue: the sale price of items ordered in 2023 (UTC), leaving out cancelled and returned items.\n- Country is where the customer lives. I merged duplicate spellings: Deutschland is counted as Germany, España as Spain, and Brasil as Brazil.\n\n**Confidence:** High. The query is a single direct one, and 2023 is a complete year in the data. Keep in mind the dataset is synthetic."
+  },
+  "run": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "prompt": "What was revenue by country in 2023? Top 5.",
+    "id": "run_muzfeb9e",
+    "startedAt": 1791457258370,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_013fuzebB5zS6apTvrzSBZ22",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT CASE u.country WHEN 'Deutschland' THEN 'Germany' WHEN 'España' THEN 'Spain' WHEN 'Brasil' THEN 'Brazil' ELSE u.country END AS country_clean,\nROUND(SUM(IF(oi.status NOT IN ('Cancelled','Returned'), oi.sale_price, 0)),0) AS net_revenue,\nROUND(SUM(oi.sale_price),0) AS gross_revenue,\nCOUNT(DISTINCT IF(oi.status NOT IN ('Cancelled','Returned'), oi.order_id, NULL)) AS net_orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id=u.id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\nGROUP BY 1 ORDER BY net_revenue DESC"
+        },
+        "startedAt": 1791457265532,
+        "output": "rows=13 bytesProcessed=9.0 MB sessionTotal=9.0 MB\ncountry_clean,net_revenue,gross_revenue,net_orders\nChina,300437,399859,3489\nUnited States,194733,255602,2333\nBrazil,132263,173627,1513\nSouth Korea,51443,66643,607\nGermany,40169,53248,455\nFrance,39412,50652,469\nUnited Kingdom,37766,54119,464\nSpain,34589,44790,409\nJapan,23990,29821,258\nAustralia,21225,26676,241\nBelgium,9804,13439,113\nPoland,2480,3197,22\nColombia,50,50,1",
+        "durationMs": 1555,
+        "outputChars": 420
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 5243,
+          "outputTokens": 405,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 4218,
+        "at": 1791457267089
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 5867,
+          "outputTokens": 702,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 55,
+        "at": 1791457276922
+      }
+    ],
+    "events": [
+      {
+        "t": 7162,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_013fuzebB5zS6apTvrzSBZ22",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT CASE u.country WHEN 'Deutschland' THEN 'Germany' WHEN 'España' THEN 'Spain' WHEN 'Brasil' THEN 'Brazil' ELSE u.country END AS country_clean,\nROUND(SUM(IF(oi.status NOT IN ('Cancelled','Returned'), oi.sale_price, 0)),0) AS net_revenue,\nROUND(SUM(oi.sale_price),0) AS gross_revenue,\nCOUNT(DISTINCT IF(oi.status NOT IN ('Cancelled','Returned'), oi.order_id, NULL)) AS net_orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id=u.id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\nGROUP BY 1 ORDER BY net_revenue DESC"
+          },
+          "startedAt": 1791457265532
+        }
+      },
+      {
+        "t": 8717,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_013fuzebB5zS6apTvrzSBZ22",
+          "name": "run_sql",
+          "output": "rows=13 bytesProcessed=9.0 MB sessionTotal=9.0 MB\ncountry_clean,net_revenue,gross_revenue,net_orders\nChina,300437,399859,3489\nUnited States,194733,255602,2333\nBrazil,132263,173627,1513\nSouth Korea,51443,66643,607\nGermany,40169,53248,455\nFrance,39412,50652,469\nUnited Kingdom,37766,54119,464\nSpain,34589,44790,409\nJapan,23990,29821,258\nAustralia,21225,26676,241\nBelgium,9804,13439,113\nPoland,2480,3197,22\nColombia,50,50,1",
+          "durationMs": 1555,
+          "outputChars": 420
+        }
+      },
+      {
+        "t": 8719,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 5243,
+            "outputTokens": 405,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 4218
+        }
+      },
+      {
+        "t": 18497,
+        "type": "text-delta",
+        "data": "**Top 5 countries by revenue in 2023**\n\nChina brought in the most revenue in 2023, at about **$300K, or 34% of the total**. The top 5 countries together made up about 81% of the year's **$888K**.\n\n| # | Country | Revenue (net) | Gross revenue | Orders (net) |\n|---|---|---|---|---|\n| 1 | China | $300,437 | $399,859 | 3,489 |\n| 2 | United States | $194,733 | $255,602 | 2,333 |\n| 3 | Brazil | $132,263 | $173,627 | 1,513 |\n| 4 | South Korea | $51,443 | $66,643 | 607 |\n| 5 | Germany | $40,169 | $53,248 | 455 |\n\n- **The top 3 are far ahead.** China, the US and Brazil together account for about 70% of revenue. South Korea, in 4th, has less than 40% of Brazil's revenue.\n- **5th place is very close.** France ($39,412) and the UK ($37,766) are within about $2.4K of Germany. On gross revenue (every item ordered, including cancelled and returned ones), the **UK would be 5th** at $54,119 versus Germany's $53,248. That's because a larger share of the UK's orders were cancelled or returned.\n\n**How I counted it**\n- \"Revenue\" here means net revenue: the sale price of items ordered in 2023 (UTC), leaving out cancelled and returned items.\n- Country is where the customer lives. I merged duplicate spellings: Deutschland is counted as Germany, España as Spain, and Brasil as Brazil.\n\n**Confidence:** High. The query is a single direct one, and 2023 is a complete year in the data. Keep in mind the dataset is synthetic."
+      },
+      {
+        "t": 18552,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 5867,
+            "outputTokens": 702,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 55
+        }
+      },
+      {
+        "t": 18553,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 11110,
+            "outputTokens": 1107,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 16306
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 11110,
+        "outputTokens": 1107,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 18553,
+      "toolMs": 1555,
+      "llmMs": 16998,
+      "outputChars": 420
+    },
+    "finalText": "**Top 5 countries by revenue in 2023**\n\nChina brought in the most revenue in 2023, at about **$300K, or 34% of the total**. The top 5 countries together made up about 81% of the year's **$888K**.\n\n| # | Country | Revenue (net) | Gross revenue | Orders (net) |\n|---|---|---|---|---|\n| 1 | China | $300,437 | $399,859 | 3,489 |\n| 2 | United States | $194,733 | $255,602 | 2,333 |\n| 3 | Brazil | $132,263 | $173,627 | 1,513 |\n| 4 | South Korea | $51,443 | $66,643 | 607 |\n| 5 | Germany | $40,169 | $53,248 | 455 |\n\n- **The top 3 are far ahead.** China, the US and Brazil together account for about 70% of revenue. South Korea, in 4th, has less than 40% of Brazil's revenue.\n- **5th place is very close.** France ($39,412) and the UK ($37,766) are within about $2.4K of Germany. On gross revenue (every item ordered, including cancelled and returned ones), the **UK would be 5th** at $54,119 versus Germany's $53,248. That's because a larger share of the UK's orders were cancelled or returned.\n\n**How I counted it**\n- \"Revenue\" here means net revenue: the sale price of items ordered in 2023 (UTC), leaving out cancelled and returned items.\n- Country is where the customer lives. I merged duplicate spellings: Deutschland is counted as Germany, España as Spain, and Brasil as Brazil.\n\n**Confidence:** High. The query is a single direct one, and 2023 is a complete year in the data. Keep in mind the dataset is synthetic.",
+    "endedAt": 1791457276923
+  }
+}

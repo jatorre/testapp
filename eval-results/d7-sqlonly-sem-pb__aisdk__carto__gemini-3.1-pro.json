@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 1206,
+      "outputTokens": 1236,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 15123,
+    "toolMs": 2025,
+    "llmMs": 13098,
+    "maxToolOutputChars": 164,
+    "files": [],
+    "charts": 0,
+    "answer": "Here are the top 5 countries by revenue in 2023:\n\n1. **China:** $300,436.70\n2. **United States:** $194,733.42\n3. **Brazil (Brasil):** $132,263.34\n4. **South Korea:** $51,443.37\n5. **Germany:** $40,169.28\n\n**Confidence and Caveats:**\n* **High Confidence:** The results are derived directly from a join between the `order_items` and `users` tables, grouping by the user's registered country. \n* **Revenue Definition:** \"Revenue\" was calculated by summing the `sale_price` of individual items. I explicitly excluded orders with a status of 'Cancelled' or 'Returned' to reflect actual realized net sales.\n* **Time Zone:** The year 2023 was extracted using BigQuery's default UTC time zone on the order's `created_at` timestamp. Results could vary slightly if adjusting for local time zones."
+  },
+  "run": {
+    "demoId": "d7-sqlonly",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "prompt": "What was revenue by country in 2023? Top 5.",
+    "id": "run_muzffgso",
+    "startedAt": 1791457312200,
+    "status": "done",
+    "tools": [
+      {
+        "id": "call_895614__thought__AY89a1/YPi3jc/V2irre7Om1gyei8dzWBnI+j1zOGXLeqxZNBTiyTzHvWWtOIfH+W1CYbbulYTEoa64VBJE9bxHgbYfcm7QLvp56mK7KBI9dsGiTHX3wkGbxmtH+mcNLgj+ODDS5DIhd5WAAVygOWU8pynv0OfrjlianQODZwo2XKLD4KannMS9Tz0NOdBQ9YAJ+ARYQ0wOGF4iDSdXLph3LVy27O2ZKltGSjEVtIkPmTKbrRRnsDZlyWJvwfxWUN0I8YEcaQXbv98CtplhmsQ+OZIL6uq908ZbWo0WRtEr8UelTtn3To/FRqvCjxfnQoIhXELP/ZonT4A0swsM6YyHQ0TaMVuKpM7rZ7r2KxvFFFuoODBk7XRCmBe0O97OZ4H+myVfZGH9dmMnXdznadN7dttqCQzyuw/l3n/1SqAXHjXcpuc6gbcztCVI/M4mI0x9Ibg7CM90wULV8iguTIhzKwifWHXWqu/4q+s1l/kT9ywXWwhvst1y4vNcrFBvKLNPu7LxrgpuLftPaMTOhvVSA2ASGzfGSZCOk4e1dh/Da1eTBuEZ9DUMfMjVQ1vsU+lU8aWku1C22L7WXSI4aDcmMNcs+k0T46QqCbsaCrm+gOZSCtMYeFGZv3zB/zJ3oCysURwHeTfWtySUN3Pfv0JKzQJZ1MWaZcizBasJQafWvhlUiCabqhNFpY9YA0YKRmDONc9TR42Sjvy9cmgXZb9shFoscA2mTdmnzEysqpC7yg1FF3MPTXJgaGdRxkaeUiyrAHf9q+zsKWR4TN0Xo1zYElNh9jff+aydjAjCIZ1vUgLmcI21s+7MN0sah6nIWOSJJIEWQHgzdSbRLKq4fFCxLjZM/5DhdCMuRFR3aBnPCHI0PaDWI4MRaGFPQk+X0GHoqnXYcKu1pbETrMc2rknIm7IpwOWt5bL1NvRqEA6LaakrqNbhBt529jK5mceCOjs7clgJ0RoGZbIhKizf74HWeBrELScnYOX2IfVjd0/6Y6dtT/TbKJeBv2xbuqluPZbx1j2oSiNgAe8tirGRSIY60WWi4U4mLEfu/W9nonU+RVtTJo4/ZHY8B/Mq7bYNhdIjH6/iyVnIMWccR6xnX83wl/Wl+2DmDVButktdsaY+l6b5Fzha4zkrZKRxg34yLHbIkabPh+VA7bmnnTWgIa0uPETaITiQKVK43hRQSsdmH1cMrX725hE6epOQrpbg+5MNFLu6AXsgiwzsTIB2k4bti8PeGOsFNSSVFvcn6TFvKpZwRfsKuAygUD8ViKE6/EmWIn/0ZYlXzw8UhMD+fdVlyU1NTds9WDB1jWeo3z45r9QHmk5u/vu0jk1GW50T7d6irmEWZ79gwyLbF7wrYBowxoC/6M1Q4PhE7OceMnaTGQzlePZql8Qj87AqLfmi1sQFwZyum03bWuyckPMFUuqRET/AMsYRMg2sDHWfWl440VZCe+x9oTbMFz9UTZ9u2FP8gDfwEMdW9JausDfMAeFXm8U9rmm34lgAFwfGdYCltXZhi9v1bBhLfxfmTOH0j41LdzE8CSo6EuzO5/5TOO81GX8yN/Ss14JL0MHQ/+cXSDQi/3QJjl7vd5IpjEHTJ/tOaWbO2j6U4y/qmxdeK+ZtiTHySKUHvk7fsvuid8qOGrwUD+ENpxCz5YnXOfsXr/Czh2cwO8rF5SiCYSiI7OTX6WWwGJSSzx8I9gjjKfVrlJKXj+P6JIbmSCWtOlcX7QOJpVOqZdhUo7KlmHDvVPxD9IId7ljX+VOXq500go9eLL2ieHOx8Ylyq4u7N7UGitrqdAto2bc9vhkRUNuy2ZOvV6NqUShNIg5mUmkGIzcOvaoEH4YYTsIJRxPyCx4UMzto3rW6H64wATSd9jUjxWs+oPOXF4zTXgOW96Ue5Mv6y3gGJCU4R21tjF3St85mEfZRCUTLlSYeuVDYOohG5i7LM4tsnJ3jCnASGuvSw11vhwxdsDq6vpI5LPdRAl+2iNi+t6PLT7aL0gSDVe4IHINe6ZWuqMaAUNxPI1MLroTXP0XZs7DPEERoKSG/f0S/awau+j9vFCypqa5HHIgmZT8kixMmB6Qvg2/mAxxkm533J+df5hjWYmMGvKqUjYVKmzdDcFpzVhy7ROBWFhRKNoJmEZtBcyLgK7ImKGsROAVIGyzvZadXwcxiTm+XBYhxeOWOi/JRp/5vwYFmqShGxyq37L0rdMia1PaBwnUculyf4hJaUVWzNVBQSongEOw5gfaWnIR0f1/RFxnxUFimdHXmEeAoIw3hvQYSU56XpXfb6/Tt7VKvZpDQRC017fEl0jrI9YLoJnRluUuEhWTuhBXMe/gMYA05Nq7EikI1GTJrwM34xGzzLF78hzZ/+5gkPSXsPozDEuCIDeaV1HVvbVdnMGcC6jFJLpBcxbJdE6CBoLlPNHIDoTxLnypdOqeCMC9/L5l73nYqzcFxuRUmhAErqNz3vYB/pVSS2Avinw/g6kf2opDS1UqSTwNxzOySAQGpqglcX1MWmPBD1svojYkMyo6HziMOpYso8S93GmAJCka/9mEI52z5WXWe6RYgv/ghsArBPMJHTDu16C9Vky491N/9X00JDFS0RbFPrXp0mn4pwi/skczbjP7IPC68engN5Z2/RfdMyYvEyRMTd0TenmlrZElukhlMuPuXqdF3T5ZdB2EZo/Q69/EyAIpL1gTgF5dhA9fn4TFtSSK2eZkZt5VxvFS4zeDLxQW9+gEQm+ajTdGNXSh6ch9caBUKOKjCq20b+lmG60acFUi/uNIPlH/j+TZP0yGvvEaV66UX8Z/2Gqs6Dhba3Y3Cg6ujT0fUYLR9Y++ZIA/CQ1EQtNIktA4i3WNZIEWNrfUeXyPkpfo6RIxwoh5Bd2OoU+IYFTFVeHaT30ATwZckw4A2b+03c4QxilI2cTPIZJJv2YYdDLiKp1RuJewpPHCGuEB+tQRk9h4/krnj8LNQuoyddx8u6ENJy9d+2XP3LZX+y2R+gUUgJGm3E6btAZXsQKdTnmVBPNqE0fvIjXYk2IThAkJaLWr41qEMIVn6v35SJ6UYgwBlT3ROEnwvvWz6gQRGVYDcFAICr8VI4kHmHWWuPWfV2eCaJw6l//XLu6jjux+Jw1VgTR6aRh4ts+kfooT+QvdOmv8zhwbr6WRjkwTmirTrVlOTowg==",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT\n    u.country,\n    ROUND(SUM(oi.sale_price), 2) AS total_revenue\nFROM\n    `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN\n    `bigquery-public-data.thelook_ecommerce.users` u\n    ON oi.user_id = u.id\nWHERE\n    EXTRACT(YEAR FROM oi.created_at) = 2023\n    AND oi.status NOT IN ('Cancelled', 'Returned')\nGROUP BY\n    u.country\nORDER BY\n    total_revenue DESC\nLIMIT 5;"
+        },
+        "startedAt": 1791457319298,
+        "output": "rows=5 bytesProcessed=7.6 MB sessionTotal=7.6 MB\ncountry,total_revenue\nChina,300436.7\nUnited States,194733.42\nBrasil,132263.34\nSouth Korea,51443.37\nGermany,40169.28",
+        "durationMs": 2025,
+        "outputChars": 164
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 197,
+          "outputTokens": 729,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 2102,
+        "at": 1791457321325
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 1009,
+          "outputTokens": 507,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1833,
+        "at": 1791457327321
+      }
+    ],
+    "events": [
+      {
+        "t": 7098,
+        "type": "tool-call",
+        "data": {
+          "id": "call_895614__thought__AY89a1/YPi3jc/V2irre7Om1gyei8dzWBnI+j1zOGXLeqxZNBTiyTzHvWWtOIfH+W1CYbbulYTEoa64VBJE9bxHgbYfcm7QLvp56mK7KBI9dsGiTHX3wkGbxmtH+mcNLgj+ODDS5DIhd5WAAVygOWU8pynv0OfrjlianQODZwo2XKLD4KannMS9Tz0NOdBQ9YAJ+ARYQ0wOGF4iDSdXLph3LVy27O2ZKltGSjEVtIkPmTKbrRRnsDZlyWJvwfxWUN0I8YEcaQXbv98CtplhmsQ+OZIL6uq908ZbWo0WRtEr8UelTtn3To/FRqvCjxfnQoIhXELP/ZonT4A0swsM6YyHQ0TaMVuKpM7rZ7r2KxvFFFuoODBk7XRCmBe0O97OZ4H+myVfZGH9dmMnXdznadN7dttqCQzyuw/l3n/1SqAXHjXcpuc6gbcztCVI/M4mI0x9Ibg7CM90wULV8iguTIhzKwifWHXWqu/4q+s1l/kT9ywXWwhvst1y4vNcrFBvKLNPu7LxrgpuLftPaMTOhvVSA2ASGzfGSZCOk4e1dh/Da1eTBuEZ9DUMfMjVQ1vsU+lU8aWku1C22L7WXSI4aDcmMNcs+k0T46QqCbsaCrm+gOZSCtMYeFGZv3zB/zJ3oCysURwHeTfWtySUN3Pfv0JKzQJZ1MWaZcizBasJQafWvhlUiCabqhNFpY9YA0YKRmDONc9TR42Sjvy9cmgXZb9shFoscA2mTdmnzEysqpC7yg1FF3MPTXJgaGdRxkaeUiyrAHf9q+zsKWR4TN0Xo1zYElNh9jff+aydjAjCIZ1vUgLmcI21s+7MN0sah6nIWOSJJIEWQHgzdSbRLKq4fFCxLjZM/5DhdCMuRFR3aBnPCHI0PaDWI4MRaGFPQk+X0GHoqnXYcKu1pbETrMc2rknIm7IpwOWt5bL1NvRqEA6LaakrqNbhBt529jK5mceCOjs7clgJ0RoGZbIhKizf74HWeBrELScnYOX2IfVjd0/6Y6dtT/TbKJeBv2xbuqluPZbx1j2oSiNgAe8tirGRSIY60WWi4U4mLEfu/W9nonU+RVtTJo4/ZHY8B/Mq7bYNhdIjH6/iyVnIMWccR6xnX83wl/Wl+2DmDVButktdsaY+l6b5Fzha4zkrZKRxg34yLHbIkabPh+VA7bmnnTWgIa0uPETaITiQKVK43hRQSsdmH1cMrX725hE6epOQrpbg+5MNFLu6AXsgiwzsTIB2k4bti8PeGOsFNSSVFvcn6TFvKpZwRfsKuAygUD8ViKE6/EmWIn/0ZYlXzw8UhMD+fdVlyU1NTds9WDB1jWeo3z45r9QHmk5u/vu0jk1GW50T7d6irmEWZ79gwyLbF7wrYBowxoC/6M1Q4PhE7OceMnaTGQzlePZql8Qj87AqLfmi1sQFwZyum03bWuyckPMFUuqRET/AMsYRMg2sDHWfWl440VZCe+x9oTbMFz9UTZ9u2FP8gDfwEMdW9JausDfMAeFXm8U9rmm34lgAFwfGdYCltXZhi9v1bBhLfxfmTOH0j41LdzE8CSo6EuzO5/5TOO81GX8yN/Ss14JL0MHQ/+cXSDQi/3QJjl7vd5IpjEHTJ/tOaWbO2j6U4y/qmxdeK+ZtiTHySKUHvk7fsvuid8qOGrwUD+ENpxCz5YnXOfsXr/Czh2cwO8rF5SiCYSiI7OTX6WWwGJSSzx8I9gjjKfVrlJKXj+P6JIbmSCWtOlcX7QOJpVOqZdhUo7KlmHDvVPxD9IId7ljX+VOXq500go9eLL2ieHOx8Ylyq4u7N7UGitrqdAto2bc9vhkRUNuy2ZOvV6NqUShNIg5mUmkGIzcOvaoEH4YYTsIJRxPyCx4UMzto3rW6H64wATSd9jUjxWs+oPOXF4zTXgOW96Ue5Mv6y3gGJCU4R21tjF3St85mEfZRCUTLlSYeuVDYOohG5i7LM4tsnJ3jCnASGuvSw11vhwxdsDq6vpI5LPdRAl+2iNi+t6PLT7aL0gSDVe4IHINe6ZWuqMaAUNxPI1MLroTXP0XZs7DPEERoKSG/f0S/awau+j9vFCypqa5HHIgmZT8kixMmB6Qvg2/mAxxkm533J+df5hjWYmMGvKqUjYVKmzdDcFpzVhy7ROBWFhRKNoJmEZtBcyLgK7ImKGsROAVIGyzvZadXwcxiTm+XBYhxeOWOi/JRp/5vwYFmqShGxyq37L0rdMia1PaBwnUculyf4hJaUVWzNVBQSongEOw5gfaWnIR0f1/RFxnxUFimdHXmEeAoIw3hvQYSU56XpXfb6/Tt7VKvZpDQRC017fEl0jrI9YLoJnRluUuEhWTuhBXMe/gMYA05Nq7EikI1GTJrwM34xGzzLF78hzZ/+5gkPSXsPozDEuCIDeaV1HVvbVdnMGcC6jFJLpBcxbJdE6CBoLlPNHIDoTxLnypdOqeCMC9/L5l73nYqzcFxuRUmhAErqNz3vYB/pVSS2Avinw/g6kf2opDS1UqSTwNxzOySAQGpqglcX1MWmPBD1svojYkMyo6HziMOpYso8S93GmAJCka/9mEI52z5WXWe6RYgv/ghsArBPMJHTDu16C9Vky491N/9X00JDFS0RbFPrXp0mn4pwi/skczbjP7IPC68engN5Z2/RfdMyYvEyRMTd0TenmlrZElukhlMuPuXqdF3T5ZdB2EZo/Q69/EyAIpL1gTgF5dhA9fn4TFtSSK2eZkZt5VxvFS4zeDLxQW9+gEQm+ajTdGNXSh6ch9caBUKOKjCq20b+lmG60acFUi/uNIPlH/j+TZP0yGvvEaV66UX8Z/2Gqs6Dhba3Y3Cg6ujT0fUYLR9Y++ZIA/CQ1EQtNIktA4i3WNZIEWNrfUeXyPkpfo6RIxwoh5Bd2OoU+IYFTFVeHaT30ATwZckw4A2b+03c4QxilI2cTPIZJJv2YYdDLiKp1RuJewpPHCGuEB+tQRk9h4/krnj8LNQuoyddx8u6ENJy9d+2XP3LZX+y2R+gUUgJGm3E6btAZXsQKdTnmVBPNqE0fvIjXYk2IThAkJaLWr41qEMIVn6v35SJ6UYgwBlT3ROEnwvvWz6gQRGVYDcFAICr8VI4kHmHWWuPWfV2eCaJw6l//XLu6jjux+Jw1VgTR6aRh4ts+kfooT+QvdOmv8zhwbr6WRjkwTmirTrVlOTowg==",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT\n    u.country,\n    ROUND(SUM(oi.sale_price), 2) AS total_revenue\nFROM\n    `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN\n    `bigquery-public-data.thelook_ecommerce.users` u\n    ON oi.user_id = u.id\nWHERE\n    EXTRACT(YEAR FROM oi.created_at) = 2023\n    AND oi.status NOT IN ('Cancelled', 'Returned')\nGROUP BY\n    u.country\nORDER BY\n    total_revenue DESC\nLIMIT 5;"
+          },
+          "startedAt": 1791457319298
+        }
+      },
+      {
+        "t": 9123,
+        "type": "tool-result",
+        "data": {
+          "id": "call_895614__thought__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",
+          "name": "run_sql",
+          "output": "rows=5 bytesProcessed=7.6 MB sessionTotal=7.6 MB\ncountry,total_revenue\nChina,300436.7\nUnited States,194733.42\nBrasil,132263.34\nSouth Korea,51443.37\nGermany,40169.28",
+          "durationMs": 2025,
+          "outputChars": 164
+        }
+      },
+      {
+        "t": 9125,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 197,
+            "outputTokens": 729,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 2102
+        }
+      },
+      {
+        "t": 13289,
+        "type": "text-delta",
+        "data": "Here are the top 5 countries by revenue in 2023:\n\n1. **China:** $300,436.70\n2. **United States:** $194,733.42\n3. **Brazil (Brasil):** $132,263.34\n4. **South Korea:** $51,443.37\n5. **Germany:** $40,169.28\n\n**Confidence and Caveats:**\n* **High Confidence:** The results are derived directly from a join between the `order_items` and `users` tables, grouping by the user's registered country. \n* **Revenue Definition:** \"Revenue\" was calculated by summing the `sale_price` of individual items. I explicitly excluded orders with a status of 'Cancelled' or 'Returned' to reflect actual realized net sales.\n* **Time Zone:** The year 2023 was extracted using BigQuery's default UTC time zone on the order's `created_at` timestamp. Results could vary slightly if adjusting for local time zones."
+      },
+      {
+        "t": 15121,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 1009,
+            "outputTokens": 507,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1833
+        }
+      },
+      {
+        "t": 15123,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 1206,
+            "outputTokens": 1236,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 15014
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 1206,
+        "outputTokens": 1236,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 15123,
+      "toolMs": 2025,
+      "llmMs": 13098,
+      "outputChars": 164
+    },
+    "finalText": "Here are the top 5 countries by revenue in 2023:\n\n1. **China:** $300,436.70\n2. **United States:** $194,733.42\n3. **Brazil (Brasil):** $132,263.34\n4. **South Korea:** $51,443.37\n5. **Germany:** $40,169.28\n\n**Confidence and Caveats:**\n* **High Confidence:** The results are derived directly from a join between the `order_items` and `users` tables, grouping by the user's registered country. \n* **Revenue Definition:** \"Revenue\" was calculated by summing the `sale_price` of individual items. I explicitly excluded orders with a status of 'Cancelled' or 'Returned' to reflect actual realized net sales.\n* **Time Zone:** The year 2023 was extracted using BigQuery's default UTC time zone on the order's `created_at` timestamp. Results could vary slightly if adjusting for local time zones.",
+    "endedAt": 1791457327323
+  }
+}

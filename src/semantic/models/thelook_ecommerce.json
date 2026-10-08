@@ -1,0 +1,147 @@
+{
+  "id": "thelook_ecommerce",
+  "version": "2026-10-08.1",
+  "title": "theLook eCommerce (synthetic clothing retailer)",
+  "description": "Synthetic online clothing store: users, orders, order line items, products, inventory, 10 US distribution centers and web events. Verified against BigQuery on 2026-10-08.",
+  "includes": ["us_geo"],
+  "rules": [
+    "\"Revenue\" with no qualifier means net_revenue (excludes Cancelled and Returned items). Report it, also give gross_revenue when it changes the answer, and always state which definition you used.",
+    "Attribute item-level metrics (revenue, items, orders counted from order_items) to order_items.created_at. orders.created_at can differ by up to 4 days (45% of items fall on another day), so do not mix the two clocks in one metric.",
+    "Data runs into the future (rows up to ~2026-10-11, generated ahead of today). For 'to date', 'last N days' or 'this year' questions, also filter created_at < CURRENT_TIMESTAMP(). 2019-2025 are complete years.",
+    "Normalize country before grouping: Deutschland=Germany, España=Spain; Brazil is spelled 'Brasil' (no 'Brazil' value exists). Use the country_clean dimension.",
+    "All 10 distribution centers are in the United States: 'shipped outside its own country' means users.country != 'United States'. A product ships from products.distribution_center_id.",
+    "Timestamps are UTC. Filter time ranges as created_at >= '2023-01-01' AND created_at < '2024-01-01'; group with DATE_TRUNC(DATE(created_at), MONTH).",
+    "Tables are small (MBs) except events (385 MB): never SELECT * from events."
+  ],
+  "sources": [
+    {
+      "name": "order_items",
+      "table": "bigquery-public-data.thelook_ecommerce.order_items",
+      "description": "Order line items: the revenue fact table.",
+      "grain": "one row per item sold (an order has 1-4 items)",
+      "primary_key": "id",
+      "time_column": "created_at",
+      "columns": {
+        "status": { "description": "item status, always equal to its order's status", "values": ["Complete", "Shipped", "Processing", "Cancelled", "Returned"] },
+        "sale_price": { "description": "price paid for the item; equals products.retail_price (no discounts)", "unit": "USD" },
+        "created_at": { "description": "when the item was ordered (revenue date)" },
+        "returned_at": { "description": "set only when status = 'Returned'" },
+        "inventory_item_id": { "description": "the physical unit sold (1:1 with inventory_items)" }
+      }
+    },
+    {
+      "name": "orders",
+      "table": "bigquery-public-data.thelook_ecommerce.orders",
+      "description": "Order headers.",
+      "grain": "one row per order",
+      "primary_key": "order_id",
+      "time_column": "created_at",
+      "columns": {
+        "status": { "description": "order status", "values": ["Complete", "Shipped", "Processing", "Cancelled", "Returned"] },
+        "num_of_item": { "description": "number of items; always equals the order's order_items count" },
+        "gender": { "description": "copy of users.gender", "values": ["M", "F"] }
+      },
+      "gotchas": ["Has no amounts: revenue comes from order_items."]
+    },
+    {
+      "name": "products",
+      "table": "bigquery-public-data.thelook_ecommerce.products",
+      "description": "Product catalog.",
+      "grain": "one row per product",
+      "primary_key": "id",
+      "columns": {
+        "department": { "description": "top-level department", "values": ["Men", "Women"] },
+        "category": { "description": "26 categories, e.g. Jeans, Tops & Tees, Outerwear & Coats, Intimates, Swim" },
+        "cost": { "description": "unit cost", "unit": "USD" },
+        "retail_price": { "description": "list price", "unit": "USD" },
+        "distribution_center_id": { "description": "the DC this product ships from (never null)" }
+      }
+    },
+    {
+      "name": "users",
+      "table": "bigquery-public-data.thelook_ecommerce.users",
+      "description": "Customers.",
+      "grain": "one row per customer",
+      "primary_key": "id",
+      "time_column": "created_at",
+      "geo": { "lat": "latitude", "lon": "longitude", "geography": "user_geom" },
+      "columns": {
+        "country": { "description": "16 raw values; top: China, United States, Brasil, South Korea, France, United Kingdom, Germany, Spain, Japan, Australia. Duplicates: Deutschland (=Germany), España (=Spain). Use country_clean." },
+        "state": { "description": "state/region name (227 values worldwide); for US users it matches us_states.state_name" },
+        "traffic_source": { "description": "acquisition channel", "values": ["Search", "Organic", "Facebook", "Email", "Display"] },
+        "age": { "description": "12-70" },
+        "gender": { "values": ["M", "F"] },
+        "latitude": { "description": "never null (also user_geom POINT)" }
+      },
+      "gotchas": ["first_name, last_name, email, street_address are personal data: do not output them."]
+    },
+    {
+      "name": "distribution_centers",
+      "table": "bigquery-public-data.thelook_ecommerce.distribution_centers",
+      "description": "The 10 warehouses, all in the USA: Memphis TN, Chicago IL, Houston TX, Los Angeles CA, New Orleans LA, Port Authority of New York/New Jersey NY/NJ, Philadelphia PA, Mobile AL, Charleston SC, Savannah GA.",
+      "grain": "one row per distribution center",
+      "primary_key": "id",
+      "geo": { "lat": "latitude", "lon": "longitude", "geography": "distribution_center_geom" },
+      "columns": {
+        "name": { "description": "city and state, e.g. 'Houston TX'" }
+      }
+    },
+    {
+      "name": "inventory_items",
+      "table": "bigquery-public-data.thelook_ecommerce.inventory_items",
+      "description": "Physical stock units with denormalized product attributes.",
+      "grain": "one row per stock unit",
+      "primary_key": "id",
+      "time_column": "created_at",
+      "columns": {
+        "sold_at": { "description": "null = still in stock; 37% of units are sold" },
+        "cost": { "description": "unit cost", "unit": "USD" },
+        "product_distribution_center_id": { "description": "DC holding the unit" }
+      }
+    },
+    {
+      "name": "events",
+      "table": "bigquery-public-data.thelook_ecommerce.events",
+      "description": "Website clickstream (2.4M rows, the largest table).",
+      "grain": "one row per page event",
+      "primary_key": "id",
+      "time_column": "created_at",
+      "columns": {
+        "event_type": { "values": ["home", "department", "product", "cart", "purchase", "cancel"] },
+        "traffic_source": { "description": "session channel; NOT the same values as users.traffic_source", "values": ["Email", "Facebook", "Adwords", "YouTube", "Organic"] },
+        "user_id": { "description": "null for 46% of events (anonymous sessions)" },
+        "session_id": { "description": "funnel unit; order events by sequence_number" }
+      }
+    }
+  ],
+  "relationships": [
+    { "from": "order_items.order_id", "to": "orders.order_id", "cardinality": "many_to_one" },
+    { "from": "order_items.user_id", "to": "users.id", "cardinality": "many_to_one" },
+    { "from": "order_items.product_id", "to": "products.id", "cardinality": "many_to_one" },
+    { "from": "order_items.inventory_item_id", "to": "inventory_items.id", "cardinality": "one_to_one" },
+    { "from": "orders.user_id", "to": "users.id", "cardinality": "many_to_one" },
+    { "from": "products.distribution_center_id", "to": "distribution_centers.id", "cardinality": "many_to_one" },
+    { "from": "inventory_items.product_id", "to": "products.id", "cardinality": "many_to_one" },
+    { "from": "events.user_id", "to": "users.id", "cardinality": "many_to_one", "note": "nullable" },
+    { "from": "users.state", "to": "us_states.state_name", "cardinality": "many_to_one", "note": "only where users.country = 'United States'" }
+  ],
+  "dimensions": [
+    {
+      "name": "country_clean",
+      "source": "users",
+      "sql": "CASE users.country WHEN 'Deutschland' THEN 'Germany' WHEN 'España' THEN 'Spain' WHEN 'Brasil' THEN 'Brazil' ELSE users.country END",
+      "description": "country with duplicate spellings merged"
+    }
+  ],
+  "metrics": [
+    { "name": "net_revenue", "source": "order_items", "sql": "SUM(order_items.sale_price)", "filter": "order_items.status NOT IN ('Cancelled', 'Returned')", "description": "DEFAULT 'revenue': sales excluding cancelled and returned items", "unit": "USD" },
+    { "name": "gross_revenue", "source": "order_items", "sql": "SUM(order_items.sale_price)", "description": "all items ordered, any status", "unit": "USD" },
+    { "name": "orders", "source": "order_items", "sql": "COUNT(DISTINCT order_items.order_id)", "filter": "order_items.status NOT IN ('Cancelled', 'Returned')", "description": "net orders (same filter as net_revenue)" },
+    { "name": "aov", "source": "order_items", "sql": "SAFE_DIVIDE(SUM(order_items.sale_price), COUNT(DISTINCT order_items.order_id))", "filter": "order_items.status NOT IN ('Cancelled', 'Returned')", "description": "average order value = net_revenue / orders", "unit": "USD" },
+    { "name": "items_per_order", "source": "order_items", "sql": "SAFE_DIVIDE(COUNT(*), COUNT(DISTINCT order_items.order_id))", "filter": "order_items.status NOT IN ('Cancelled', 'Returned')", "description": "net items / net orders" },
+    { "name": "gross_margin", "source": "order_items", "sql": "SUM(order_items.sale_price - inventory_items.cost)", "filter": "order_items.status NOT IN ('Cancelled', 'Returned')", "joins": ["inventory_items"], "description": "net revenue minus unit cost", "unit": "USD" },
+    { "name": "return_rate", "source": "order_items", "sql": "SAFE_DIVIDE(COUNTIF(order_items.status = 'Returned'), COUNT(*))", "description": "share of items returned (of all items)" },
+    { "name": "cancellation_rate", "source": "order_items", "sql": "SAFE_DIVIDE(COUNTIF(order_items.status = 'Cancelled'), COUNT(*))", "description": "share of items cancelled (of all items)" },
+    { "name": "customers", "source": "order_items", "sql": "COUNT(DISTINCT order_items.user_id)", "filter": "order_items.status NOT IN ('Cancelled', 'Returned')", "description": "distinct buyers with a net purchase" }
+  ]
+}
