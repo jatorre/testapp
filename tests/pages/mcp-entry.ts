@@ -1,6 +1,7 @@
 // Browser test harness for src/carto/mcp.ts + src/tools/mcp.ts. Driven by tests/mcp/mcp.spec.ts.
 import { createMcpTools, getMcpDiagnostics, resetMcp, setAsyncPolling } from '../../src/tools/mcp';
-import { connectMcp, type McpTransportKind } from '../../src/carto/mcp';
+import { connectMcp, resolveMcpUrls, type McpTransportKind } from '../../src/carto/mcp';
+import { getCartoInfo } from '../../src/carto/info';
 
 const MOCK = 'http://localhost:5177';
 const artifacts: unknown[] = [];
@@ -52,5 +53,37 @@ async function connectOnly(mode: string, transports: McpTransportKind[]) {
   }
 }
 
-(window as any).__mcp = { scenario, connectOnly };
+/** REAL CARTO endpoint (uses .env.local via getCartoInfo). Never returns the token. */
+async function real() {
+  const info = await getCartoInfo();
+  const urls = resolveMcpUrls(info);
+  const out: Record<string, unknown> = { urls };
+  // 1) raw transport, CLI-style
+  try {
+    const { conn, tools } = await connectMcp({ urls: urls.slice(0, 1), token: info.accessToken, transports: ['raw'] });
+    out.raw = { ok: true, toolCount: tools.length, diag: { ...conn.diagnostics, sessionId: conn.diagnostics.sessionId ? '(present)' : undefined } };
+    await conn.close();
+  } catch (e) {
+    out.raw = { ok: false, error: (e as Error).message, diag: (e as any).diagnostics };
+  }
+  // 2) full tool layer (SDK first), all tools listed
+  await resetMcp();
+  const tools = await createMcpTools({ allow: '*' });
+  const d = structuredClone(getMcpDiagnostics());
+  if (d.sessionId) d.sessionId = '(present)';
+  out.sdk = d;
+  out.toolNames = tools.map((t) => t.name);
+  const lw = tools.find((t) => t.name === 'mcp__list_workflow_mcp_tools');
+  if (lw) out.listWorkflowMcpTools = await call(tools, lw.name, {});
+  const ex = tools.find((t) => t.name === 'mcp__explore_data') ?? tools.find((t) => t.name === 'mcp__list_connections');
+  if (ex) out.cheap = { tool: ex.name, res: await call(tools, ex.name, ex.name === 'mcp__explore_data' ? { method: 'list_connections' } : {}) };
+  const sample = tools.find((t) => /getis|nyc_/.test(t.name)) ?? tools[0];
+  out.sampleSchema = sample && { name: sample.name, description: sample.description.slice(0, 300) };
+  // default filter view
+  await resetMcp();
+  out.defaultExposed = (await createMcpTools()).map((t) => t.name);
+  return out;
+}
+
+(window as any).__mcp = { scenario, connectOnly, real };
 document.getElementById('out')!.textContent = 'ready';

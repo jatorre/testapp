@@ -110,7 +110,9 @@ export function decodeJwtPayload(token: string): Record<string, unknown> | null 
 export function resolveAccountId(info: Pick<CartoInfo, 'accessToken' | 'user'>): string | undefined {
   if (info.user?.accountId) return info.user.accountId;
   const claim = decodeJwtPayload(info.accessToken)?.['http://app.carto.com/account_id'];
-  return typeof claim === 'string' && claim ? claim : undefined;
+  if (typeof claim === 'string' && claim) return claim;
+  // Local dev (env mode has no user object).
+  return (import.meta.env?.VITE_CARTO_ACCOUNT_ID as string | undefined) || undefined;
 }
 
 /** 'https://gcp-us-east1.api.carto.com' → 'https://ai-gcp-us-east1.api.carto.com' (CLI convention). */
