@@ -41,6 +41,11 @@ async function load(): Promise<CartoInfo> {
   } catch {
     /* fall through to env */
   }
+  // Dev-only fallback. Guarded by import.meta.env.DEV so production builds dead-code-eliminate it and can never
+  // inline a token (the token lives in .env.development.local, which `vite build` does not load).
+  if (!import.meta.env.DEV) {
+    throw new Error('No ./carto-info.json: open this app through CARTO (carto app deploy), not as a static file.');
+  }
   const env = import.meta.env;
   const token = env.VITE_CARTO_TOKEN as string | undefined;
   if (!token) {

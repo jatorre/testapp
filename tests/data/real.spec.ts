@@ -1,6 +1,6 @@
 import { expect, test } from '@playwright/test';
 
-// Real CARTO SQL API from the browser (opt-in: REAL_CARTO=1, token from .env.local — never logged).
+// Real CARTO SQL API from the browser (opt-in: REAL_CARTO=1, token from .env.development.local — never logged).
 test.skip(!process.env.REAL_CARTO, 'set REAL_CARTO=1');
 const OI = '`bigquery-public-data.thelook_ecommerce.order_items`';
 

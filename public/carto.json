@@ -1,0 +1,5 @@
+{
+  "name": "Client-side agent eval",
+  "apis": ["sql", "ai"],
+  "connections": [{ "name": "carto_dw", "provider": "bigquery" }]
+}

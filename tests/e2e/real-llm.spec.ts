@@ -4,7 +4,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 /**
  * Opt-in smoke test against the real CARTO LiteLLM proxy:
  *   REAL_LLM=1 npx playwright test
- * Credentials come from .env.local (read by Vite). The token is never logged.
+ * Credentials come from .env.development.local (read by Vite). The token is never logged.
  * Results (per harness: status, tokens, timing) are written to test-results/real-llm-smoke.json.
  */
 const MODEL = process.env.REAL_MODEL ?? 'carto::claude-sonnet-5' // claude-sonnet-4.6 is listed by /models but rejected by /chat/completions;

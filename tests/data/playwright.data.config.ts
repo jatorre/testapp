@@ -4,7 +4,7 @@ import { existsSync } from 'node:fs';
 // Data-layer tests (port 5174). Run:
 //   npx playwright test -c tests/data/playwright.data.config.ts                 # mocked CARTO API + DuckDB
 //   BENCH=1 npx playwright test -c tests/data/playwright.data.config.ts bench   # scaling measurements
-//   REAL_CARTO=1 npx playwright test -c tests/data/playwright.data.config.ts real  # real SQL API (.env.local)
+//   REAL_CARTO=1 npx playwright test -c tests/data/playwright.data.config.ts real  # real SQL API (.env.development.local)
 // DuckDB-WASM is fetched from jsDelivr; behind an egress proxy HTTPS_PROXY is passed to Chromium.
 const proxyUrl = process.env.HTTPS_PROXY || process.env.https_proxy;
 process.env.PLAYWRIGHT_DISABLE_FORCED_CHROMIUM_PROXIED_LOOPBACK = '1';

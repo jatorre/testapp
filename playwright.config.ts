@@ -3,7 +3,7 @@ import { existsSync } from 'node:fs';
 
 const PORT = 5173;
 // REAL_LLM=1: run only the real smoke tests (tests/e2e/real-*.spec.ts) against the CARTO LiteLLM proxy,
-// using credentials from .env.local (read by Vite; never printed). Default: mock-LLM suite only.
+// using credentials from .env.development.local (read by Vite; never printed). Default: mock-LLM suite only.
 const REAL = process.env.REAL_LLM === '1';
 const mockEnv = {
   VITE_CARTO_TOKEN: 'test-token',

@@ -53,7 +53,7 @@ async function connectOnly(mode: string, transports: McpTransportKind[]) {
   }
 }
 
-/** REAL CARTO endpoint (uses .env.local via getCartoInfo). Never returns the token. */
+/** REAL CARTO endpoint (uses .env.development.local via getCartoInfo). Never returns the token. */
 async function real() {
   const info = await getCartoInfo();
   const urls = resolveMcpUrls(info);

@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import { writeFileSync } from 'node:fs';
 
-// Real CARTO endpoint; needs .env.local (VITE_CARTO_TOKEN, VITE_CARTO_ACCOUNT_ID). Opt-in: REAL_CARTO=1.
+// Real CARTO endpoint; needs .env.development.local (VITE_CARTO_TOKEN, VITE_CARTO_ACCOUNT_ID). Opt-in: REAL_CARTO=1.
 // Logs only response headers + results; never the Authorization request header.
 test.skip(!process.env.REAL_CARTO, 'set REAL_CARTO=1 to run against the real CARTO MCP endpoint');
 test.setTimeout(120_000);
