@@ -1,0 +1,40 @@
+{
+  "name": "client-side-agent-eval",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "lint": "oxlint",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@ai-sdk/openai": "^4.0.89",
+    "@ai-sdk/openai-compatible": "^3.0.66",
+    "@duckdb/duckdb-wasm": "^1.33.1-dev57.0",
+    "@modelcontextprotocol/sdk": "^1.32.1",
+    "@openai/agents": "^0.19.0",
+    "ai": "^7.0.133",
+    "apache-arrow": "^21.2.0",
+    "bash-tool": "^1.3.19",
+    "just-bash": "^3.6.0",
+    "pyodide": "^314.0.7",
+    "react": "^19.2.8",
+    "react-dom": "^19.2.8",
+    "vega": "^6.4.0",
+    "vega-embed": "^7.3.0",
+    "vega-lite": "^6.4.3",
+    "zod": "^4.6.5"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.56.1",
+    "@types/node": "^24.13.3",
+    "@types/react": "^19.2.18",
+    "@types/react-dom": "^19.2.7",
+    "@vitejs/plugin-react": "^6.1.1",
+    "oxlint": "^1.81.0",
+    "typescript": "~6.0.2",
+    "vite": "^8.3.0"
+  }
+}
