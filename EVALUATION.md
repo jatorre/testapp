@@ -137,6 +137,52 @@ Ground truth computed independently in BigQuery:
 All numbers that the models reported matched BigQuery. Errors were about framing and claims, not arithmetic,
 which is what the files + DuckDB/Python pattern buys you.
 
+### Ablation: is the files + DuckDB + Python stack needed at all?
+Demo 7 strips the agent down to **one tool, `run_sql`**. It runs a read-only BigQuery query and returns up to 500
+rows as CSV straight into context: no files, no DuckDB, no Python, no charts. Same models, same harness, same
+prompts.
+
+**Task 1 — the demo-6 investigation:**
+
+| Model | Full stack: input tokens / wall time / BQ MB | SQL-only: input tokens / wall time / BQ MB | SQL-only correct? |
+|---|---|---|---|
+| claude-opus-5.5 | 76k / 88 s / 14 | **4.7k / 38 s / 22** | ✅ (gross Feb vs net Jul, both explained) |
+| claude-opus-4.8 | 108k / 91 s / 13 | **9.6k / 37 s / 22** | ✅ (Jul net) |
+| claude-sonnet-5 | 139k / 107 s / 14 | **15k / 55 s / 24** | ❌ Feb at $77.5k (truth $79.9k); "the only decline" (false) |
+| gemini-3.1-pro | 210k / 116 s / 23 | **118k / 92 s / 75** | ✅ (Jul net) |
+| gemini-3.8-flash | 607k / 204 s / 29 (no answer) | **191k / 144 s / 190** | ✅ (both definitions) |
+
+**Task 2 — the demo-4 statistics prompt** ("…with pandas compute AOV by age band and gender, test
+significance"):
+- With SQL only, both Claude models computed a **Welch t-test inside BigQuery SQL** (means, variances and t from
+  aggregates).
+- They got the same means as the pandas run (M $89.15 vs F $81.38, t ≈ 4.96, p < 0.001).
+- Token use: 2.6–3k input, against 14–34k for the full stack.
+
+**What this says:**
+- **For questions answerable with aggregates, the warehouse is the analysis engine.** A single SQL tool used
+  **5–16× fewer tokens** on Claude, ran **~2× faster**, and was as accurate. It even rescued Gemini Flash, which
+  wandered off with the full toolset.
+- The full stack's overhead comes from three things: 11 tool schemas in every step, more steps (plan.md,
+  report.md, describing tables, exploring), and the model re-deriving in DuckDB what one GROUP BY would give.
+- **The cost moves to BigQuery:** SQL-only scanned 1.5–6.5× more bytes, because every follow-up question is
+  another scan. Here that is MBs. On a multi-TB fact table, 10–15 exploratory scans per question is real money and
+  10+ s latency each, while the file-first pattern pays the scan once and then iterates locally in milliseconds.
+- **The files + DuckDB + Python stack earns its place when:**
+  - scans are expensive or slow (large tables);
+  - the analysis isn't natural in SQL (regressions, clustering, forecasting, scipy, non-trivial stats);
+  - the agent iterates many times on one slice;
+  - outputs must become artifacts (charts from files, CSV downloads, reports);
+  - the user brings their own files.
+- **It is not required** for good agent behaviour on aggregate business questions over warehouse data.
+
+**Recommendation:**
+- Make **`run_sql` (results into context, small cap) the default tool**, and keep `bq_query → file` + DuckDB/Python
+  as opt-in tools the model reaches for when a result is large or needs non-SQL analysis.
+- Load Pyodide lazily, only when `run_python` is first called. This also removes the 14 s cold start from most
+  sessions.
+- Fewer tools in the default set means fewer schema tokens on every step.
+
 **Harness comparison** (demo 3, claude-sonnet-5, same prompt):
 
 | Harness | Steps | Input / output tokens | Wall time | Own bundle (gzip) | LOC |
@@ -236,8 +282,9 @@ CARTO Hosted App (static, org login)
  └─ browser
      ├─ agent loop (thin; AI SDK or ~120-line loop) ── LiteLLM (viewer token)
      ├─ tools
-     │   ├─ bq_query ── CARTO SQL API (viewer token) ── BigQuery   → Parquet in VFS (schema+sample to model)
-     │   ├─ duckdb_query (DuckDB-WASM worker)  ← main analysis engine
+     │   ├─ run_sql ── CARTO SQL API ── BigQuery → small result into context   ← DEFAULT (see §5 ablation)
+│   ├─ bq_query ── CARTO SQL API (viewer token) ── BigQuery   → Parquet in VFS (schema+sample to model)
+     │   ├─ duckdb_query (DuckDB-WASM worker)  ← for large pulls / iterative slicing
      │   ├─ run_python (Pyodide worker, prewarmed) ← stats / modelling
      │   ├─ render_chart (Vega-Lite, validated)
      │   └─ mcp__<allowlisted> ── CARTO MCP (curated Workflows only)
@@ -273,7 +320,7 @@ Server-side *configuration* (no compute):
 
    Ask CARTO for an Arrow/Parquet response format, or fix the Exports API float precision.
 5. **Claude prompt caching through LiteLLM:** currently 0%. Probably the largest cost reduction available.
-6. **Model list vs reality:** 5 of the 10 models in `/v1/models` reject chat completions.
+6. **Model availability:** during the session `/v1/models` listed 10 models, 5 of which rejected chat completions. The list was later reduced to the 5 that work. `claude-sonnet-5.5` is **not enabled for this team** (401 "Team cannot access"), so it is untested; ask CARTO to enable it, since Sonnet-class models are the natural cost/quality default.
 7. **Step-cap failures look like success:** a run that hits `maxSteps` reports "done" with no answer. Surface it
    as a failure and force a final summary turn.
 8. **Evidence is thin on variance:** one run per model/demo. Run 5–10 trials before choosing a default model.

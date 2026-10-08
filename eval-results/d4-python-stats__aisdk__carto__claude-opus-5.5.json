@@ -1,0 +1,434 @@
+{
+  "summary": {
+    "demoId": "d4-python",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "status": "done",
+    "steps": 3,
+    "toolCalls": 2,
+    "toolErrors": 0,
+    "toolCounts": {
+      "bq_query": 1,
+      "run_python": 1
+    },
+    "usage": {
+      "inputTokens": 13569,
+      "outputTokens": 2460,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 49992,
+    "toolMs": 26419,
+    "llmMs": 23573,
+    "maxToolOutputChars": 1769,
+    "files": [
+      "/data/orders_2023.parquet",
+      "/data/orders_2023.sql"
+    ],
+    "charts": 0,
+    "answer": "I saved the 2023 orders to a file and ran the analysis. Men's average order value is about $8 (roughly 10%) higher than women's, and the difference is clearly statistically significant. Age makes almost no difference.\n\n**Data:** `/data/orders_2023.parquet` has 13,736 orders from 2023. Each row has the order's value (the sum of its items' sale prices), the number of items, and the customer's age, gender and country. All order statuses are included, so 2,048 cancelled and 1,332 returned orders count too.\n\n**Average order value by age band and gender (USD)**\n\n| Age band | F | M | F − M | Orders (F / M) |\n|---|---|---|---|---|\n| <18 | 84.21 | 93.55 | −9.34 | 719 / 720 |\n| 18–24 | 79.30 | 90.13 | −10.83 | 803 / 821 |\n| 25–34 | 77.13 | 88.02 | −10.89 | 1161 / 1167 |\n| 35–44 | 81.63 | 89.55 | −7.92 | 1126 / 1115 |\n| 45–54 | 81.36 | 84.27 | −2.91 | 1151 / 1215 |\n| 55–64 | 83.86 | 90.64 | −6.78 | 1163 / 1174 |\n| 65+ | 81.45 | 89.83 | −8.38 | 712 / 689 |\n| **All** | **81.18** (median 53.87) | **89.06** (median 57.99) | **−7.88** | 6835 / 6901 |\n\n**Is the gender difference significant?**\nOrder values are heavily skewed (a few large orders pull the averages up), so I used three tests to make sure the result doesn't depend on one method:\n- **Comparing averages (Welch t-test):** t = −5.03, p ≈ 5×10⁻⁷\n- **Comparing rankings, not affected by outliers (Mann-Whitney U):** p ≈ 4×10⁻¹⁴\n- **Comparing averages after a log transform to reduce skew (Welch t-test):** t = −8.50, p ≈ 2×10⁻¹⁷\n\nAll three agree that men spend more per order.\n\n**Gender and age together (two-way ANOVA on log order value):**\n- Gender: F = 72.4, p < 0.0001, so it is significant.\n- Age band: p = 0.97, so it has no effect.\n- Gender × age band: p = 0.51. The gender gap is about the same size in every age band.\n\nWithin each band, women's average is lower in all seven. The gap is significant on at least one test in every band except 45–54, which has the smallest gap ($2.91, p ≈ 0.2–0.4). The smaller per-band samples explain why some other bands are only borderline.\n\n**Caveats:**\n- The gap is statistically real but small in practice: about $8 on orders whose values vary by roughly $90.\n- Thelook is a synthetic dataset, so the gap may reflect how the product catalogue is set up (for example, men's items costing more) rather than how people actually shop. Splitting by product category would show which it is.\n- If you'd rather look only at completed purchases, I can rerun this without cancelled and returned orders."
+  },
+  "run": {
+    "demoId": "d4-python",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "prompt": "Get 2023 orders with user age, gender and country into a file, then with pandas compute average order value by age band and gender, and test whether the difference between genders is significant.",
+    "id": "run_muzbpvym",
+    "startedAt": 1791451079950,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01LmXaHkNFcAP3RLWEssDmeY",
+        "name": "bq_query",
+        "input": {
+          "sql": "WITH ov AS (\n  SELECT order_id, SUM(sale_price) AS order_value, COUNT(*) AS n_items\n  FROM `bigquery-public-data.thelook_ecommerce.order_items`\n  WHERE created_at >= '2023-01-01' AND created_at < '2024-01-01'\n  GROUP BY order_id)\nSELECT o.order_id, o.user_id, o.status, o.created_at, ov.order_value, ov.n_items,\n       u.age, u.gender, u.country\nFROM `bigquery-public-data.thelook_ecommerce.orders` o\nJOIN ov USING (order_id)\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON u.id = o.user_id\nWHERE o.created_at >= '2023-01-01' AND o.created_at < '2024-01-01'",
+          "save_as": "orders_2023",
+          "mode": "bulk",
+          "description": "2023 orders with order value (sum of item sale_price) and user age, gender, country"
+        },
+        "startedAt": 1791451085376,
+        "output": {
+          "path": "/data/orders_2023.parquet",
+          "rowCount": 13736,
+          "columns": [
+            {
+              "name": "order_id",
+              "type": "BIGINT"
+            },
+            {
+              "name": "user_id",
+              "type": "BIGINT"
+            },
+            {
+              "name": "status",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "created_at",
+              "type": "TIMESTAMP"
+            },
+            {
+              "name": "order_value",
+              "type": "DOUBLE"
+            },
+            {
+              "name": "n_items",
+              "type": "BIGINT"
+            },
+            {
+              "name": "age",
+              "type": "BIGINT"
+            },
+            {
+              "name": "gender",
+              "type": "VARCHAR"
+            },
+            {
+              "name": "country",
+              "type": "VARCHAR"
+            }
+          ],
+          "sample": [
+            {
+              "order_id": 334,
+              "user_id": 267,
+              "status": "Cancelled",
+              "created_at": "2023-08-25T03:51:00Z",
+              "order_value": 199,
+              "n_items": 1,
+              "age": 31,
+              "gender": "F",
+              "country": "Brasil"
+            },
+            {
+              "order_id": 337,
+              "user_id": 267,
+              "status": "Cancelled",
+              "created_at": "2023-06-21T04:14:37Z",
+              "order_value": 64.98999786376953,
+              "n_items": 1,
+              "age": 31,
+              "gender": "F",
+              "country": "Brasil"
+            },
+            {
+              "order_id": 445,
+              "user_id": 377,
+              "status": "Cancelled",
+              "created_at": "2023-05-08T11:10:14Z",
+              "order_value": 24,
+              "n_items": 1,
+              "age": 19,
+              "gender": "F",
+              "country": "China"
+            },
+            {
+              "order_id": 459,
+              "user_id": 386,
+              "status": "Cancelled",
+              "created_at": "2023-04-27T01:57:15Z",
+              "order_value": 22,
+              "n_items": 1,
+              "age": 12,
+              "gender": "F",
+              "country": "China"
+            },
+            {
+              "order_id": 499,
+              "user_id": 414,
+              "status": "Cancelled",
+              "created_at": "2023-05-06T18:05:27Z",
+              "order_value": 29.989999771118164,
+              "n_items": 1,
+              "age": 15,
+              "gender": "F",
+              "country": "United States"
+            }
+          ],
+          "bytesInFile": 209672,
+          "truncated": false,
+          "transport": "exports-api",
+          "elapsedMs": 9300,
+          "sessionBytesProcessed": "0 B"
+        },
+        "durationMs": 9303,
+        "outputChars": 1769
+      },
+      {
+        "id": "toolu_vrtx_01Jvtrnm5eAdHmP81NK9dwjV",
+        "name": "run_python",
+        "input": {
+          "code": "\nimport pandas as pd, numpy as np\nfrom scipy import stats\ndf = pd.read_parquet('/data/orders_2023.parquet')\nprint(df.shape, df.status.value_counts().to_dict(), df.age.min(), df.age.max())\nbins=[0,18,25,35,45,55,65,200]; labels=['<18','18-24','25-34','35-44','45-54','55-64','65+']\ndf['age_band']=pd.cut(df.age,bins=bins,right=False,labels=labels)\nt = df.pivot_table(index='age_band',columns='gender',values='order_value',aggfunc=['mean','count'],observed=True).round(2)\nprint(t)\nprint(df.groupby('gender').order_value.agg(['mean','median','std','count']).round(2))\nf=df.loc[df.gender=='F','order_value']; m=df.loc[df.gender=='M','order_value']\nw=stats.ttest_ind(f,m,equal_var=False); mw=stats.mannwhitneyu(f,m)\nlr=stats.ttest_ind(np.log(f),np.log(m),equal_var=False)\nprint('Welch',w, '\\nMWU',mw,'\\nlog Welch',lr)\n# per band\nrows=[]\nfor b,g in df.groupby('age_band',observed=True):\n    ff=g[g.gender=='F'].order_value; mm=g[g.gender=='M'].order_value\n    rows.append((b,round(ff.mean()-mm.mean(),2),stats.ttest_ind(ff,mm,equal_var=False).pvalue,stats.mannwhitneyu(ff,mm).pvalue))\nprint(pd.DataFrame(rows,columns=['band','F-M','welch_p','mwu_p']).round(4))\n# two-way ANOVA via OLS on log value\nimport statsmodels.formula.api as smf, statsmodels.api as sm\nmod=smf.ols('np.log(order_value) ~ C(gender)*C(age_band)',data=df).fit()\nprint(sm.stats.anova_lm(mod,typ=2).round(4))\n"
+        },
+        "startedAt": 1791451101398,
+        "output": {
+          "stdout": "(13736, 9) {'Shipped': 4140, 'Complete': 3420, 'Processing': 2796, 'Cancelled': 2048, 'Returned': 1332} 12 70\n           mean        count      \ngender        F      M     F     M\nage_band                          \n<18       84.21  93.55   719   720\n18-24     79.30  90.13   803   821\n25-34     77.13  88.02  1161  1167\n35-44     81.63  89.55  1126  1115\n45-54     81.36  84.27  1151  1215\n55-64     83.86  90.64  1163  1174\n65+       81.45  89.83   712   689\n         mean  median    std  count\ngender                             \nF       81.18   53.87  88.94   6835\nM       89.06   57.99  94.65   6901\nWelch TtestResult(statistic=np.float64(-5.02993277039408), pvalue=np.float64(4.968625062724706e-07), df=np.float64(13696.171560740639)) \nMWU MannwhitneyuResult(statistic=np.float64(21828822.0), pvalue=np.float64(4.215084758477418e-14)) \nlog Welch TtestResult(statistic=np.float64(-8.500605847765891), pvalue=np.float64(2.07993408212218e-17), df=np.float64(13658.661084045743))\n    band    F-M  welch_p   mwu_p\n0    <18  -9.34   0.0934  0.0003\n1  18-24 -10.83   0.0149  0.0153\n2  25-34 -10.89   0.0016  0.0000\n3  35-44  -7.92   0.0432  0.0076\n4  45-54  -2.91   0.4209  0.2089\n5  55-64  -6.78   0.0881  0.0001\n6    65+  -8.38   0.0860  0.0436\n                           sum_sq       df        F  PR(>F)\nC(gender)                 60.5679      1.0  72.3845  0.0000\nC(age_band)                1.1340      6.0   0.2259  0.9685\nC(gender):C(age_band)      4.4053      6.0   0.8775  0.5104\nResidual               11481.9115  13722.0      NaN     NaN\n",
+          "durationMs": 7847
+        },
+        "durationMs": 17116,
+        "outputChars": 1614
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 3100,
+          "outputTokens": 566,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 12202,
+        "at": 1791451094685
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 4466,
+          "outputTokens": 795,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 22466,
+        "at": 1791451118515
+      },
+      {
+        "step": 3,
+        "usage": {
+          "inputTokens": 6003,
+          "outputTokens": 1099,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 2176,
+        "at": 1791451129941
+      }
+    ],
+    "events": [
+      {
+        "t": 5426,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01LmXaHkNFcAP3RLWEssDmeY",
+          "name": "bq_query",
+          "input": {
+            "sql": "WITH ov AS (\n  SELECT order_id, SUM(sale_price) AS order_value, COUNT(*) AS n_items\n  FROM `bigquery-public-data.thelook_ecommerce.order_items`\n  WHERE created_at >= '2023-01-01' AND created_at < '2024-01-01'\n  GROUP BY order_id)\nSELECT o.order_id, o.user_id, o.status, o.created_at, ov.order_value, ov.n_items,\n       u.age, u.gender, u.country\nFROM `bigquery-public-data.thelook_ecommerce.orders` o\nJOIN ov USING (order_id)\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON u.id = o.user_id\nWHERE o.created_at >= '2023-01-01' AND o.created_at < '2024-01-01'",
+            "save_as": "orders_2023",
+            "mode": "bulk",
+            "description": "2023 orders with order value (sum of item sale_price) and user age, gender, country"
+          },
+          "startedAt": 1791451085376
+        }
+      },
+      {
+        "t": 14729,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01LmXaHkNFcAP3RLWEssDmeY",
+          "name": "bq_query",
+          "output": {
+            "path": "/data/orders_2023.parquet",
+            "rowCount": 13736,
+            "columns": [
+              {
+                "name": "order_id",
+                "type": "BIGINT"
+              },
+              {
+                "name": "user_id",
+                "type": "BIGINT"
+              },
+              {
+                "name": "status",
+                "type": "VARCHAR"
+              },
+              {
+                "name": "created_at",
+                "type": "TIMESTAMP"
+              },
+              {
+                "name": "order_value",
+                "type": "DOUBLE"
+              },
+              {
+                "name": "n_items",
+                "type": "BIGINT"
+              },
+              {
+                "name": "age",
+                "type": "BIGINT"
+              },
+              {
+                "name": "gender",
+                "type": "VARCHAR"
+              },
+              {
+                "name": "country",
+                "type": "VARCHAR"
+              }
+            ],
+            "sample": [
+              {
+                "order_id": 334,
+                "user_id": 267,
+                "status": "Cancelled",
+                "created_at": "2023-08-25T03:51:00Z",
+                "order_value": 199,
+                "n_items": 1,
+                "age": 31,
+                "gender": "F",
+                "country": "Brasil"
+              },
+              {
+                "order_id": 337,
+                "user_id": 267,
+                "status": "Cancelled",
+                "created_at": "2023-06-21T04:14:37Z",
+                "order_value": 64.98999786376953,
+                "n_items": 1,
+                "age": 31,
+                "gender": "F",
+                "country": "Brasil"
+              },
+              {
+                "order_id": 445,
+                "user_id": 377,
+                "status": "Cancelled",
+                "created_at": "2023-05-08T11:10:14Z",
+                "order_value": 24,
+                "n_items": 1,
+                "age": 19,
+                "gender": "F",
+                "country": "China"
+              },
+              {
+                "order_id": 459,
+                "user_id": 386,
+                "status": "Cancelled",
+                "created_at": "2023-04-27T01:57:15Z",
+                "order_value": 22,
+                "n_items": 1,
+                "age": 12,
+                "gender": "F",
+                "country": "China"
+              },
+              {
+                "order_id": 499,
+                "user_id": 414,
+                "status": "Cancelled",
+                "created_at": "2023-05-06T18:05:27Z",
+                "order_value": 29.989999771118164,
+                "n_items": 1,
+                "age": 15,
+                "gender": "F",
+                "country": "United States"
+              }
+            ],
+            "bytesInFile": 209672,
+            "truncated": false,
+            "transport": "exports-api",
+            "elapsedMs": 9300,
+            "sessionBytesProcessed": "0 B"
+          },
+          "durationMs": 9303,
+          "outputChars": 1769
+        }
+      },
+      {
+        "t": 14735,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 3100,
+            "outputTokens": 566,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 12202
+        }
+      },
+      {
+        "t": 21448,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01Jvtrnm5eAdHmP81NK9dwjV",
+          "name": "run_python",
+          "input": {
+            "code": "\nimport pandas as pd, numpy as np\nfrom scipy import stats\ndf = pd.read_parquet('/data/orders_2023.parquet')\nprint(df.shape, df.status.value_counts().to_dict(), df.age.min(), df.age.max())\nbins=[0,18,25,35,45,55,65,200]; labels=['<18','18-24','25-34','35-44','45-54','55-64','65+']\ndf['age_band']=pd.cut(df.age,bins=bins,right=False,labels=labels)\nt = df.pivot_table(index='age_band',columns='gender',values='order_value',aggfunc=['mean','count'],observed=True).round(2)\nprint(t)\nprint(df.groupby('gender').order_value.agg(['mean','median','std','count']).round(2))\nf=df.loc[df.gender=='F','order_value']; m=df.loc[df.gender=='M','order_value']\nw=stats.ttest_ind(f,m,equal_var=False); mw=stats.mannwhitneyu(f,m)\nlr=stats.ttest_ind(np.log(f),np.log(m),equal_var=False)\nprint('Welch',w, '\\nMWU',mw,'\\nlog Welch',lr)\n# per band\nrows=[]\nfor b,g in df.groupby('age_band',observed=True):\n    ff=g[g.gender=='F'].order_value; mm=g[g.gender=='M'].order_value\n    rows.append((b,round(ff.mean()-mm.mean(),2),stats.ttest_ind(ff,mm,equal_var=False).pvalue,stats.mannwhitneyu(ff,mm).pvalue))\nprint(pd.DataFrame(rows,columns=['band','F-M','welch_p','mwu_p']).round(4))\n# two-way ANOVA via OLS on log value\nimport statsmodels.formula.api as smf, statsmodels.api as sm\nmod=smf.ols('np.log(order_value) ~ C(gender)*C(age_band)',data=df).fit()\nprint(sm.stats.anova_lm(mod,typ=2).round(4))\n"
+          },
+          "startedAt": 1791451101398
+        }
+      },
+      {
+        "t": 38564,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01Jvtrnm5eAdHmP81NK9dwjV",
+          "name": "run_python",
+          "output": {
+            "stdout": "(13736, 9) {'Shipped': 4140, 'Complete': 3420, 'Processing': 2796, 'Cancelled': 2048, 'Returned': 1332} 12 70\n           mean        count      \ngender        F      M     F     M\nage_band                          \n<18       84.21  93.55   719   720\n18-24     79.30  90.13   803   821\n25-34     77.13  88.02  1161  1167\n35-44     81.63  89.55  1126  1115\n45-54     81.36  84.27  1151  1215\n55-64     83.86  90.64  1163  1174\n65+       81.45  89.83   712   689\n         mean  median    std  count\ngender                             \nF       81.18   53.87  88.94   6835\nM       89.06   57.99  94.65   6901\nWelch TtestResult(statistic=np.float64(-5.02993277039408), pvalue=np.float64(4.968625062724706e-07), df=np.float64(13696.171560740639)) \nMWU MannwhitneyuResult(statistic=np.float64(21828822.0), pvalue=np.float64(4.215084758477418e-14)) \nlog Welch TtestResult(statistic=np.float64(-8.500605847765891), pvalue=np.float64(2.07993408212218e-17), df=np.float64(13658.661084045743))\n    band    F-M  welch_p   mwu_p\n0    <18  -9.34   0.0934  0.0003\n1  18-24 -10.83   0.0149  0.0153\n2  25-34 -10.89   0.0016  0.0000\n3  35-44  -7.92   0.0432  0.0076\n4  45-54  -2.91   0.4209  0.2089\n5  55-64  -6.78   0.0881  0.0001\n6    65+  -8.38   0.0860  0.0436\n                           sum_sq       df        F  PR(>F)\nC(gender)                 60.5679      1.0  72.3845  0.0000\nC(age_band)                1.1340      6.0   0.2259  0.9685\nC(gender):C(age_band)      4.4053      6.0   0.8775  0.5104\nResidual               11481.9115  13722.0      NaN     NaN\n",
+            "durationMs": 7847
+          },
+          "durationMs": 17116,
+          "outputChars": 1614
+        }
+      },
+      {
+        "t": 38565,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 4466,
+            "outputTokens": 795,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 22466
+        }
+      },
+      {
+        "t": 47816,
+        "type": "text-delta",
+        "data": "I saved the 2023 orders to a file and ran the analysis. Men's average order value is about $8 (roughly 10%) higher than women's, and the difference is clearly statistically significant. Age makes almost no difference.\n\n**Data:** `/data/orders_2023.parquet` has 13,736 orders from 2023. Each row has the order's value (the sum of its items' sale prices), the number of items, and the customer's age, gender and country. All order statuses are included, so 2,048 cancelled and 1,332 returned orders count too.\n\n**Average order value by age band and gender (USD)**\n\n| Age band | F | M | F − M | Orders (F / M) |\n|---|---|---|---|---|\n| <18 | 84.21 | 93.55 | −9.34 | 719 / 720 |\n| 18–24 | 79.30 | 90.13 | −10.83 | 803 / 821 |\n| 25–34 | 77.13 | 88.02 | −10.89 | 1161 / 1167 |\n| 35–44 | 81.63 | 89.55 | −7.92 | 1126 / 1115 |\n| 45–54 | 81.36 | 84.27 | −2.91 | 1151 / 1215 |\n| 55–64 | 83.86 | 90.64 | −6.78 | 1163 / 1174 |\n| 65+ | 81.45 | 89.83 | −8.38 | 712 / 689 |\n| **All** | **81.18** (median 53.87) | **89.06** (median 57.99) | **−7.88** | 6835 / 6901 |\n\n**Is the gender difference significant?**\nOrder values are heavily skewed (a few large orders pull the averages up), so I used three tests to make sure the result doesn't depend on one method:\n- **Comparing averages (Welch t-test):** t = −5.03, p ≈ 5×10⁻⁷\n- **Comparing rankings, not affected by outliers (Mann-Whitney U):** p ≈ 4×10⁻¹⁴\n- **Comparing averages after a log transform to reduce skew (Welch t-test):** t = −8.50, p ≈ 2×10⁻¹⁷\n\nAll three agree that men spend more per order.\n\n**Gender and age together (two-way ANOVA on log order value):**\n- Gender: F = 72.4, p < 0.0001, so it is significant.\n- Age band: p = 0.97, so it has no effect.\n- Gender × age band: p = 0.51. The gender gap is about the same size in every age band.\n\nWithin each band, women's average is lower in all seven. The gap is significant on at least one test in every band except 45–54, which has the smallest gap ($2.91, p ≈ 0.2–0.4). The smaller per-band samples explain why some other bands are only borderline.\n\n**Caveats:**\n- The gap is statistically real but small in practice: about $8 on orders whose values vary by roughly $90.\n- Thelook is a synthetic dataset, so the gap may reflect how the product catalogue is set up (for example, men's items costing more) rather than how people actually shop. Splitting by product category would show which it is.\n- If you'd rather look only at completed purchases, I can rerun this without cancelled and returned orders."
+      },
+      {
+        "t": 49991,
+        "type": "step-finish",
+        "data": {
+          "step": 3,
+          "usage": {
+            "inputTokens": 6003,
+            "outputTokens": 1099,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 2176
+        }
+      },
+      {
+        "t": 49992,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 13569,
+            "outputTokens": 2460,
+            "cachedInputTokens": 0
+          },
+          "steps": 3,
+          "durationMs": 49868
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 13569,
+        "outputTokens": 2460,
+        "cachedInputTokens": 0
+      },
+      "steps": 3,
+      "toolCalls": 2,
+      "toolErrors": 0,
+      "wallMs": 49992,
+      "toolMs": 26419,
+      "llmMs": 23573,
+      "outputChars": 3383
+    },
+    "finalText": "I saved the 2023 orders to a file and ran the analysis. Men's average order value is about $8 (roughly 10%) higher than women's, and the difference is clearly statistically significant. Age makes almost no difference.\n\n**Data:** `/data/orders_2023.parquet` has 13,736 orders from 2023. Each row has the order's value (the sum of its items' sale prices), the number of items, and the customer's age, gender and country. All order statuses are included, so 2,048 cancelled and 1,332 returned orders count too.\n\n**Average order value by age band and gender (USD)**\n\n| Age band | F | M | F − M | Orders (F / M) |\n|---|---|---|---|---|\n| <18 | 84.21 | 93.55 | −9.34 | 719 / 720 |\n| 18–24 | 79.30 | 90.13 | −10.83 | 803 / 821 |\n| 25–34 | 77.13 | 88.02 | −10.89 | 1161 / 1167 |\n| 35–44 | 81.63 | 89.55 | −7.92 | 1126 / 1115 |\n| 45–54 | 81.36 | 84.27 | −2.91 | 1151 / 1215 |\n| 55–64 | 83.86 | 90.64 | −6.78 | 1163 / 1174 |\n| 65+ | 81.45 | 89.83 | −8.38 | 712 / 689 |\n| **All** | **81.18** (median 53.87) | **89.06** (median 57.99) | **−7.88** | 6835 / 6901 |\n\n**Is the gender difference significant?**\nOrder values are heavily skewed (a few large orders pull the averages up), so I used three tests to make sure the result doesn't depend on one method:\n- **Comparing averages (Welch t-test):** t = −5.03, p ≈ 5×10⁻⁷\n- **Comparing rankings, not affected by outliers (Mann-Whitney U):** p ≈ 4×10⁻¹⁴\n- **Comparing averages after a log transform to reduce skew (Welch t-test):** t = −8.50, p ≈ 2×10⁻¹⁷\n\nAll three agree that men spend more per order.\n\n**Gender and age together (two-way ANOVA on log order value):**\n- Gender: F = 72.4, p < 0.0001, so it is significant.\n- Age band: p = 0.97, so it has no effect.\n- Gender × age band: p = 0.51. The gender gap is about the same size in every age band.\n\nWithin each band, women's average is lower in all seven. The gap is significant on at least one test in every band except 45–54, which has the smallest gap ($2.91, p ≈ 0.2–0.4). The smaller per-band samples explain why some other bands are only borderline.\n\n**Caveats:**\n- The gap is statistically real but small in practice: about $8 on orders whose values vary by roughly $90.\n- Thelook is a synthetic dataset, so the gap may reflect how the product catalogue is set up (for example, men's items costing more) rather than how people actually shop. Splitting by product category would show which it is.\n- If you'd rather look only at completed purchases, I can rerun this without cancelled and returned orders.",
+    "endedAt": 1791451129942
+  }
+}
