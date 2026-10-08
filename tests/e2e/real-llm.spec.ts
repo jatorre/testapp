@@ -7,7 +7,7 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
  * Credentials come from .env.local (read by Vite). The token is never logged.
  * Results (per harness: status, tokens, timing) are written to test-results/real-llm-smoke.json.
  */
-const MODEL = process.env.REAL_MODEL ?? 'carto::claude-sonnet-4.6';
+const MODEL = process.env.REAL_MODEL ?? 'carto::claude-sonnet-5' // claude-sonnet-4.6 is listed by /models but rejected by /chat/completions;
 const HARNESSES = ['aisdk', 'handrolled', 'openai-agents'];
 const PROMPT =
   'Write a small CSV of 10 fake products with prices to /work/products.csv, then use awk to compute the average price.';
