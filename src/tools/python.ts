@@ -14,7 +14,10 @@ export interface PythonConfig {
    * so it works under /app/<slug>/). Can also be set with VITE_PYODIDE_INDEX_URL at build time.
    */
   indexURL: string;
-  /** Packages loaded right after the interpreter (prewarm). pyarrow is loaded lazily on first parquet use. */
+  /**
+   * Packages loaded right after the interpreter (prewarm). pyarrow must come before pandas: pandas
+   * decides at import time whether pyarrow exists, so it can't be added after `import pandas`.
+   */
   preload: string[];
   /** Max wall time for executing user code (excludes package loading), then the worker is killed. */
   timeoutMs: number;
@@ -26,7 +29,7 @@ export interface PythonConfig {
 
 const config: PythonConfig = {
   indexURL: (import.meta.env.VITE_PYODIDE_INDEX_URL as string | undefined) ?? PYODIDE_CDN_URL,
-  preload: ['numpy', 'pandas'],
+  preload: ['numpy', 'pyarrow', 'pandas'],
   timeoutMs: 60_000,
   initTimeoutMs: 180_000,
   maxOutputChars: 20_000,

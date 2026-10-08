@@ -127,6 +127,7 @@ function writeIn(f: PyFile) {
 }
 
 const PARQUET_HINT = /parquet|pyarrow|feather|\.arrow\b/i;
+const PANDAS_HINT = /\bpandas\b|\bpd\.|parquet|seaborn|statsmodels|geopandas/;
 
 async function run(msg: Extract<ToWorker, { type: 'run' }>): Promise<PyRunResult> {
   const FS = py!.FS;
@@ -143,11 +144,11 @@ async function run(msg: Extract<ToWorker, { type: 'run' }>): Promise<PyRunResult
   const newly: string[] = [];
   const beforePk = new Set(Object.keys(py!.loadedPackages));
   try {
+    // pandas caches "is pyarrow importable" at import time (and pyarrow 22 + pandas 3 break if
+    // pyarrow appears later), so pyarrow must be installed BEFORE pandas is first imported.
+    if (PANDAS_HINT.test(msg.code) && !loaded.has('pandas')) await loadPkgs(['pyarrow', 'pandas']);
+    else if (PARQUET_HINT.test(msg.code) && !loaded.has('pyarrow') && !('pandas' in py!.loadedPackages)) await loadPkgs(['pyarrow']);
     await py!.loadPackagesFromImports(msg.code, { messageCallback: () => {}, errorCallback: () => {} });
-    const extra: string[] = [];
-    if (PARQUET_HINT.test(msg.code) && !loaded.has('pyarrow')) extra.push('pyarrow');
-    if (/\bpandas\b|\bpd\./.test(msg.code) && !loaded.has('pandas')) extra.unshift('pandas');
-    await loadPkgs(extra);
   } catch (e) {
     errBuf = append(errBuf, `package load failed: ${e}`);
   }
@@ -175,8 +176,8 @@ async function run(msg: Extract<ToWorker, { type: 'run' }>): Promise<PyRunResult
   return {
     stdout: outBuf,
     stderr: errBuf,
-    result: tuple[0],
-    error: tuple[1],
+    result: tuple[0] ?? null,
+    error: tuple[1] ?? null,
     changedFiles,
     deletedFiles,
     durationMs,

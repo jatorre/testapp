@@ -70,7 +70,7 @@ export function FilePanel() {
   useEffect(() => {
     if (!preview) return;
     const off = onFsChange(() => {
-      fs.exists(preview.path).then((ok) => ok && loadPreview(preview.path).then(setPreview));
+      void fs.exists(preview.path).then(async (ok) => { if (ok) setPreview(await loadPreview(preview.path)); });
     });
     return () => void off();
   }, [preview?.path]); // eslint-disable-line react-hooks/exhaustive-deps

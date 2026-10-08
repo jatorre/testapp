@@ -10,8 +10,8 @@
  *
  * Endpoint candidates (first that works wins):
  *  1. VITE_CARTO_MCP_URL / ?mcp=<url>  (may contain `{accountId}`)
- *  2. `${apiBaseUrl}/mcp/${accountId}`               — documented URL (docs.carto.com/carto-for-agents/mcp-server)
- *  3. `https://ai-<region>.api.carto.com/mcp/${accountId}` — what the CARTO CLI calls
+ *  2. `https://ai-<region>.api.carto.com/mcp/${accountId}` — what the CARTO CLI calls (verified)
+ *  3. `${apiBaseUrl}/mcp/${accountId}`               — documented URL (docs.carto.com/carto-for-agents/mcp-server)
  *
  * Browser-specific gotcha: the `mcp-session-id` response header is only readable cross-origin if the server
  * lists it in Access-Control-Expose-Headers. If a server is stateful and does NOT expose it, the
@@ -146,9 +146,10 @@ export function resolveMcpUrls(info: Pick<CartoInfo, 'accessToken' | 'user' | 'a
   }
   if (accountId) {
     const base = info.apiBaseUrl.replace(/\/+$/, '');
-    out.push(`${base}/mcp/${encodeURIComponent(accountId)}`);
+    // CLI endpoint first (verified working with a user OAuth token), then the documented one.
     const ai = deriveAiApiUrl(base);
     if (ai) out.push(`${ai}/mcp/${encodeURIComponent(accountId)}`);
+    out.push(`${base}/mcp/${encodeURIComponent(accountId)}`);
   }
   return [...new Set(out)];
 }
@@ -399,7 +400,11 @@ export async function connectMcp(opts: ConnectOptions): Promise<{ conn: McpConne
       } catch (e) {
         await conn?.close().catch(() => {});
         const status = statusOf(e);
-        attempts.push({ url, transport: kind, ok: false, status, error: msgOf(e), ms: Math.round(now() - t0) });
+        let error = msgOf(e);
+        if (status === 400 && /session/i.test(error) && !/Expose-Headers/.test(error)) {
+          error += ' (server wants a session id but none is visible to the browser — is mcp-session-id listed in Access-Control-Expose-Headers?)';
+        }
+        attempts.push({ url, transport: kind, ok: false, status, error, ms: Math.round(now() - t0) });
         // Auth failures will not be fixed by switching transport: go to the next URL.
         if (status === 401 || status === 403) break;
       }

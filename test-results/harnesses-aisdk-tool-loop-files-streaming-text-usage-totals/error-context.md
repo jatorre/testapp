@@ -1,0 +1,784 @@
+# Page snapshot
+
+```yaml
+- generic [active] [ref=e1]:
+  - generic [ref=e3]:
+    - banner [ref=e4]:
+      - generic [ref=e5]:
+        - strong [ref=e6]: Browser Agent Eval
+        - generic [ref=e7]:
+          - text: Harness
+          - combobox "Harness" [ref=e8]:
+            - option "Vercel AI SDK v7" [selected]
+            - option "Hand-rolled (fetch + SSE)"
+            - option "OpenAI Agents SDK"
+        - generic [ref=e9]:
+          - text: Model
+          - combobox "Model" [ref=e10]:
+            - option "carto::claude-opus-4.6"
+            - option "carto::claude-opus-4.7"
+            - option "carto::claude-opus-4.8"
+            - option "carto::claude-opus-5.5"
+            - option "carto::claude-sonnet-4.6"
+            - option "carto::claude-sonnet-5"
+            - option "carto::gemini-3.1-pro"
+            - option "carto::gemini-3.5-flash"
+            - option "carto::gemini-3.7-flash"
+            - option "carto::gemini-3.8-flash"
+            - option "mock-model" [selected]
+        - 'generic "https://gcp-us-east1.api.carto.com AI: http://mock-llm.test/v1" [ref=e11]': env · local dev · no expiry info
+      - tablist [ref=e13]:
+        - tab "1 · Agent loop + virtual FS" [selected] [ref=e14] [cursor=pointer]
+        - tab "2 · MCP from the browser" [ref=e15] [cursor=pointer]
+        - tab "3 · Results → files → DuckDB" [ref=e16] [cursor=pointer]
+        - tab "4 · Pyodide run_python" [ref=e17] [cursor=pointer]
+        - tab "5 · Charts (Vega-Lite)" [ref=e18] [cursor=pointer]
+        - tab "6 · End-to-end investigation" [ref=e19] [cursor=pointer]
+    - generic [ref=e20]:
+      - text: "Tools:"
+      - code [ref=e21]: bash
+      - code [ref=e22]: read_file
+      - code [ref=e23]: write_file
+      - code [ref=e24]: list_files
+      - code [ref=e25]: edit_file
+      - generic [ref=e26]: · max 12 steps
+    - generic [ref=e27]:
+      - complementary [ref=e28]:
+        - generic [ref=e29]:
+          - generic [ref=e30]:
+            - text: Files
+            - generic [ref=e31]: (175, 6.1 KB)
+          - button "Reset FS" [ref=e32] [cursor=pointer]
+        - list [ref=e33]:
+          - listitem [ref=e34]:
+            - button "/bin/alias" [ref=e35] [cursor=pointer]
+            - generic [ref=e36]: 38 B
+            - button "Download /bin/alias" [ref=e37] [cursor=pointer]: ⤓
+          - listitem [ref=e38]:
+            - button "/bin/awk" [ref=e39] [cursor=pointer]
+            - generic [ref=e40]: 36 B
+            - button "Download /bin/awk" [ref=e41] [cursor=pointer]: ⤓
+          - listitem [ref=e42]:
+            - button "/bin/base64" [ref=e43] [cursor=pointer]
+            - generic [ref=e44]: 39 B
+            - button "Download /bin/base64" [ref=e45] [cursor=pointer]: ⤓
+          - listitem [ref=e46]:
+            - button "/bin/basename" [ref=e47] [cursor=pointer]
+            - generic [ref=e48]: 41 B
+            - button "Download /bin/basename" [ref=e49] [cursor=pointer]: ⤓
+          - listitem [ref=e50]:
+            - button "/bin/bash" [ref=e51] [cursor=pointer]
+            - generic [ref=e52]: 37 B
+            - button "Download /bin/bash" [ref=e53] [cursor=pointer]: ⤓
+          - listitem [ref=e54]:
+            - button "/bin/cat" [ref=e55] [cursor=pointer]
+            - generic [ref=e56]: 36 B
+            - button "Download /bin/cat" [ref=e57] [cursor=pointer]: ⤓
+          - listitem [ref=e58]:
+            - button "/bin/chmod" [ref=e59] [cursor=pointer]
+            - generic [ref=e60]: 38 B
+            - button "Download /bin/chmod" [ref=e61] [cursor=pointer]: ⤓
+          - listitem [ref=e62]:
+            - button "/bin/clear" [ref=e63] [cursor=pointer]
+            - generic [ref=e64]: 38 B
+            - button "Download /bin/clear" [ref=e65] [cursor=pointer]: ⤓
+          - listitem [ref=e66]:
+            - button "/bin/column" [ref=e67] [cursor=pointer]
+            - generic [ref=e68]: 39 B
+            - button "Download /bin/column" [ref=e69] [cursor=pointer]: ⤓
+          - listitem [ref=e70]:
+            - button "/bin/comm" [ref=e71] [cursor=pointer]
+            - generic [ref=e72]: 37 B
+            - button "Download /bin/comm" [ref=e73] [cursor=pointer]: ⤓
+          - listitem [ref=e74]:
+            - button "/bin/cp" [ref=e75] [cursor=pointer]
+            - generic [ref=e76]: 35 B
+            - button "Download /bin/cp" [ref=e77] [cursor=pointer]: ⤓
+          - listitem [ref=e78]:
+            - button "/bin/cut" [ref=e79] [cursor=pointer]
+            - generic [ref=e80]: 36 B
+            - button "Download /bin/cut" [ref=e81] [cursor=pointer]: ⤓
+          - listitem [ref=e82]:
+            - button "/bin/date" [ref=e83] [cursor=pointer]
+            - generic [ref=e84]: 37 B
+            - button "Download /bin/date" [ref=e85] [cursor=pointer]: ⤓
+          - listitem [ref=e86]:
+            - button "/bin/diff" [ref=e87] [cursor=pointer]
+            - generic [ref=e88]: 37 B
+            - button "Download /bin/diff" [ref=e89] [cursor=pointer]: ⤓
+          - listitem [ref=e90]:
+            - button "/bin/dirname" [ref=e91] [cursor=pointer]
+            - generic [ref=e92]: 40 B
+            - button "Download /bin/dirname" [ref=e93] [cursor=pointer]: ⤓
+          - listitem [ref=e94]:
+            - button "/bin/du" [ref=e95] [cursor=pointer]
+            - generic [ref=e96]: 35 B
+            - button "Download /bin/du" [ref=e97] [cursor=pointer]: ⤓
+          - listitem [ref=e98]:
+            - button "/bin/echo" [ref=e99] [cursor=pointer]
+            - generic [ref=e100]: 37 B
+            - button "Download /bin/echo" [ref=e101] [cursor=pointer]: ⤓
+          - listitem [ref=e102]:
+            - button "/bin/egrep" [ref=e103] [cursor=pointer]
+            - generic [ref=e104]: 38 B
+            - button "Download /bin/egrep" [ref=e105] [cursor=pointer]: ⤓
+          - listitem [ref=e106]:
+            - button "/bin/env" [ref=e107] [cursor=pointer]
+            - generic [ref=e108]: 36 B
+            - button "Download /bin/env" [ref=e109] [cursor=pointer]: ⤓
+          - listitem [ref=e110]:
+            - button "/bin/expand" [ref=e111] [cursor=pointer]
+            - generic [ref=e112]: 39 B
+            - button "Download /bin/expand" [ref=e113] [cursor=pointer]: ⤓
+          - listitem [ref=e114]:
+            - button "/bin/expr" [ref=e115] [cursor=pointer]
+            - generic [ref=e116]: 37 B
+            - button "Download /bin/expr" [ref=e117] [cursor=pointer]: ⤓
+          - listitem [ref=e118]:
+            - button "/bin/false" [ref=e119] [cursor=pointer]
+            - generic [ref=e120]: 38 B
+            - button "Download /bin/false" [ref=e121] [cursor=pointer]: ⤓
+          - listitem [ref=e122]:
+            - button "/bin/fgrep" [ref=e123] [cursor=pointer]
+            - generic [ref=e124]: 38 B
+            - button "Download /bin/fgrep" [ref=e125] [cursor=pointer]: ⤓
+          - listitem [ref=e126]:
+            - button "/bin/file" [ref=e127] [cursor=pointer]
+            - generic [ref=e128]: 37 B
+            - button "Download /bin/file" [ref=e129] [cursor=pointer]: ⤓
+          - listitem [ref=e130]:
+            - button "/bin/find" [ref=e131] [cursor=pointer]
+            - generic [ref=e132]: 37 B
+            - button "Download /bin/find" [ref=e133] [cursor=pointer]: ⤓
+          - listitem [ref=e134]:
+            - button "/bin/fold" [ref=e135] [cursor=pointer]
+            - generic [ref=e136]: 37 B
+            - button "Download /bin/fold" [ref=e137] [cursor=pointer]: ⤓
+          - listitem [ref=e138]:
+            - button "/bin/grep" [ref=e139] [cursor=pointer]
+            - generic [ref=e140]: 37 B
+            - button "Download /bin/grep" [ref=e141] [cursor=pointer]: ⤓
+          - listitem [ref=e142]:
+            - button "/bin/gunzip" [ref=e143] [cursor=pointer]
+            - generic [ref=e144]: 39 B
+            - button "Download /bin/gunzip" [ref=e145] [cursor=pointer]: ⤓
+          - listitem [ref=e146]:
+            - button "/bin/gzip" [ref=e147] [cursor=pointer]
+            - generic [ref=e148]: 37 B
+            - button "Download /bin/gzip" [ref=e149] [cursor=pointer]: ⤓
+          - listitem [ref=e150]:
+            - button "/bin/head" [ref=e151] [cursor=pointer]
+            - generic [ref=e152]: 37 B
+            - button "Download /bin/head" [ref=e153] [cursor=pointer]: ⤓
+          - listitem [ref=e154]:
+            - button "/bin/help" [ref=e155] [cursor=pointer]
+            - generic [ref=e156]: 37 B
+            - button "Download /bin/help" [ref=e157] [cursor=pointer]: ⤓
+          - listitem [ref=e158]:
+            - button "/bin/history" [ref=e159] [cursor=pointer]
+            - generic [ref=e160]: 40 B
+            - button "Download /bin/history" [ref=e161] [cursor=pointer]: ⤓
+          - listitem [ref=e162]:
+            - button "/bin/hostname" [ref=e163] [cursor=pointer]
+            - generic [ref=e164]: 41 B
+            - button "Download /bin/hostname" [ref=e165] [cursor=pointer]: ⤓
+          - listitem [ref=e166]:
+            - button "/bin/html-to-markdown" [ref=e167] [cursor=pointer]
+            - generic [ref=e168]: 49 B
+            - button "Download /bin/html-to-markdown" [ref=e169] [cursor=pointer]: ⤓
+          - listitem [ref=e170]:
+            - button "/bin/join" [ref=e171] [cursor=pointer]
+            - generic [ref=e172]: 37 B
+            - button "Download /bin/join" [ref=e173] [cursor=pointer]: ⤓
+          - listitem [ref=e174]:
+            - button "/bin/jq" [ref=e175] [cursor=pointer]
+            - generic [ref=e176]: 35 B
+            - button "Download /bin/jq" [ref=e177] [cursor=pointer]: ⤓
+          - listitem [ref=e178]:
+            - button "/bin/ln" [ref=e179] [cursor=pointer]
+            - generic [ref=e180]: 35 B
+            - button "Download /bin/ln" [ref=e181] [cursor=pointer]: ⤓
+          - listitem [ref=e182]:
+            - button "/bin/ls" [ref=e183] [cursor=pointer]
+            - generic [ref=e184]: 35 B
+            - button "Download /bin/ls" [ref=e185] [cursor=pointer]: ⤓
+          - listitem [ref=e186]:
+            - button "/bin/md5sum" [ref=e187] [cursor=pointer]
+            - generic [ref=e188]: 39 B
+            - button "Download /bin/md5sum" [ref=e189] [cursor=pointer]: ⤓
+          - listitem [ref=e190]:
+            - button "/bin/mkdir" [ref=e191] [cursor=pointer]
+            - generic [ref=e192]: 38 B
+            - button "Download /bin/mkdir" [ref=e193] [cursor=pointer]: ⤓
+          - listitem [ref=e194]:
+            - button "/bin/mktemp" [ref=e195] [cursor=pointer]
+            - generic [ref=e196]: 39 B
+            - button "Download /bin/mktemp" [ref=e197] [cursor=pointer]: ⤓
+          - listitem [ref=e198]:
+            - button "/bin/mv" [ref=e199] [cursor=pointer]
+            - generic [ref=e200]: 35 B
+            - button "Download /bin/mv" [ref=e201] [cursor=pointer]: ⤓
+          - listitem [ref=e202]:
+            - button "/bin/nl" [ref=e203] [cursor=pointer]
+            - generic [ref=e204]: 35 B
+            - button "Download /bin/nl" [ref=e205] [cursor=pointer]: ⤓
+          - listitem [ref=e206]:
+            - button "/bin/od" [ref=e207] [cursor=pointer]
+            - generic [ref=e208]: 35 B
+            - button "Download /bin/od" [ref=e209] [cursor=pointer]: ⤓
+          - listitem [ref=e210]:
+            - button "/bin/paste" [ref=e211] [cursor=pointer]
+            - generic [ref=e212]: 38 B
+            - button "Download /bin/paste" [ref=e213] [cursor=pointer]: ⤓
+          - listitem [ref=e214]:
+            - button "/bin/printenv" [ref=e215] [cursor=pointer]
+            - generic [ref=e216]: 41 B
+            - button "Download /bin/printenv" [ref=e217] [cursor=pointer]: ⤓
+          - listitem [ref=e218]:
+            - button "/bin/printf" [ref=e219] [cursor=pointer]
+            - generic [ref=e220]: 39 B
+            - button "Download /bin/printf" [ref=e221] [cursor=pointer]: ⤓
+          - listitem [ref=e222]:
+            - button "/bin/pwd" [ref=e223] [cursor=pointer]
+            - generic [ref=e224]: 36 B
+            - button "Download /bin/pwd" [ref=e225] [cursor=pointer]: ⤓
+          - listitem [ref=e226]:
+            - button "/bin/readlink" [ref=e227] [cursor=pointer]
+            - generic [ref=e228]: 41 B
+            - button "Download /bin/readlink" [ref=e229] [cursor=pointer]: ⤓
+          - listitem [ref=e230]:
+            - button "/bin/rev" [ref=e231] [cursor=pointer]
+            - generic [ref=e232]: 36 B
+            - button "Download /bin/rev" [ref=e233] [cursor=pointer]: ⤓
+          - listitem [ref=e234]:
+            - button "/bin/rg" [ref=e235] [cursor=pointer]
+            - generic [ref=e236]: 35 B
+            - button "Download /bin/rg" [ref=e237] [cursor=pointer]: ⤓
+          - listitem [ref=e238]:
+            - button "/bin/rm" [ref=e239] [cursor=pointer]
+            - generic [ref=e240]: 35 B
+            - button "Download /bin/rm" [ref=e241] [cursor=pointer]: ⤓
+          - listitem [ref=e242]:
+            - button "/bin/rmdir" [ref=e243] [cursor=pointer]
+            - generic [ref=e244]: 38 B
+            - button "Download /bin/rmdir" [ref=e245] [cursor=pointer]: ⤓
+          - listitem [ref=e246]:
+            - button "/bin/sed" [ref=e247] [cursor=pointer]
+            - generic [ref=e248]: 36 B
+            - button "Download /bin/sed" [ref=e249] [cursor=pointer]: ⤓
+          - listitem [ref=e250]:
+            - button "/bin/seq" [ref=e251] [cursor=pointer]
+            - generic [ref=e252]: 36 B
+            - button "Download /bin/seq" [ref=e253] [cursor=pointer]: ⤓
+          - listitem [ref=e254]:
+            - button "/bin/sh" [ref=e255] [cursor=pointer]
+            - generic [ref=e256]: 35 B
+            - button "Download /bin/sh" [ref=e257] [cursor=pointer]: ⤓
+          - listitem [ref=e258]:
+            - button "/bin/sha1sum" [ref=e259] [cursor=pointer]
+            - generic [ref=e260]: 40 B
+            - button "Download /bin/sha1sum" [ref=e261] [cursor=pointer]: ⤓
+          - listitem [ref=e262]:
+            - button "/bin/sha256sum" [ref=e263] [cursor=pointer]
+            - generic [ref=e264]: 42 B
+            - button "Download /bin/sha256sum" [ref=e265] [cursor=pointer]: ⤓
+          - listitem [ref=e266]:
+            - button "/bin/sleep" [ref=e267] [cursor=pointer]
+            - generic [ref=e268]: 38 B
+            - button "Download /bin/sleep" [ref=e269] [cursor=pointer]: ⤓
+          - listitem [ref=e270]:
+            - button "/bin/sort" [ref=e271] [cursor=pointer]
+            - generic [ref=e272]: 37 B
+            - button "Download /bin/sort" [ref=e273] [cursor=pointer]: ⤓
+          - listitem [ref=e274]:
+            - button "/bin/split" [ref=e275] [cursor=pointer]
+            - generic [ref=e276]: 38 B
+            - button "Download /bin/split" [ref=e277] [cursor=pointer]: ⤓
+          - listitem [ref=e278]:
+            - button "/bin/stat" [ref=e279] [cursor=pointer]
+            - generic [ref=e280]: 37 B
+            - button "Download /bin/stat" [ref=e281] [cursor=pointer]: ⤓
+          - listitem [ref=e282]:
+            - button "/bin/strings" [ref=e283] [cursor=pointer]
+            - generic [ref=e284]: 40 B
+            - button "Download /bin/strings" [ref=e285] [cursor=pointer]: ⤓
+          - listitem [ref=e286]:
+            - button "/bin/tac" [ref=e287] [cursor=pointer]
+            - generic [ref=e288]: 36 B
+            - button "Download /bin/tac" [ref=e289] [cursor=pointer]: ⤓
+          - listitem [ref=e290]:
+            - button "/bin/tail" [ref=e291] [cursor=pointer]
+            - generic [ref=e292]: 37 B
+            - button "Download /bin/tail" [ref=e293] [cursor=pointer]: ⤓
+          - listitem [ref=e294]:
+            - button "/bin/tee" [ref=e295] [cursor=pointer]
+            - generic [ref=e296]: 36 B
+            - button "Download /bin/tee" [ref=e297] [cursor=pointer]: ⤓
+          - listitem [ref=e298]:
+            - button "/bin/time" [ref=e299] [cursor=pointer]
+            - generic [ref=e300]: 37 B
+            - button "Download /bin/time" [ref=e301] [cursor=pointer]: ⤓
+          - listitem [ref=e302]:
+            - button "/bin/timeout" [ref=e303] [cursor=pointer]
+            - generic [ref=e304]: 40 B
+            - button "Download /bin/timeout" [ref=e305] [cursor=pointer]: ⤓
+          - listitem [ref=e306]:
+            - button "/bin/touch" [ref=e307] [cursor=pointer]
+            - generic [ref=e308]: 38 B
+            - button "Download /bin/touch" [ref=e309] [cursor=pointer]: ⤓
+          - listitem [ref=e310]:
+            - button "/bin/tr" [ref=e311] [cursor=pointer]
+            - generic [ref=e312]: 35 B
+            - button "Download /bin/tr" [ref=e313] [cursor=pointer]: ⤓
+          - listitem [ref=e314]:
+            - button "/bin/tree" [ref=e315] [cursor=pointer]
+            - generic [ref=e316]: 37 B
+            - button "Download /bin/tree" [ref=e317] [cursor=pointer]: ⤓
+          - listitem [ref=e318]:
+            - button "/bin/true" [ref=e319] [cursor=pointer]
+            - generic [ref=e320]: 37 B
+            - button "Download /bin/true" [ref=e321] [cursor=pointer]: ⤓
+          - listitem [ref=e322]:
+            - button "/bin/unalias" [ref=e323] [cursor=pointer]
+            - generic [ref=e324]: 40 B
+            - button "Download /bin/unalias" [ref=e325] [cursor=pointer]: ⤓
+          - listitem [ref=e326]:
+            - button "/bin/unexpand" [ref=e327] [cursor=pointer]
+            - generic [ref=e328]: 41 B
+            - button "Download /bin/unexpand" [ref=e329] [cursor=pointer]: ⤓
+          - listitem [ref=e330]:
+            - button "/bin/uniq" [ref=e331] [cursor=pointer]
+            - generic [ref=e332]: 37 B
+            - button "Download /bin/uniq" [ref=e333] [cursor=pointer]: ⤓
+          - listitem [ref=e334]:
+            - button "/bin/wc" [ref=e335] [cursor=pointer]
+            - generic [ref=e336]: 35 B
+            - button "Download /bin/wc" [ref=e337] [cursor=pointer]: ⤓
+          - listitem [ref=e338]:
+            - button "/bin/which" [ref=e339] [cursor=pointer]
+            - generic [ref=e340]: 38 B
+            - button "Download /bin/which" [ref=e341] [cursor=pointer]: ⤓
+          - listitem [ref=e342]:
+            - button "/bin/whoami" [ref=e343] [cursor=pointer]
+            - generic [ref=e344]: 39 B
+            - button "Download /bin/whoami" [ref=e345] [cursor=pointer]: ⤓
+          - listitem [ref=e346]:
+            - button "/bin/xargs" [ref=e347] [cursor=pointer]
+            - generic [ref=e348]: 38 B
+            - button "Download /bin/xargs" [ref=e349] [cursor=pointer]: ⤓
+          - listitem [ref=e350]:
+            - button "/bin/yes" [ref=e351] [cursor=pointer]
+            - generic [ref=e352]: 36 B
+            - button "Download /bin/yes" [ref=e353] [cursor=pointer]: ⤓
+          - listitem [ref=e354]:
+            - button "/bin/zcat" [ref=e355] [cursor=pointer]
+            - generic [ref=e356]: 37 B
+            - button "Download /bin/zcat" [ref=e357] [cursor=pointer]: ⤓
+          - listitem [ref=e358]:
+            - button "/dev/null" [ref=e359] [cursor=pointer]
+            - generic [ref=e360]: 0 B
+            - button "Download /dev/null" [ref=e361] [cursor=pointer]: ⤓
+          - listitem [ref=e362]:
+            - button "/dev/stderr" [ref=e363] [cursor=pointer]
+            - generic [ref=e364]: 0 B
+            - button "Download /dev/stderr" [ref=e365] [cursor=pointer]: ⤓
+          - listitem [ref=e366]:
+            - button "/dev/stdin" [ref=e367] [cursor=pointer]
+            - generic [ref=e368]: 0 B
+            - button "Download /dev/stdin" [ref=e369] [cursor=pointer]: ⤓
+          - listitem [ref=e370]:
+            - button "/dev/stdout" [ref=e371] [cursor=pointer]
+            - generic [ref=e372]: 0 B
+            - button "Download /dev/stdout" [ref=e373] [cursor=pointer]: ⤓
+          - listitem [ref=e374]:
+            - button "/dev/zero" [ref=e375] [cursor=pointer]
+            - generic [ref=e376]: 0 B
+            - button "Download /dev/zero" [ref=e377] [cursor=pointer]: ⤓
+          - listitem [ref=e378]:
+            - button "/proc/self/cmdline" [ref=e379] [cursor=pointer]
+            - generic [ref=e380]: 5 B
+            - button "Download /proc/self/cmdline" [ref=e381] [cursor=pointer]: ⤓
+          - listitem [ref=e382]:
+            - button "/proc/self/comm" [ref=e383] [cursor=pointer]
+            - generic [ref=e384]: 5 B
+            - button "Download /proc/self/comm" [ref=e385] [cursor=pointer]: ⤓
+          - listitem [ref=e386]:
+            - button "/proc/self/exe" [ref=e387] [cursor=pointer]
+            - generic [ref=e388]: 9 B
+            - button "Download /proc/self/exe" [ref=e389] [cursor=pointer]: ⤓
+          - listitem [ref=e390]:
+            - button "/proc/self/fd/0" [ref=e391] [cursor=pointer]
+            - generic [ref=e392]: 10 B
+            - button "Download /proc/self/fd/0" [ref=e393] [cursor=pointer]: ⤓
+          - listitem [ref=e394]:
+            - button "/proc/self/fd/1" [ref=e395] [cursor=pointer]
+            - generic [ref=e396]: 11 B
+            - button "Download /proc/self/fd/1" [ref=e397] [cursor=pointer]: ⤓
+          - listitem [ref=e398]:
+            - button "/proc/self/fd/2" [ref=e399] [cursor=pointer]
+            - generic [ref=e400]: 11 B
+            - button "Download /proc/self/fd/2" [ref=e401] [cursor=pointer]: ⤓
+          - listitem [ref=e402]:
+            - button "/proc/self/status" [ref=e403] [cursor=pointer]
+            - generic [ref=e404]: 95 B
+            - button "Download /proc/self/status" [ref=e405] [cursor=pointer]: ⤓
+          - listitem [ref=e406]:
+            - button "/proc/version" [ref=e407] [cursor=pointer]
+            - generic [ref=e408]: 56 B
+            - button "Download /proc/version" [ref=e409] [cursor=pointer]: ⤓
+          - listitem [ref=e410]:
+            - button "/usr/bin/alias" [ref=e411] [cursor=pointer]
+            - generic [ref=e412]: 38 B
+            - button "Download /usr/bin/alias" [ref=e413] [cursor=pointer]: ⤓
+          - listitem [ref=e414]:
+            - button "/usr/bin/awk" [ref=e415] [cursor=pointer]
+            - generic [ref=e416]: 36 B
+            - button "Download /usr/bin/awk" [ref=e417] [cursor=pointer]: ⤓
+          - listitem [ref=e418]:
+            - button "/usr/bin/base64" [ref=e419] [cursor=pointer]
+            - generic [ref=e420]: 39 B
+            - button "Download /usr/bin/base64" [ref=e421] [cursor=pointer]: ⤓
+          - listitem [ref=e422]:
+            - button "/usr/bin/basename" [ref=e423] [cursor=pointer]
+            - generic [ref=e424]: 41 B
+            - button "Download /usr/bin/basename" [ref=e425] [cursor=pointer]: ⤓
+          - listitem [ref=e426]:
+            - button "/usr/bin/bash" [ref=e427] [cursor=pointer]
+            - generic [ref=e428]: 37 B
+            - button "Download /usr/bin/bash" [ref=e429] [cursor=pointer]: ⤓
+          - listitem [ref=e430]:
+            - button "/usr/bin/cat" [ref=e431] [cursor=pointer]
+            - generic [ref=e432]: 36 B
+            - button "Download /usr/bin/cat" [ref=e433] [cursor=pointer]: ⤓
+          - listitem [ref=e434]:
+            - button "/usr/bin/chmod" [ref=e435] [cursor=pointer]
+            - generic [ref=e436]: 38 B
+            - button "Download /usr/bin/chmod" [ref=e437] [cursor=pointer]: ⤓
+          - listitem [ref=e438]:
+            - button "/usr/bin/clear" [ref=e439] [cursor=pointer]
+            - generic [ref=e440]: 38 B
+            - button "Download /usr/bin/clear" [ref=e441] [cursor=pointer]: ⤓
+          - listitem [ref=e442]:
+            - button "/usr/bin/column" [ref=e443] [cursor=pointer]
+            - generic [ref=e444]: 39 B
+            - button "Download /usr/bin/column" [ref=e445] [cursor=pointer]: ⤓
+          - listitem [ref=e446]:
+            - button "/usr/bin/comm" [ref=e447] [cursor=pointer]
+            - generic [ref=e448]: 37 B
+            - button "Download /usr/bin/comm" [ref=e449] [cursor=pointer]: ⤓
+          - listitem [ref=e450]:
+            - button "/usr/bin/cp" [ref=e451] [cursor=pointer]
+            - generic [ref=e452]: 35 B
+            - button "Download /usr/bin/cp" [ref=e453] [cursor=pointer]: ⤓
+          - listitem [ref=e454]:
+            - button "/usr/bin/cut" [ref=e455] [cursor=pointer]
+            - generic [ref=e456]: 36 B
+            - button "Download /usr/bin/cut" [ref=e457] [cursor=pointer]: ⤓
+          - listitem [ref=e458]:
+            - button "/usr/bin/date" [ref=e459] [cursor=pointer]
+            - generic [ref=e460]: 37 B
+            - button "Download /usr/bin/date" [ref=e461] [cursor=pointer]: ⤓
+          - listitem [ref=e462]:
+            - button "/usr/bin/diff" [ref=e463] [cursor=pointer]
+            - generic [ref=e464]: 37 B
+            - button "Download /usr/bin/diff" [ref=e465] [cursor=pointer]: ⤓
+          - listitem [ref=e466]:
+            - button "/usr/bin/dirname" [ref=e467] [cursor=pointer]
+            - generic [ref=e468]: 40 B
+            - button "Download /usr/bin/dirname" [ref=e469] [cursor=pointer]: ⤓
+          - listitem [ref=e470]:
+            - button "/usr/bin/du" [ref=e471] [cursor=pointer]
+            - generic [ref=e472]: 35 B
+            - button "Download /usr/bin/du" [ref=e473] [cursor=pointer]: ⤓
+          - listitem [ref=e474]:
+            - button "/usr/bin/echo" [ref=e475] [cursor=pointer]
+            - generic [ref=e476]: 37 B
+            - button "Download /usr/bin/echo" [ref=e477] [cursor=pointer]: ⤓
+          - listitem [ref=e478]:
+            - button "/usr/bin/egrep" [ref=e479] [cursor=pointer]
+            - generic [ref=e480]: 38 B
+            - button "Download /usr/bin/egrep" [ref=e481] [cursor=pointer]: ⤓
+          - listitem [ref=e482]:
+            - button "/usr/bin/env" [ref=e483] [cursor=pointer]
+            - generic [ref=e484]: 36 B
+            - button "Download /usr/bin/env" [ref=e485] [cursor=pointer]: ⤓
+          - listitem [ref=e486]:
+            - button "/usr/bin/expand" [ref=e487] [cursor=pointer]
+            - generic [ref=e488]: 39 B
+            - button "Download /usr/bin/expand" [ref=e489] [cursor=pointer]: ⤓
+          - listitem [ref=e490]:
+            - button "/usr/bin/expr" [ref=e491] [cursor=pointer]
+            - generic [ref=e492]: 37 B
+            - button "Download /usr/bin/expr" [ref=e493] [cursor=pointer]: ⤓
+          - listitem [ref=e494]:
+            - button "/usr/bin/false" [ref=e495] [cursor=pointer]
+            - generic [ref=e496]: 38 B
+            - button "Download /usr/bin/false" [ref=e497] [cursor=pointer]: ⤓
+          - listitem [ref=e498]:
+            - button "/usr/bin/fgrep" [ref=e499] [cursor=pointer]
+            - generic [ref=e500]: 38 B
+            - button "Download /usr/bin/fgrep" [ref=e501] [cursor=pointer]: ⤓
+          - listitem [ref=e502]:
+            - button "/usr/bin/file" [ref=e503] [cursor=pointer]
+            - generic [ref=e504]: 37 B
+            - button "Download /usr/bin/file" [ref=e505] [cursor=pointer]: ⤓
+          - listitem [ref=e506]:
+            - button "/usr/bin/find" [ref=e507] [cursor=pointer]
+            - generic [ref=e508]: 37 B
+            - button "Download /usr/bin/find" [ref=e509] [cursor=pointer]: ⤓
+          - listitem [ref=e510]:
+            - button "/usr/bin/fold" [ref=e511] [cursor=pointer]
+            - generic [ref=e512]: 37 B
+            - button "Download /usr/bin/fold" [ref=e513] [cursor=pointer]: ⤓
+          - listitem [ref=e514]:
+            - button "/usr/bin/grep" [ref=e515] [cursor=pointer]
+            - generic [ref=e516]: 37 B
+            - button "Download /usr/bin/grep" [ref=e517] [cursor=pointer]: ⤓
+          - listitem [ref=e518]:
+            - button "/usr/bin/gunzip" [ref=e519] [cursor=pointer]
+            - generic [ref=e520]: 39 B
+            - button "Download /usr/bin/gunzip" [ref=e521] [cursor=pointer]: ⤓
+          - listitem [ref=e522]:
+            - button "/usr/bin/gzip" [ref=e523] [cursor=pointer]
+            - generic [ref=e524]: 37 B
+            - button "Download /usr/bin/gzip" [ref=e525] [cursor=pointer]: ⤓
+          - listitem [ref=e526]:
+            - button "/usr/bin/head" [ref=e527] [cursor=pointer]
+            - generic [ref=e528]: 37 B
+            - button "Download /usr/bin/head" [ref=e529] [cursor=pointer]: ⤓
+          - listitem [ref=e530]:
+            - button "/usr/bin/help" [ref=e531] [cursor=pointer]
+            - generic [ref=e532]: 37 B
+            - button "Download /usr/bin/help" [ref=e533] [cursor=pointer]: ⤓
+          - listitem [ref=e534]:
+            - button "/usr/bin/history" [ref=e535] [cursor=pointer]
+            - generic [ref=e536]: 40 B
+            - button "Download /usr/bin/history" [ref=e537] [cursor=pointer]: ⤓
+          - listitem [ref=e538]:
+            - button "/usr/bin/hostname" [ref=e539] [cursor=pointer]
+            - generic [ref=e540]: 41 B
+            - button "Download /usr/bin/hostname" [ref=e541] [cursor=pointer]: ⤓
+          - listitem [ref=e542]:
+            - button "/usr/bin/html-to-markdown" [ref=e543] [cursor=pointer]
+            - generic [ref=e544]: 49 B
+            - button "Download /usr/bin/html-to-markdown" [ref=e545] [cursor=pointer]: ⤓
+          - listitem [ref=e546]:
+            - button "/usr/bin/join" [ref=e547] [cursor=pointer]
+            - generic [ref=e548]: 37 B
+            - button "Download /usr/bin/join" [ref=e549] [cursor=pointer]: ⤓
+          - listitem [ref=e550]:
+            - button "/usr/bin/jq" [ref=e551] [cursor=pointer]
+            - generic [ref=e552]: 35 B
+            - button "Download /usr/bin/jq" [ref=e553] [cursor=pointer]: ⤓
+          - listitem [ref=e554]:
+            - button "/usr/bin/ln" [ref=e555] [cursor=pointer]
+            - generic [ref=e556]: 35 B
+            - button "Download /usr/bin/ln" [ref=e557] [cursor=pointer]: ⤓
+          - listitem [ref=e558]:
+            - button "/usr/bin/ls" [ref=e559] [cursor=pointer]
+            - generic [ref=e560]: 35 B
+            - button "Download /usr/bin/ls" [ref=e561] [cursor=pointer]: ⤓
+          - listitem [ref=e562]:
+            - button "/usr/bin/md5sum" [ref=e563] [cursor=pointer]
+            - generic [ref=e564]: 39 B
+            - button "Download /usr/bin/md5sum" [ref=e565] [cursor=pointer]: ⤓
+          - listitem [ref=e566]:
+            - button "/usr/bin/mkdir" [ref=e567] [cursor=pointer]
+            - generic [ref=e568]: 38 B
+            - button "Download /usr/bin/mkdir" [ref=e569] [cursor=pointer]: ⤓
+          - listitem [ref=e570]:
+            - button "/usr/bin/mktemp" [ref=e571] [cursor=pointer]
+            - generic [ref=e572]: 39 B
+            - button "Download /usr/bin/mktemp" [ref=e573] [cursor=pointer]: ⤓
+          - listitem [ref=e574]:
+            - button "/usr/bin/mv" [ref=e575] [cursor=pointer]
+            - generic [ref=e576]: 35 B
+            - button "Download /usr/bin/mv" [ref=e577] [cursor=pointer]: ⤓
+          - listitem [ref=e578]:
+            - button "/usr/bin/nl" [ref=e579] [cursor=pointer]
+            - generic [ref=e580]: 35 B
+            - button "Download /usr/bin/nl" [ref=e581] [cursor=pointer]: ⤓
+          - listitem [ref=e582]:
+            - button "/usr/bin/od" [ref=e583] [cursor=pointer]
+            - generic [ref=e584]: 35 B
+            - button "Download /usr/bin/od" [ref=e585] [cursor=pointer]: ⤓
+          - listitem [ref=e586]:
+            - button "/usr/bin/paste" [ref=e587] [cursor=pointer]
+            - generic [ref=e588]: 38 B
+            - button "Download /usr/bin/paste" [ref=e589] [cursor=pointer]: ⤓
+          - listitem [ref=e590]:
+            - button "/usr/bin/printenv" [ref=e591] [cursor=pointer]
+            - generic [ref=e592]: 41 B
+            - button "Download /usr/bin/printenv" [ref=e593] [cursor=pointer]: ⤓
+          - listitem [ref=e594]:
+            - button "/usr/bin/printf" [ref=e595] [cursor=pointer]
+            - generic [ref=e596]: 39 B
+            - button "Download /usr/bin/printf" [ref=e597] [cursor=pointer]: ⤓
+          - listitem [ref=e598]:
+            - button "/usr/bin/pwd" [ref=e599] [cursor=pointer]
+            - generic [ref=e600]: 36 B
+            - button "Download /usr/bin/pwd" [ref=e601] [cursor=pointer]: ⤓
+          - listitem [ref=e602]:
+            - button "/usr/bin/readlink" [ref=e603] [cursor=pointer]
+            - generic [ref=e604]: 41 B
+            - button "Download /usr/bin/readlink" [ref=e605] [cursor=pointer]: ⤓
+          - listitem [ref=e606]:
+            - button "/usr/bin/rev" [ref=e607] [cursor=pointer]
+            - generic [ref=e608]: 36 B
+            - button "Download /usr/bin/rev" [ref=e609] [cursor=pointer]: ⤓
+          - listitem [ref=e610]:
+            - button "/usr/bin/rg" [ref=e611] [cursor=pointer]
+            - generic [ref=e612]: 35 B
+            - button "Download /usr/bin/rg" [ref=e613] [cursor=pointer]: ⤓
+          - listitem [ref=e614]:
+            - button "/usr/bin/rm" [ref=e615] [cursor=pointer]
+            - generic [ref=e616]: 35 B
+            - button "Download /usr/bin/rm" [ref=e617] [cursor=pointer]: ⤓
+          - listitem [ref=e618]:
+            - button "/usr/bin/rmdir" [ref=e619] [cursor=pointer]
+            - generic [ref=e620]: 38 B
+            - button "Download /usr/bin/rmdir" [ref=e621] [cursor=pointer]: ⤓
+          - listitem [ref=e622]:
+            - button "/usr/bin/sed" [ref=e623] [cursor=pointer]
+            - generic [ref=e624]: 36 B
+            - button "Download /usr/bin/sed" [ref=e625] [cursor=pointer]: ⤓
+          - listitem [ref=e626]:
+            - button "/usr/bin/seq" [ref=e627] [cursor=pointer]
+            - generic [ref=e628]: 36 B
+            - button "Download /usr/bin/seq" [ref=e629] [cursor=pointer]: ⤓
+          - listitem [ref=e630]:
+            - button "/usr/bin/sh" [ref=e631] [cursor=pointer]
+            - generic [ref=e632]: 35 B
+            - button "Download /usr/bin/sh" [ref=e633] [cursor=pointer]: ⤓
+          - listitem [ref=e634]:
+            - button "/usr/bin/sha1sum" [ref=e635] [cursor=pointer]
+            - generic [ref=e636]: 40 B
+            - button "Download /usr/bin/sha1sum" [ref=e637] [cursor=pointer]: ⤓
+          - listitem [ref=e638]:
+            - button "/usr/bin/sha256sum" [ref=e639] [cursor=pointer]
+            - generic [ref=e640]: 42 B
+            - button "Download /usr/bin/sha256sum" [ref=e641] [cursor=pointer]: ⤓
+          - listitem [ref=e642]:
+            - button "/usr/bin/sleep" [ref=e643] [cursor=pointer]
+            - generic [ref=e644]: 38 B
+            - button "Download /usr/bin/sleep" [ref=e645] [cursor=pointer]: ⤓
+          - listitem [ref=e646]:
+            - button "/usr/bin/sort" [ref=e647] [cursor=pointer]
+            - generic [ref=e648]: 37 B
+            - button "Download /usr/bin/sort" [ref=e649] [cursor=pointer]: ⤓
+          - listitem [ref=e650]:
+            - button "/usr/bin/split" [ref=e651] [cursor=pointer]
+            - generic [ref=e652]: 38 B
+            - button "Download /usr/bin/split" [ref=e653] [cursor=pointer]: ⤓
+          - listitem [ref=e654]:
+            - button "/usr/bin/stat" [ref=e655] [cursor=pointer]
+            - generic [ref=e656]: 37 B
+            - button "Download /usr/bin/stat" [ref=e657] [cursor=pointer]: ⤓
+          - listitem [ref=e658]:
+            - button "/usr/bin/strings" [ref=e659] [cursor=pointer]
+            - generic [ref=e660]: 40 B
+            - button "Download /usr/bin/strings" [ref=e661] [cursor=pointer]: ⤓
+          - listitem [ref=e662]:
+            - button "/usr/bin/tac" [ref=e663] [cursor=pointer]
+            - generic [ref=e664]: 36 B
+            - button "Download /usr/bin/tac" [ref=e665] [cursor=pointer]: ⤓
+          - listitem [ref=e666]:
+            - button "/usr/bin/tail" [ref=e667] [cursor=pointer]
+            - generic [ref=e668]: 37 B
+            - button "Download /usr/bin/tail" [ref=e669] [cursor=pointer]: ⤓
+          - listitem [ref=e670]:
+            - button "/usr/bin/tee" [ref=e671] [cursor=pointer]
+            - generic [ref=e672]: 36 B
+            - button "Download /usr/bin/tee" [ref=e673] [cursor=pointer]: ⤓
+          - listitem [ref=e674]:
+            - button "/usr/bin/time" [ref=e675] [cursor=pointer]
+            - generic [ref=e676]: 37 B
+            - button "Download /usr/bin/time" [ref=e677] [cursor=pointer]: ⤓
+          - listitem [ref=e678]:
+            - button "/usr/bin/timeout" [ref=e679] [cursor=pointer]
+            - generic [ref=e680]: 40 B
+            - button "Download /usr/bin/timeout" [ref=e681] [cursor=pointer]: ⤓
+          - listitem [ref=e682]:
+            - button "/usr/bin/touch" [ref=e683] [cursor=pointer]
+            - generic [ref=e684]: 38 B
+            - button "Download /usr/bin/touch" [ref=e685] [cursor=pointer]: ⤓
+          - listitem [ref=e686]:
+            - button "/usr/bin/tr" [ref=e687] [cursor=pointer]
+            - generic [ref=e688]: 35 B
+            - button "Download /usr/bin/tr" [ref=e689] [cursor=pointer]: ⤓
+          - listitem [ref=e690]:
+            - button "/usr/bin/tree" [ref=e691] [cursor=pointer]
+            - generic [ref=e692]: 37 B
+            - button "Download /usr/bin/tree" [ref=e693] [cursor=pointer]: ⤓
+          - listitem [ref=e694]:
+            - button "/usr/bin/true" [ref=e695] [cursor=pointer]
+            - generic [ref=e696]: 37 B
+            - button "Download /usr/bin/true" [ref=e697] [cursor=pointer]: ⤓
+          - listitem [ref=e698]:
+            - button "/usr/bin/unalias" [ref=e699] [cursor=pointer]
+            - generic [ref=e700]: 40 B
+            - button "Download /usr/bin/unalias" [ref=e701] [cursor=pointer]: ⤓
+          - listitem [ref=e702]:
+            - button "/usr/bin/unexpand" [ref=e703] [cursor=pointer]
+            - generic [ref=e704]: 41 B
+            - button "Download /usr/bin/unexpand" [ref=e705] [cursor=pointer]: ⤓
+          - listitem [ref=e706]:
+            - button "/usr/bin/uniq" [ref=e707] [cursor=pointer]
+            - generic [ref=e708]: 37 B
+            - button "Download /usr/bin/uniq" [ref=e709] [cursor=pointer]: ⤓
+          - listitem [ref=e710]:
+            - button "/usr/bin/wc" [ref=e711] [cursor=pointer]
+            - generic [ref=e712]: 35 B
+            - button "Download /usr/bin/wc" [ref=e713] [cursor=pointer]: ⤓
+          - listitem [ref=e714]:
+            - button "/usr/bin/which" [ref=e715] [cursor=pointer]
+            - generic [ref=e716]: 38 B
+            - button "Download /usr/bin/which" [ref=e717] [cursor=pointer]: ⤓
+          - listitem [ref=e718]:
+            - button "/usr/bin/whoami" [ref=e719] [cursor=pointer]
+            - generic [ref=e720]: 39 B
+            - button "Download /usr/bin/whoami" [ref=e721] [cursor=pointer]: ⤓
+          - listitem [ref=e722]:
+            - button "/usr/bin/xargs" [ref=e723] [cursor=pointer]
+            - generic [ref=e724]: 38 B
+            - button "Download /usr/bin/xargs" [ref=e725] [cursor=pointer]: ⤓
+          - listitem [ref=e726]:
+            - button "/usr/bin/yes" [ref=e727] [cursor=pointer]
+            - generic [ref=e728]: 36 B
+            - button "Download /usr/bin/yes" [ref=e729] [cursor=pointer]: ⤓
+          - listitem [ref=e730]:
+            - button "/usr/bin/zcat" [ref=e731] [cursor=pointer]
+            - generic [ref=e732]: 37 B
+            - button "Download /usr/bin/zcat" [ref=e733] [cursor=pointer]: ⤓
+      - main [ref=e734]:
+        - generic [ref=e735]:
+          - generic [ref=e736]: Streaming chat, tool calls, in-browser filesystem and just-bash.
+          - generic [ref=e737]: "Tool group \"fs\" unavailable: tool registry failed to load: Failed to fetch dynamically imported module: http://localhost:5173/src/tools/index.ts?t=1791447032744"
+        - generic [ref=e738]:
+          - generic [ref=e739]:
+            - button "Create /work/notes.md with a 5-item todo list, then count the lines with bash and append…" [ref=e740] [cursor=pointer]
+            - button "Write a small CSV of 10 fake products with prices to /work/products.csv, then use awk to…" [ref=e741] [cursor=pointer]
+          - generic [ref=e742]:
+            - textbox "Ask something… (Enter to send, Shift+Enter for newline)" [ref=e743]
+            - button "Send" [disabled] [ref=e744]
+            - button "Clear" [ref=e745] [cursor=pointer]
+      - complementary [ref=e746]:
+        - generic [ref=e747]:
+          - generic [ref=e748]: Run log
+          - button "Export run log (JSON)" [disabled] [ref=e749]
+        - generic [ref=e750]: No runs yet.
+  - generic [ref=e753]:
+    - generic [ref=e754]: "[plugin:vite:import-analysis] Failed to resolve import \"./bigquery\" from \"src/tools/index.ts\". Does the file exist?"
+    - generic [ref=e755]: /home/user/testapp/src/tools/index.ts:3:36
+    - generic [ref=e756]: "1 | import { createFsTools } from \"./fs\"; 2 | import { createBigQueryTools } from \"./bigquery\"; | ^ 3 | import { createDuckDbTools } from \"./duckdb\"; 4 | import { createPythonTools } from \"./python\";"
+    - generic [ref=e757]: at TransformPluginContext._formatLog (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8766:39) at TransformPluginContext.error (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8763:14) at normalizeUrl (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26593:18) at async file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26663:30 at async Promise.all (index 1) at async TransformPluginContext.transform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26629:4) at async EnvironmentPluginContainer.transform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8545:14) at async loadAndTransform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:20157:26) at async viteTransformMiddleware (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:20377:20)
+    - generic [ref=e758]:
+      - text: Click outside, press Esc key, or fix the code to dismiss.
+      - text: You can also disable this overlay by setting
+      - code [ref=e759]: server.hmr.overlay
+      - text: to
+      - code [ref=e760]: "false"
+      - text: in
+      - code [ref=e761]: vite.config.ts
+      - text: .
+```
