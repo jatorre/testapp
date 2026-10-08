@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 11177,
+      "outputTokens": 1174,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 16252,
+    "toolMs": 1532,
+    "llmMs": 14720,
+    "maxToolOutputChars": 473,
+    "files": [],
+    "charts": 0,
+    "answer": "**Houston TX** shipped the most revenue to customers outside the US in 2023: **$108.3K net** ($139.4K gross). All 10 distribution centers are in the US, so \"outside its own country\" means customers whose country isn't the United States.\n\n| Rank | Distribution center | Net revenue | Gross revenue | Net items |\n|---|---|---|---|---|\n| 1 | **Houston TX** | **$108,279** | $139,399 | 1,528 |\n| 2 | Memphis TN | $86,918 | $116,601 | 1,535 |\n| 3 | Chicago IL | $86,295 | $117,172 | 1,550 |\n| 4 | Mobile AL | $79,847 | $101,256 | 1,192 |\n| 5 | Philadelphia PA | $66,381 | $86,325 | 1,030 |\n| … | Charleston SC (last) | $43,161 | $57,613 | 1,055 |\n\n**Why Houston leads:**\n- **It's well ahead:** about $21K (25%) more than Memphis and Chicago. It also stays first on gross revenue ($139K against about $117K), so including cancelled and returned items doesn't change the answer.\n- **It sells pricier items, not more of them:** Houston shipped slightly fewer net items (1,528) than Memphis (1,535) or Chicago (1,550). Its lead comes from a higher average price, about $71 per item against roughly $56.\n- **Share of the total:** Houston accounts for about 16% of the roughly $694K net revenue that went to non-US customers in 2023.\n\n**How I calculated it:** I counted each item sold under the distribution center its product ships from. \"Revenue\" means net revenue (excluding cancelled and returned items), with gross shown alongside. The year is calendar 2023 in UTC, based on when the item was ordered.\n\n**Confidence and caveats:** I'm highly confident in the ranking, since Houston leads by a wide margin on both net and gross revenue. Two caveats:\n- The data is synthetic, so the patterns are generated rather than real-world.\n- The data only records which distribution center each product ships from, not which one fulfilled each order. Each sale is therefore credited to the product's distribution center."
+  },
+  "run": {
+    "demoId": "d11-semantic",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "prompt": "Which distribution center ships the most revenue to customers outside its own country in 2023?",
+    "id": "run_muzq249w",
+    "startedAt": 1791475165220,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01EGxDcxP7DxkcnvGt459BSU",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT dc.name,\n ROUND(SUM(IF(oi.status NOT IN ('Cancelled','Returned'), oi.sale_price, 0)),2) net_rev,\n ROUND(SUM(oi.sale_price),2) gross_rev,\n COUNTIF(oi.status NOT IN ('Cancelled','Returned')) net_items\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id=u.id\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON oi.product_id=p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON p.distribution_center_id=dc.id\nWHERE oi.created_at>='2023-01-01' AND oi.created_at<'2024-01-01' AND u.country!='United States'\nGROUP BY 1 ORDER BY net_rev DESC"
+        },
+        "startedAt": 1791475171059,
+        "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=9.5 MB\nname,net_rev,gross_rev,net_items\nHouston TX,108278.96,139398.74,1528\nMemphis TN,86917.66,116600.79,1535\nChicago IL,86294.63,117172.08,1550\nMobile AL,79846.55,101255.91,1192\nPhiladelphia PA,66380.75,86325.49,1030\nLos Angeles CA,61762.5,82687.32,1103\nPort Authority of New York/New Jersey NY/NJ,61111.01,82692.62,1044\nNew Orleans LA,50069.47,66600.22,806\nSavannah GA,49807.44,65774.71,761\nCharleston SC,43160.84,57612.79,1055",
+        "durationMs": 1532,
+        "outputChars": 473
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 5252,
+          "outputTokens": 403,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 4172,
+        "at": 1791475172592
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 5925,
+          "outputTokens": 771,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 244,
+        "at": 1791475181470
+      }
+    ],
+    "events": [
+      {
+        "t": 5839,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01EGxDcxP7DxkcnvGt459BSU",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT dc.name,\n ROUND(SUM(IF(oi.status NOT IN ('Cancelled','Returned'), oi.sale_price, 0)),2) net_rev,\n ROUND(SUM(oi.sale_price),2) gross_rev,\n COUNTIF(oi.status NOT IN ('Cancelled','Returned')) net_items\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id=u.id\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON oi.product_id=p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON p.distribution_center_id=dc.id\nWHERE oi.created_at>='2023-01-01' AND oi.created_at<'2024-01-01' AND u.country!='United States'\nGROUP BY 1 ORDER BY net_rev DESC"
+          },
+          "startedAt": 1791475171059
+        }
+      },
+      {
+        "t": 7371,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01EGxDcxP7DxkcnvGt459BSU",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=9.5 MB sessionTotal=9.5 MB\nname,net_rev,gross_rev,net_items\nHouston TX,108278.96,139398.74,1528\nMemphis TN,86917.66,116600.79,1535\nChicago IL,86294.63,117172.08,1550\nMobile AL,79846.55,101255.91,1192\nPhiladelphia PA,66380.75,86325.49,1030\nLos Angeles CA,61762.5,82687.32,1103\nPort Authority of New York/New Jersey NY/NJ,61111.01,82692.62,1044\nNew Orleans LA,50069.47,66600.22,806\nSavannah GA,49807.44,65774.71,761\nCharleston SC,43160.84,57612.79,1055",
+          "durationMs": 1532,
+          "outputChars": 473
+        }
+      },
+      {
+        "t": 7372,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 5252,
+            "outputTokens": 403,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 4172
+        }
+      },
+      {
+        "t": 16007,
+        "type": "text-delta",
+        "data": "**Houston TX** shipped the most revenue to customers outside the US in 2023: **$108.3K net** ($139.4K gross). All 10 distribution centers are in the US, so \"outside its own country\" means customers whose country isn't the United States.\n\n| Rank | Distribution center | Net revenue | Gross revenue | Net items |\n|---|---|---|---|---|\n| 1 | **Houston TX** | **$108,279** | $139,399 | 1,528 |\n| 2 | Memphis TN | $86,918 | $116,601 | 1,535 |\n| 3 | Chicago IL | $86,295 | $117,172 | 1,550 |\n| 4 | Mobile AL | $79,847 | $101,256 | 1,192 |\n| 5 | Philadelphia PA | $66,381 | $86,325 | 1,030 |\n| … | Charleston SC (last) | $43,161 | $57,613 | 1,055 |\n\n**Why Houston leads:**\n- **It's well ahead:** about $21K (25%) more than Memphis and Chicago. It also stays first on gross revenue ($139K against about $117K), so including cancelled and returned items doesn't change the answer.\n- **It sells pricier items, not more of them:** Houston shipped slightly fewer net items (1,528) than Memphis (1,535) or Chicago (1,550). Its lead comes from a higher average price, about $71 per item against roughly $56.\n- **Share of the total:** Houston accounts for about 16% of the roughly $694K net revenue that went to non-US customers in 2023.\n\n**How I calculated it:** I counted each item sold under the distribution center its product ships from. \"Revenue\" means net revenue (excluding cancelled and returned items), with gross shown alongside. The year is calendar 2023 in UTC, based on when the item was ordered.\n\n**Confidence and caveats:** I'm highly confident in the ranking, since Houston leads by a wide margin on both net and gross revenue. Two caveats:\n- The data is synthetic, so the patterns are generated rather than real-world.\n- The data only records which distribution center each product ships from, not which one fulfilled each order. Each sale is therefore credited to the product's distribution center."
+      },
+      {
+        "t": 16250,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 5925,
+            "outputTokens": 771,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 244
+        }
+      },
+      {
+        "t": 16252,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 11177,
+            "outputTokens": 1174,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 14716
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 11177,
+        "outputTokens": 1174,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 16252,
+      "toolMs": 1532,
+      "llmMs": 14720,
+      "outputChars": 473
+    },
+    "finalText": "**Houston TX** shipped the most revenue to customers outside the US in 2023: **$108.3K net** ($139.4K gross). All 10 distribution centers are in the US, so \"outside its own country\" means customers whose country isn't the United States.\n\n| Rank | Distribution center | Net revenue | Gross revenue | Net items |\n|---|---|---|---|---|\n| 1 | **Houston TX** | **$108,279** | $139,399 | 1,528 |\n| 2 | Memphis TN | $86,918 | $116,601 | 1,535 |\n| 3 | Chicago IL | $86,295 | $117,172 | 1,550 |\n| 4 | Mobile AL | $79,847 | $101,256 | 1,192 |\n| 5 | Philadelphia PA | $66,381 | $86,325 | 1,030 |\n| … | Charleston SC (last) | $43,161 | $57,613 | 1,055 |\n\n**Why Houston leads:**\n- **It's well ahead:** about $21K (25%) more than Memphis and Chicago. It also stays first on gross revenue ($139K against about $117K), so including cancelled and returned items doesn't change the answer.\n- **It sells pricier items, not more of them:** Houston shipped slightly fewer net items (1,528) than Memphis (1,535) or Chicago (1,550). Its lead comes from a higher average price, about $71 per item against roughly $56.\n- **Share of the total:** Houston accounts for about 16% of the roughly $694K net revenue that went to non-US customers in 2023.\n\n**How I calculated it:** I counted each item sold under the distribution center its product ships from. \"Revenue\" means net revenue (excluding cancelled and returned items), with gross shown alongside. The year is calendar 2023 in UTC, based on when the item was ordered.\n\n**Confidence and caveats:** I'm highly confident in the ranking, since Houston leads by a wide margin on both net and gross revenue. Two caveats:\n- The data is synthetic, so the patterns are generated rather than real-world.\n- The data only records which distribution center each product ships from, not which one fulfilled each order. Each sale is therefore credited to the product's distribution center.",
+    "endedAt": 1791475181472
+  }
+}

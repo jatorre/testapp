@@ -1,0 +1,155 @@
+{
+  "summary": {
+    "demoId": "d11-semantic",
+    "harnessId": "handrolled",
+    "model": "carto::claude-sonnet-5",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 11286,
+      "outputTokens": 1365,
+      "cachedInputTokens": 10534
+    },
+    "wallMs": 19961,
+    "toolMs": 2534,
+    "llmMs": 17427,
+    "maxToolOutputChars": 499,
+    "files": [],
+    "charts": 0,
+    "answer": "## Answer\n\n**Houston TX** shipped the most revenue to customers outside the United States in 2023, with **$108,279 in net revenue** across 1,436 orders — roughly 25% more than the second-place center.\n\n**Full ranking (net revenue to non‑US customers, 2023):**\n1. Houston TX — $108,279 (1,436 orders)\n2. Memphis TN — $86,918 (1,440 orders)\n3. Chicago IL — $86,295 (1,451 orders)\n4. Mobile AL — $79,847 (1,127 orders)\n5. Philadelphia PA — $66,381 (984 orders)\n6. Los Angeles CA — $61,763 (1,061 orders)\n7. Port Authority NY/NJ — $61,111 (1,011 orders)\n8. New Orleans LA — $50,069 (782 orders)\n9. Savannah GA — $49,807 (737 orders)\n10. Charleston SC — $43,161 (1,009 orders)\n\n**Methodology / definitions:**\n- \"Own country\" interpretation follows the stated rule: all distribution centers are US-based, so \"outside its own country\" = shipped to any `users.country != 'United States'`.\n- Revenue = **net_revenue** (sum of `sale_price`, excluding Cancelled and Returned items), attributed via `order_items.created_at` within calendar year 2023.\n- A product's shipping DC is taken from `products.distribution_center_id`; customer location from `users.country` (joined via `order_items.user_id`).\n\n**Drivers:** Houston's lead isn't driven by having dramatically more foreign orders (1,436, similar to Memphis's 1,440 and Chicago's 1,451) — it's driven by higher revenue per order (~$75 vs ~$60-61 for Memphis/Chicago), suggesting Houston ships a higher-value product mix internationally.\n\n**Confidence & caveats:**\n- High confidence in the numbers — straightforward join/aggregation on verified schema, 2023 is a complete year.\n- This measures revenue from products *shipped from* each DC, not physical international shipping cost or distance — a product shipped from a US DC to a non-US customer could still be geographically close (e.g., Mexico vs. Canada) or far.\n- Gross revenue (including cancelled/returned items) would shift absolute numbers slightly but is very unlikely to change the ranking, since cancellation/return rates are roughly uniform across DCs."
+  },
+  "run": {
+    "demoId": "d11-semantic",
+    "harnessId": "handrolled",
+    "model": "carto::claude-sonnet-5",
+    "prompt": "Which distribution center ships the most revenue to customers outside its own country in 2023?",
+    "id": "run_muzq35v0",
+    "startedAt": 1791475213932,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01X46uaiLH9eL9P368UEocF6",
+        "name": "run_sql",
+        "input": {
+          "sql": "\nSELECT\n  dc.name AS distribution_center,\n  SUM(oi.sale_price) AS net_revenue_to_foreign_customers,\n  COUNT(DISTINCT oi.order_id) AS orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id = u.id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\n  AND oi.status NOT IN ('Cancelled','Returned')\n  AND u.country != 'United States'\nGROUP BY dc.name\nORDER BY net_revenue_to_foreign_customers DESC\n"
+        },
+        "startedAt": 1791475221974,
+        "output": "rows=10 bytesProcessed=10.8 MB sessionTotal=10.8 MB\ndistribution_center,net_revenue_to_foreign_customers,orders\nHouston TX,108278.96009135246,1436\nMemphis TN,86917.66015100479,1440\nChicago IL,86294.63002872467,1451\nMobile AL,79846.55014801025,1127\nPhiladelphia PA,66380.75009012222,984\nLos Angeles CA,61762.50015544891,1061\nPort Authority of New York/New Jersey NY/NJ,61111.00998258591,1011\nNew Orleans LA,50069.470155239105,782\nSavannah GA,49807.43994688988,737\nCharleston SC,43160.83997154236,1009",
+        "durationMs": 2534,
+        "outputChars": 499
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 5318,
+          "outputTokens": 527,
+          "cachedInputTokens": 5316
+        },
+        "durationMs": 7894,
+        "at": 1791475224509
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 5968,
+          "outputTokens": 838,
+          "cachedInputTokens": 5218
+        },
+        "durationMs": 9384,
+        "at": 1791475233893
+      }
+    ],
+    "events": [
+      {
+        "t": 8042,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01X46uaiLH9eL9P368UEocF6",
+          "name": "run_sql",
+          "input": {
+            "sql": "\nSELECT\n  dc.name AS distribution_center,\n  SUM(oi.sale_price) AS net_revenue_to_foreign_customers,\n  COUNT(DISTINCT oi.order_id) AS orders\nFROM `bigquery-public-data.thelook_ecommerce.order_items` oi\nJOIN `bigquery-public-data.thelook_ecommerce.products` p ON oi.product_id = p.id\nJOIN `bigquery-public-data.thelook_ecommerce.distribution_centers` dc ON p.distribution_center_id = dc.id\nJOIN `bigquery-public-data.thelook_ecommerce.users` u ON oi.user_id = u.id\nWHERE oi.created_at >= '2023-01-01' AND oi.created_at < '2024-01-01'\n  AND oi.status NOT IN ('Cancelled','Returned')\n  AND u.country != 'United States'\nGROUP BY dc.name\nORDER BY net_revenue_to_foreign_customers DESC\n"
+          },
+          "startedAt": 1791475221974
+        }
+      },
+      {
+        "t": 10576,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01X46uaiLH9eL9P368UEocF6",
+          "name": "run_sql",
+          "output": "rows=10 bytesProcessed=10.8 MB sessionTotal=10.8 MB\ndistribution_center,net_revenue_to_foreign_customers,orders\nHouston TX,108278.96009135246,1436\nMemphis TN,86917.66015100479,1440\nChicago IL,86294.63002872467,1451\nMobile AL,79846.55014801025,1127\nPhiladelphia PA,66380.75009012222,984\nLos Angeles CA,61762.50015544891,1061\nPort Authority of New York/New Jersey NY/NJ,61111.00998258591,1011\nNew Orleans LA,50069.470155239105,782\nSavannah GA,49807.43994688988,737\nCharleston SC,43160.83997154236,1009",
+          "durationMs": 2534,
+          "outputChars": 499
+        }
+      },
+      {
+        "t": 10577,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 5318,
+            "outputTokens": 527,
+            "cachedInputTokens": 5316
+          },
+          "durationMs": 7894
+        }
+      },
+      {
+        "t": 11840,
+        "type": "text-delta",
+        "data": "## Answer\n\n**Houston TX** shipped the most revenue to customers outside the United States in 2023, with **$108,279 in net revenue** across 1,436 orders — roughly 25% more than the second-place center.\n\n**Full ranking (net revenue to non‑US customers, 2023):**\n1. Houston TX — $108,279 (1,436 orders)\n2. Memphis TN — $86,918 (1,440 orders)\n3. Chicago IL — $86,295 (1,451 orders)\n4. Mobile AL — $79,847 (1,127 orders)\n5. Philadelphia PA — $66,381 (984 orders)\n6. Los Angeles CA — $61,763 (1,061 orders)\n7. Port Authority NY/NJ — $61,111 (1,011 orders)\n8. New Orleans LA — $50,069 (782 orders)\n9. Savannah GA — $49,807 (737 orders)\n10. Charleston SC — $43,161 (1,009 orders)\n\n**Methodology / definitions:**\n- \"Own country\" interpretation follows the stated rule: all distribution centers are US-based, so \"outside its own country\" = shipped to any `users.country != 'United States'`.\n- Revenue = **net_revenue** (sum of `sale_price`, excluding Cancelled and Returned items), attributed via `order_items.created_at` within calendar year 2023.\n- A product's shipping DC is taken from `products.distribution_center_id`; customer location from `users.country` (joined via `order_items.user_id`).\n\n**Drivers:** Houston's lead isn't driven by having dramatically more foreign orders (1,436, similar to Memphis's 1,440 and Chicago's 1,451) — it's driven by higher revenue per order (~$75 vs ~$60-61 for Memphis/Chicago), suggesting Houston ships a higher-value product mix internationally.\n\n**Confidence & caveats:**\n- High confidence in the numbers — straightforward join/aggregation on verified schema, 2023 is a complete year.\n- This measures revenue from products *shipped from* each DC, not physical international shipping cost or distance — a product shipped from a US DC to a non-US customer could still be geographically close (e.g., Mexico vs. Canada) or far.\n- Gross revenue (including cancelled/returned items) would shift absolute numbers slightly but is very unlikely to change the ranking, since cancellation/return rates are roughly uniform across DCs."
+      },
+      {
+        "t": 19961,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 5968,
+            "outputTokens": 838,
+            "cachedInputTokens": 5218
+          },
+          "durationMs": 9384
+        }
+      },
+      {
+        "t": 19961,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 11286,
+            "outputTokens": 1365,
+            "cachedInputTokens": 10534
+          },
+          "steps": 2,
+          "durationMs": 17281
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 11286,
+        "outputTokens": 1365,
+        "cachedInputTokens": 10534
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 19961,
+      "toolMs": 2534,
+      "llmMs": 17427,
+      "outputChars": 499
+    },
+    "finalText": "## Answer\n\n**Houston TX** shipped the most revenue to customers outside the United States in 2023, with **$108,279 in net revenue** across 1,436 orders — roughly 25% more than the second-place center.\n\n**Full ranking (net revenue to non‑US customers, 2023):**\n1. Houston TX — $108,279 (1,436 orders)\n2. Memphis TN — $86,918 (1,440 orders)\n3. Chicago IL — $86,295 (1,451 orders)\n4. Mobile AL — $79,847 (1,127 orders)\n5. Philadelphia PA — $66,381 (984 orders)\n6. Los Angeles CA — $61,763 (1,061 orders)\n7. Port Authority NY/NJ — $61,111 (1,011 orders)\n8. New Orleans LA — $50,069 (782 orders)\n9. Savannah GA — $49,807 (737 orders)\n10. Charleston SC — $43,161 (1,009 orders)\n\n**Methodology / definitions:**\n- \"Own country\" interpretation follows the stated rule: all distribution centers are US-based, so \"outside its own country\" = shipped to any `users.country != 'United States'`.\n- Revenue = **net_revenue** (sum of `sale_price`, excluding Cancelled and Returned items), attributed via `order_items.created_at` within calendar year 2023.\n- A product's shipping DC is taken from `products.distribution_center_id`; customer location from `users.country` (joined via `order_items.user_id`).\n\n**Drivers:** Houston's lead isn't driven by having dramatically more foreign orders (1,436, similar to Memphis's 1,440 and Chicago's 1,451) — it's driven by higher revenue per order (~$75 vs ~$60-61 for Memphis/Chicago), suggesting Houston ships a higher-value product mix internationally.\n\n**Confidence & caveats:**\n- High confidence in the numbers — straightforward join/aggregation on verified schema, 2023 is a complete year.\n- This measures revenue from products *shipped from* each DC, not physical international shipping cost or distance — a product shipped from a US DC to a non-US customer could still be geographically close (e.g., Mexico vs. Canada) or far.\n- Gross revenue (including cancelled/returned items) would shift absolute numbers slightly but is very unlikely to change the ranking, since cancellation/return rates are roughly uniform across DCs.",
+    "endedAt": 1791475233893
+  }
+}
