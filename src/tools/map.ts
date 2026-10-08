@@ -46,7 +46,7 @@ function compactLayer(l: LayerInfo) {
     status: l.status,
     ...(l.error && { error: l.error }),
     ...(l.warning && { warning: l.warning }),
-    ...(l.featureCount !== undefined && { [l.kind === 'h3' ? 'cells' : 'features']: l.featureCount }),
+    ...(l.featureCount !== undefined && { [l.kind === 'h3' ? 'source_rows' : 'features']: l.featureCount }),
     ...(l.bbox && { bbox: l.bbox }),
     ...(l.columns?.length && { columns: l.columns.slice(0, 30) }),
     ...(!l.visible && { visible: false }),

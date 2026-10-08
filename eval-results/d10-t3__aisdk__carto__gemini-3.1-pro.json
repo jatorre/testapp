@@ -1,0 +1,170 @@
+{
+  "summary": {
+    "task": "t3",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "run_sql": 1
+    },
+    "usage": {
+      "inputTokens": 5664,
+      "outputTokens": 1000,
+      "cachedInputTokens": 0
+    },
+    "stepInput": [
+      2425,
+      3239
+    ],
+    "wallMs": 12949,
+    "toolMs": 1748,
+    "llmMs": 11201,
+    "screenshots": [],
+    "layers": [],
+    "grade": {
+      "screenshots": 0,
+      "cartoLayers": 0,
+      "geojsonLayers": 0,
+      "styles": 0,
+      "annotates": 0,
+      "sql": 1,
+      "inside1902": true,
+      "insideApprox": true,
+      "comparesToTexas": true,
+      "correct": true
+    },
+    "answer": "There are **1,902** customers inside the area you highlighted (A1). \n\nIn contrast, there are only **494** customers in the entire rest of Texas. This means that area A1 accounts for nearly **80%** of all your customers in the state, despite being just a fraction of Texas's total landmass (it encompasses the major population centers like the Dallas-Fort Worth metroplex, Austin, San Antonio, and Houston)."
+  },
+  "run": {
+    "demoId": "d10-map",
+    "harnessId": "aisdk",
+    "model": "carto::gemini-3.1-pro",
+    "prompt": "How many customers are inside A1 and how does it compare to the rest of Texas?\n\nMap annotations drawn by the user (refer to them by id; geojson is [lon, lat], usable with ST_GEOGFROMGEOJSON):\n- A1 \"why so many here?\": Polygon, bbox [-99, 29, -94.7, 33.4], ~146,557 km²\n  geojson: {\"type\":\"Polygon\",\"coordinates\":[[[-97.6,33.4],[-96,33.3],[-94.7,30.2],[-94.9,29.3],[-95.6,29],[-98.9,29],[-99,29.8],[-97.6,33.4]]]}",
+    "id": "run_muzfzzt5",
+    "startedAt": 1791458269961,
+    "status": "done",
+    "tools": [
+      {
+        "id": "call_4717561__thought__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",
+        "name": "run_sql",
+        "input": {
+          "sql": "SELECT\n  SUM(CASE WHEN ST_CONTAINS(ST_GEOGFROMGEOJSON('{\"type\":\"Polygon\",\"coordinates\":[[[-97.6,33.4],[-96,33.3],[-94.7,30.2],[-94.9,29.3],[-95.6,29],[-98.9,29],[-99,29.8],[-97.6,33.4]]]}'), ST_GEOGPOINT(longitude, latitude)) THEN 1 ELSE 0 END) as customers_in_a1,\n  SUM(CASE WHEN NOT ST_CONTAINS(ST_GEOGFROMGEOJSON('{\"type\":\"Polygon\",\"coordinates\":[[[-97.6,33.4],[-96,33.3],[-94.7,30.2],[-94.9,29.3],[-95.6,29],[-98.9,29],[-99,29.8],[-97.6,33.4]]]}'), ST_GEOGPOINT(longitude, latitude)) THEN 1 ELSE 0 END) as customers_in_rest_of_texas\nFROM `bigquery-public-data.thelook_ecommerce.users`\nWHERE state = 'Texas' AND country = 'United States'"
+        },
+        "startedAt": 1791458277228,
+        "output": "rows=1 bytesProcessed=3.6 MB sessionTotal=3.6 MB\ncustomers_in_a1,customers_in_rest_of_texas\n1902,494",
+        "durationMs": 1748,
+        "outputChars": 100
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 2425,
+          "outputTokens": 770,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 1834,
+        "at": 1791458278978
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 3239,
+          "outputTokens": 230,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 720,
+        "at": 1791458282908
+      }
+    ],
+    "events": [
+      {
+        "t": 7267,
+        "type": "tool-call",
+        "data": {
+          "id": "call_4717561__thought__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",
+          "name": "run_sql",
+          "input": {
+            "sql": "SELECT\n  SUM(CASE WHEN ST_CONTAINS(ST_GEOGFROMGEOJSON('{\"type\":\"Polygon\",\"coordinates\":[[[-97.6,33.4],[-96,33.3],[-94.7,30.2],[-94.9,29.3],[-95.6,29],[-98.9,29],[-99,29.8],[-97.6,33.4]]]}'), ST_GEOGPOINT(longitude, latitude)) THEN 1 ELSE 0 END) as customers_in_a1,\n  SUM(CASE WHEN NOT ST_CONTAINS(ST_GEOGFROMGEOJSON('{\"type\":\"Polygon\",\"coordinates\":[[[-97.6,33.4],[-96,33.3],[-94.7,30.2],[-94.9,29.3],[-95.6,29],[-98.9,29],[-99,29.8],[-97.6,33.4]]]}'), ST_GEOGPOINT(longitude, latitude)) THEN 1 ELSE 0 END) as customers_in_rest_of_texas\nFROM `bigquery-public-data.thelook_ecommerce.users`\nWHERE state = 'Texas' AND country = 'United States'"
+          },
+          "startedAt": 1791458277228
+        }
+      },
+      {
+        "t": 9015,
+        "type": "tool-result",
+        "data": {
+          "id": "call_4717561__thought__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",
+          "name": "run_sql",
+          "output": "rows=1 bytesProcessed=3.6 MB sessionTotal=3.6 MB\ncustomers_in_a1,customers_in_rest_of_texas\n1902,494",
+          "durationMs": 1748,
+          "outputChars": 100
+        }
+      },
+      {
+        "t": 9017,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 2425,
+            "outputTokens": 770,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 1834
+        }
+      },
+      {
+        "t": 12227,
+        "type": "text-delta",
+        "data": "There are **1,902** customers inside the area you highlighted (A1). \n\nIn contrast, there are only **494** customers in the entire rest of Texas. This means that area A1 accounts for nearly **80%** of all your customers in the state, despite being just a fraction of Texas's total landmass (it encompasses the major population centers like the Dallas-Fort Worth metroplex, Austin, San Antonio, and Houston)."
+      },
+      {
+        "t": 12947,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 3239,
+            "outputTokens": 230,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 720
+        }
+      },
+      {
+        "t": 12949,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 5664,
+            "outputTokens": 1000,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 12771
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 5664,
+        "outputTokens": 1000,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 12949,
+      "toolMs": 1748,
+      "llmMs": 11201,
+      "outputChars": 100
+    },
+    "finalText": "There are **1,902** customers inside the area you highlighted (A1). \n\nIn contrast, there are only **494** customers in the entire rest of Texas. This means that area A1 accounts for nearly **80%** of all your customers in the state, despite being just a fraction of Texas's total landmass (it encompasses the major population centers like the Dallas-Fort Worth metroplex, Austin, San Antonio, and Houston).",
+    "endedAt": 1791458282910
+  }
+}

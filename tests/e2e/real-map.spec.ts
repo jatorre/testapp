@@ -72,6 +72,43 @@ async function save(page: Page, task: string, model: string, run: any) {
   return summary;
 }
 
+/** No LLM: real CARTO sources through the engine. H3 + points + marker all render (regression: depth hid points). */
+test('map · layers render on the real stack (H3 + GeoJSON + marker), no LLM', async ({ page }) => {
+  test.skip(!TASKS.includes('layers'), 'MAP_TASKS=layers');
+  test.setTimeout(180_000);
+  await open(page);
+  const r = await page.evaluate(async () => {
+    const e = (window as any).__mapEngine;
+    const h3 = await e.addCartoLayer({
+      id: 'h3', kind: 'h3', aggregation_exp: 'COUNT(*) AS n', style: { color_by_column: 'n', palette: 'PurpOr', opacity: 0.9 },
+      sql: "SELECT `carto-un`.carto.H3_FROMGEOGPOINT(ST_GEOGPOINT(longitude, latitude), 4) AS h3 FROM `bigquery-public-data.thelook_ecommerce.users` WHERE country = 'United States'",
+    });
+    const dc = await e.addGeojson({ id: 'dc', from_sql: 'SELECT name, longitude, latitude FROM `bigquery-public-data.thelook_ecommerce.distribution_centers`', style: { color: '#00ff00', radius: 14 } });
+    (window as any).__addAnnotation({ type: 'Point', coordinates: [-73.78, 40.63] }, 'x');
+    await e.setView({ center: [-74, 40.7], zoom: 7 });
+    const shot = await e.screenshot();
+    // Count pure-green pixels (the DC points) in the screenshot.
+    const img = new Image();
+    img.src = shot.image.dataUrl;
+    await img.decode();
+    const c = document.createElement('canvas');
+    [c.width, c.height] = [img.width, img.height];
+    const ctx = c.getContext('2d')!;
+    ctx.drawImage(img, 0, 0);
+    const d = ctx.getImageData(0, 0, c.width, c.height).data;
+    let green = 0;
+    for (let i = 0; i < d.length; i += 4) if (d[i] < 60 && d[i + 1] > 200 && d[i + 2] < 60) green++;
+    return { h3, dc, green, dataUrl: shot.image.dataUrl, waited: shot.waitedMs, warning: shot.warning };
+  });
+  mkdirSync('eval-results', { recursive: true });
+  writeFileSync('eval-results/d10-layers-smoke.png', Buffer.from(r.dataUrl.split(',')[1], 'base64'));
+  console.log('[layers]', JSON.stringify({ h3: r.h3, dc: r.dc, green: r.green, waited: r.waited, warning: r.warning }));
+  expect(r.h3.status).toBe('ready');
+  expect(r.h3.legend.items.length).toBeGreaterThan(2);
+  expect(r.dc.featureCount).toBe(10);
+  expect(r.green).toBeGreaterThan(100);
+});
+
 for (const model of MODELS) {
   for (const task of TASKS) {
     test(`map · ${task} · ${HARNESS} · ${model}`, async ({ page }) => {

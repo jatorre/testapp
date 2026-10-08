@@ -60,6 +60,11 @@ setWorkerUrl(new URL(maplibreWorkerUrl, location.href).href);
 
 export const BASEMAP_STYLE = 'https://basemaps.cartocdn.com/gl/positron-gl-style/style.json';
 const MAX_GEOJSON_FEATURES = 20_000;
+/**
+ * All layers are 2D: draw in order, without depth testing. Otherwise H3 cells (ColumnLayer, which writes depth) hide
+ * later points/lines/labels at the same z (found by the agent's own screenshot check in the T4 eval).
+ */
+const FLAT = { depthCompare: 'always', depthWriteEnabled: false } as const;
 const DEFAULT_COLORS = ['#2f5bea', '#e4572e', '#17a398', '#f3a712', '#8e44ad', '#29335c'];
 export const PALETTES =
   'sequential: Burg, BurgYl, RedOr, OrYel, Peach, PinkYl, Mint, BluGrn, DarkMint, Emrld, BluYl, Teal, TealGrn, Purp, PurpOr, Sunset, Magenta, SunsetDark, BrwnYl; ' +
@@ -278,8 +283,11 @@ export class MapEngine implements MapController {
     this.map.addControl(this.overlay as unknown as IControl);
     this.ready = new Promise((resolve) => {
       this.map.once('load', () => {
-        // Draw data under the basemap's labels so place names stay readable.
-        this.labelBeforeId = this.map.getStyle().layers.find((l: { type: string; id: string }) => l.type === 'symbol')?.id;
+        // Draw data above roads/boundaries but under the label block, so place names stay readable (Positron has an early
+        // waterway_label symbol layer before the roads, so take the first symbol after the last non-symbol layer).
+        const layers = this.map.getStyle().layers as { type: string; id: string }[];
+        const lastShape = layers.findLastIndex((l) => l.type !== 'symbol');
+        this.labelBeforeId = layers.slice(lastShape + 1).find((l) => l.type === 'symbol')?.id;
         this.initDraw();
         this.render();
         resolve();
@@ -375,6 +383,7 @@ export class MapEngine implements MapController {
       new GeoJsonLayer({
         id: '__annotations',
         data: features as any,
+        parameters: FLAT,
         pointType: 'circle',
         getFillColor: (f: any) => [...col(f.properties).slice(0, 3), f.geometry.type === 'Point' ? 255 : 40] as any,
         getLineColor: (f: any) => col(f.properties) as any,
@@ -389,6 +398,7 @@ export class MapEngine implements MapController {
       new TextLayer({
         id: '__annotation-labels',
         data: labels,
+        parameters: FLAT,
         getPosition: (d: any) => d.position,
         getText: (d: any) => d.text,
         getColor: [255, 255, 255],
@@ -432,6 +442,7 @@ export class MapEngine implements MapController {
       beforeId: this.labelBeforeId,
       opacity: st.opacity ?? (s.kind === 'points' ? 0.8 : 0.75),
       pickable: false,
+      parameters: FLAT,
       updateTriggers: { getFillColor: key, getLineColor: key, getPointRadius: key, getLineWidth: key },
     };
     if (s.type === 'geojson') {
@@ -507,7 +518,7 @@ export class MapEngine implements MapController {
       for (let i = 0; i < t.length - 1; i++) items.push({ color: at(t[i]), label: `${fmtNum(t[i])} – ${fmtNum(t[i + 1])}` });
       items.push({ color: at(t[t.length - 1]), label: `≥ ${fmtNum(t[t.length - 1])}` });
     }
-    return { title: `${title} — ${st.color_by_column}`, items };
+    return { title: st.legend_title ?? `${s.info.name} — ${st.color_by_column}`, items };
   }
 
   private publish(s: LayerState, patch: Partial<LayerInfo> = {}) {
@@ -574,6 +585,8 @@ export class MapEngine implements MapController {
     }
     if (this.layers.get(id) !== s) throw new Error(`Layer ${id} was replaced while loading`);
     const columns = (s.source.schema as { name: string }[] | undefined)?.map((f) => f.name).filter((n) => n !== (o.geom_column ?? 'geom')) ?? [];
+    // The schema lists the query's columns only; H3 cells carry the aggregation_exp aliases ("COUNT(*) AS n" → n).
+    if (kind === 'h3') for (const m of o.aggregation_exp!.matchAll(/\bAS\s+`?(\w+)`?/gi)) if (!columns.includes(m[1])) columns.push(m[1]);
     // Tilejson `bounds` of a query source only covers a sample, so ask the widget API for the real extent and count.
     const ws = s.source.widgetSource;
     const [count, extent] = await Promise.all([
@@ -581,6 +594,7 @@ export class MapEngine implements MapController {
       ws?.getExtent().then((r: any) => r.bbox as BBox).catch(() => undefined),
     ]);
     s.info.columns = columns;
+    this.render(); // start loading tiles: H3 bins are computed from the cells on screen
     const warning = await this.tryDomain(s);
     this.publish(s, { status: 'ready', featureCount: count, bbox: extent ? roundBBox(extent) : undefined, columns, warning });
     this.render();

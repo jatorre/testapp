@@ -47,6 +47,7 @@ export default function MapPane() {
     }
     engineRef.current = engine;
     setMapController(engine);
+    if (import.meta.env.DEV) (window as unknown as { __mapEngine?: MapEngine }).__mapEngine = engine; // tests only
     void engine.ready.then(() => engineRef.current === engine && setReady(true));
     const off = engine.onDrawMode((m) => setMode(m as Mode));
     return () => {
