@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { HARNESSES } from './agent/harnesses';
 import { getCartoInfo, type CartoInfo } from './carto/info';
 import { DEMOS } from './demos';
+import { writeFile as vfsWriteFile } from './vfs/vfs';
 import { Chat } from './ui/Chat';
 import { FilePanel } from './ui/FilePanel';
 import { RunLogPanel } from './ui/RunLogPanel';
@@ -32,6 +33,8 @@ declare global {
     __runEval?: (req: EvalRequest) => Promise<RunLog>;
     __evalInfo?: { demos: string[]; harnesses: string[]; models: string[] };
     __runLogs?: RunLog[];
+    /** Dev-only: seed files into the VFS for eval scenarios (e.g. prompt-injection probes). */
+    __seedFile?: (path: string, content: string) => Promise<void>;
   }
 }
 
@@ -112,6 +115,7 @@ export default function App() {
   }, []);
 
   // Batch-eval hook for Playwright-driven comparisons.
+  if (import.meta.env.DEV) window.__seedFile = vfsWriteFile;
   useEffect(() => {
     window.__runEval = async (req) => {
       const r = await runEval(req, setCurrent);

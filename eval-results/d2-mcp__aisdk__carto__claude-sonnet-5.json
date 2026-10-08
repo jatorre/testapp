@@ -1,0 +1,156 @@
+{
+  "summary": {
+    "demoId": "d2-mcp",
+    "harnessId": "aisdk",
+    "model": "carto::claude-sonnet-5",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "mcp__get_workspace_info": 1
+    },
+    "usage": {
+      "inputTokens": 95315,
+      "outputTokens": 1477,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 19839,
+    "toolMs": 1066,
+    "llmMs": 18773,
+    "maxToolOutputChars": 823,
+    "files": [],
+    "charts": 0,
+    "answer": "## Summary\n\nI called **`get_workspace_info`**, which requires no arguments — it just returns the calling organization's CARTO workspace details and URL templates.\n\n**Result:**\n- **Account ID:** `ac_7xhfwyml`\n- **Workspace URL:** `https://gcp-us-east1.app.carto.com` (hosted on GCP, `us-east1` region)\n- **URL templates** for building links to resources:\n  - **Builder (edit):** `.../builder/{mapId}`\n  - **Viewer (org members):** `.../viewer/{mapId}`\n  - **Public map:** `.../map/{mapId}` (works only once shared publicly)\n  - **Workflows:** `.../workflows/{workflowId}`\n\nThis confirms the organization's workspace is on CARTO's GCP us-east1 cluster and gives me the exact link patterns I should use whenever I need to share a map or workflow link with you (rather than guessing at a URL format)."
+  },
+  "run": {
+    "demoId": "d2-mcp",
+    "harnessId": "aisdk",
+    "model": "carto::claude-sonnet-5",
+    "prompt": "What MCP tools do you have? Call one of them with sensible arguments and summarize the result.",
+    "id": "run_muzarf6c",
+    "startedAt": 1791449471892,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01AT9h4gW56ijBVCv3k5f9ck",
+        "name": "mcp__get_workspace_info",
+        "input": {},
+        "startedAt": 1791449485611,
+        "output": "{\"accountId\":\"ac_7xhfwyml\",\"workspaceUrl\":\"https://gcp-us-east1.app.carto.com\",\"urlTemplates\":{\"builderMap\":{\"template\":\"https://gcp-us-east1.app.carto.com/builder/{mapId}\",\"use\":\"Edit a map in Builder. Requires login as an organization member with edit access to the map.\"},\"viewerMap\":{\"template\":\"https://gcp-us-east1.app.carto.com/viewer/{mapId}\",\"use\":\"View a map shared with the organization. Requires login as an organization member.\"},\"publicMap\":{\"template\":\"https://gcp-us-east1.app.carto.com/map/{mapId}\",\"use\":\"Open a public map without logging in. Works only once the map has been shared publicly; otherwise it shows an error page.\"},\"workflow\":{\"template\":\"https://gcp-us-east1.app.carto.com/workflows/{workflowId}\",\"use\":\"Open a workflow in the Workflows editor. Requires login as an organization member.\"}}}",
+        "durationMs": 1066,
+        "outputChars": 823
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 46967,
+          "outputTokens": 1158,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 9122,
+        "at": 1791449486678
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 48348,
+          "outputTokens": 319,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 2699,
+        "at": 1791449491730
+      }
+    ],
+    "events": [
+      {
+        "t": 5665,
+        "type": "text-delta",
+        "data": "I have access to a broad set of CARTO MCP tools, spanning several categories:\n\n**Core CARTO Builder/map tools**\n- `validate_map` – validate/verify/inspect schema of a map bundle\n- `read_maps` – list/get saved Builder maps\n- `view_map` – render an interactive map (deck.gl or saved map)\n- `get_workspace_info` – get CARTO workspace URL/info\n\n**Workflows**\n- `validate_workflow`, `read_workflows`, `read_workflow_components`\n- `async_workflow_job_get_status_v1_0_0`, `async_workflow_job_get_results_v1_0_0`\n\n**Data exploration & SQL**\n- `explore_data` – browse connections, schemas, tables, stats\n- `execute_query`, `execute_async_query` – run SQL\n\n**Location Data Services**\n- `geocode`, `route`, `calculate_isolines`, `calculate_od_matrix`\n- `search_data_observatory` – third-party spatial data catalog\n\n**A long tail of domain-specific/demo workflow tools**, e.g.:\n`magnum_happystores_site_scoring`, `reinsurance_earthquake_loss_calc`, `balance_field_service_territories`, `gallagher_risk_accumulation`, `mapa_reve_buscar_puntos_de_recarga_cercanos`, `business_location_analysis_1`, `underwriting_live_flood_fraud_check`, `benoy_market_size_residents_retail_1`, `media_advertising_planning_tool`, `abr_dynamic_isoline`, `support_crime_statistics`, `email_properties_by_territory`, `get_morning_utility_field_briefing`, `underwriting_subsidence_risk`, `ship_density`, `profile_cell_site_location`, `mapa_reve_consultar_puntos_de_recarga_por_cpo`, `branch_territory_demo_save_territory_polygon`, `geocoding_enrich_mcp`, `dynamic_isoline_mcp_v2`, `benoy_add_development_to_pipeline`, `workflow-sync-bristol_traffic_accidents`, `get_store_performance_by_location_highlands`, `location_whitespace`, `places_insight_by_brand`, `nyc_collision_hotspots`, `underwriting_historic_flooding`, `location_score_weights`, `military_risk_earthquake_exposure_mcp_workflow`, `enrich_isolines`, `snowy_hydro_nrt_bushfire_proximity_alert`, `drivetime_demographics_1`, `nyc_collision_hotspots_getis_ord_gi`, `filter_pois_1`, `point_to_isoline_generation`, `bank_brach_consolidation`, `summarize_cell_coverage_by_range`, and more.\n\nNow let me call one with sensible (in this case, no) arguments — `get_workspace_info`, since it's a safe, read-only call that tells us about the CARTO organization we're working in."
+      },
+      {
+        "t": 13719,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01AT9h4gW56ijBVCv3k5f9ck",
+          "name": "mcp__get_workspace_info",
+          "input": {},
+          "startedAt": 1791449485611
+        }
+      },
+      {
+        "t": 14785,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01AT9h4gW56ijBVCv3k5f9ck",
+          "name": "mcp__get_workspace_info",
+          "output": "{\"accountId\":\"ac_7xhfwyml\",\"workspaceUrl\":\"https://gcp-us-east1.app.carto.com\",\"urlTemplates\":{\"builderMap\":{\"template\":\"https://gcp-us-east1.app.carto.com/builder/{mapId}\",\"use\":\"Edit a map in Builder. Requires login as an organization member with edit access to the map.\"},\"viewerMap\":{\"template\":\"https://gcp-us-east1.app.carto.com/viewer/{mapId}\",\"use\":\"View a map shared with the organization. Requires login as an organization member.\"},\"publicMap\":{\"template\":\"https://gcp-us-east1.app.carto.com/map/{mapId}\",\"use\":\"Open a public map without logging in. Works only once the map has been shared publicly; otherwise it shows an error page.\"},\"workflow\":{\"template\":\"https://gcp-us-east1.app.carto.com/workflows/{workflowId}\",\"use\":\"Open a workflow in the Workflows editor. Requires login as an organization member.\"}}}",
+          "durationMs": 1066,
+          "outputChars": 823
+        }
+      },
+      {
+        "t": 14786,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 46967,
+            "outputTokens": 1158,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 9122
+        }
+      },
+      {
+        "t": 17139,
+        "type": "text-delta",
+        "data": "## Summary\n\nI called **`get_workspace_info`**, which requires no arguments — it just returns the calling organization's CARTO workspace details and URL templates.\n\n**Result:**\n- **Account ID:** `ac_7xhfwyml`\n- **Workspace URL:** `https://gcp-us-east1.app.carto.com` (hosted on GCP, `us-east1` region)\n- **URL templates** for building links to resources:\n  - **Builder (edit):** `.../builder/{mapId}`\n  - **Viewer (org members):** `.../viewer/{mapId}`\n  - **Public map:** `.../map/{mapId}` (works only once shared publicly)\n  - **Workflows:** `.../workflows/{workflowId}`\n\nThis confirms the organization's workspace is on CARTO's GCP us-east1 cluster and gives me the exact link patterns I should use whenever I need to share a map or workflow link with you (rather than guessing at a URL format)."
+      },
+      {
+        "t": 19838,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 48348,
+            "outputTokens": 319,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 2699
+        }
+      },
+      {
+        "t": 19839,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 95315,
+            "outputTokens": 1477,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 16606
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 95315,
+        "outputTokens": 1477,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 19839,
+      "toolMs": 1066,
+      "llmMs": 18773,
+      "outputChars": 823
+    },
+    "finalText": "## Summary\n\nI called **`get_workspace_info`**, which requires no arguments — it just returns the calling organization's CARTO workspace details and URL templates.\n\n**Result:**\n- **Account ID:** `ac_7xhfwyml`\n- **Workspace URL:** `https://gcp-us-east1.app.carto.com` (hosted on GCP, `us-east1` region)\n- **URL templates** for building links to resources:\n  - **Builder (edit):** `.../builder/{mapId}`\n  - **Viewer (org members):** `.../viewer/{mapId}`\n  - **Public map:** `.../map/{mapId}` (works only once shared publicly)\n  - **Workflows:** `.../workflows/{workflowId}`\n\nThis confirms the organization's workspace is on CARTO's GCP us-east1 cluster and gives me the exact link patterns I should use whenever I need to share a map or workflow link with you (rather than guessing at a URL format).",
+    "endedAt": 1791449491731
+  }
+}
