@@ -264,6 +264,92 @@ All three agreed (South Korea ~2.5× over-represented, China ~0.6×) and cited W
 
 Recommendation: optional, off by default for sensitive deployments.
 
+### Semantic model and catalog (demo 11)
+A JSON semantic model per dataset declares the allowed **sources**, their **grain**, time and geo columns, column
+notes, allowed values and gotchas, **relationships** (join keys and cardinality), **dimensions** (e.g.
+`country_clean` merges Deutschland/Germany, España/Spain, Brasil/Brazil), **metrics** (`net_revenue` as the default
+for "revenue", `gross_revenue`, `aov`, `return_rate`…) and **rules** ("always state which revenue definition you
+used"). Every claim was verified with queries. It is rendered into the system prompt.
+
+The **catalog** (row counts, sizes, CARTO + BigQuery types, geometry column) comes from the
+**connections-resources API** (`GET /v3/connections/{conn}/resources/{table}`):
+- free (no BigQuery bytes), CORS-enabled, 0.4–0.6 s per table;
+- cached in memory and localStorage for 24 h;
+- tools `list_sources` / `describe_source` / `get_metric` answer from the cache.
+
+| Prompt | Without semantic model | With semantic model |
+|---|---|---|
+| Largest MoM revenue drop | Mixed gross (Feb) and net (Jul) across models | All net Jul −9.4%, exact, definition stated |
+| Revenue by country, top 5 | Correct net, but raw "Brasil", no de-duplication | Exact, country names merged, definition stated |
+| DC revenue to foreign customers | Three answers ($108k / $121k / $92k); 2–15 steps; up to 7 discovery queries; up to 85 MB | All $108,279 (exact); 2 steps; 0 discovery queries; ~10 MB |
+
+**What the numbers say:**
+- **Definitions are the payoff:** consistency went from 3 different answers to 9/9 identical and correct.
+- **Introspection disappears:** 0 discovery queries.
+- **Cost:** the section adds **~4.6k input tokens per step on Claude** (~3.3k on Gemini, largely absorbed by its
+  implicit caching). With Claude getting no prompt caching through LiteLLM, simple questions cost 5–7× more input
+  tokens.
+- **Fix:** Claude caching in LiteLLM, or inject only rules + metrics + gotchas and let `describe_source` supply
+  schemas on demand (not yet evaluated).
+- **Caveat:** thelook is a well-known public dataset, so models already needed little discovery. Expect larger
+  savings on private data.
+
+### Map workspace (demo 10)
+The agent always has a live map: MapLibre (CARTO basemap) with deck.gl in the same WebGL context, CARTO sources via
+`@carto/api-client` with the viewer token (vector and H3 query/table sources), plus GeoJSON from `run_sql`.
+
+**Tools:**
+- `map_add_carto_layer`, `map_add_geojson`;
+- `map_style_layer` (CARTO colorBins/Categories/Continuous, domains computed automatically);
+- `map_remove_layer`, `map_list_layers`, `map_set_view`;
+- **`map_screenshot`** (waits for tiles, burns the legend into the image, ~660 tokens on Claude, ~1.1k on Gemini);
+- `map_annotate`, `get_annotations`.
+
+**User annotations work like marking text in a Claude document.** The user draws a polygon, rectangle, circle,
+freehand shape or point and adds a note. It becomes A1, A2… on the map and a chip in the composer, and is sent as
+compact GeoJSON the agent uses in SQL (`ST_GEOGFROMGEOJSON`) and on the map.
+
+| Task | opus-5.5 | gemini-3.1-pro | sonnet-5 |
+|---|---|---|---|
+| Where are US customers? (layer, style, screenshot, explain) | ✅ 33k tokens, 59 s | ✅ 10k, 23 s | ✅ 49k, 55 s |
+| "Make it more readable" (iterate via screenshots) | ✅ state choropleth + labelled cities, 45k | ✅ state choropleth, 23k | ✅ but 15 steps, 140k |
+| Customers inside user-drawn A1 vs the rest of Texas | ✅ exact (1,902 / 494) | ✅ exact | ✅ exact |
+| DC nearest the largest customer cluster, shown on the map | ✅ (gave world and US readings) | ✅ | ❌ picked the wrong reading |
+
+**Screenshots are the feedback loop.**
+- In one run Opus noticed *in its own screenshot* that the distribution-center points weren't rendering, and told
+  the user. That exposed a real depth-testing bug, which we fixed.
+- Models describe what they see (coastal density, empty interior) and redesign maps for a non-technical audience
+  without being told what to change.
+
+**Bundle and runtime:**
+- deck.gl + MapLibre + terra-draw lazy-load with the map demo only (~855 KB gzip); `dist` is 8.6 MB / 56 files,
+  within hosted-app limits.
+- Map API calls use the viewer token directly; no server needed.
+
+### How this compares to CARTO AI Agents (Builder)
+- **Same core design:** Builder agents have `execute_query` (rows into context), Workflows as MCP tools,
+  `generate_chart`, and 26 map-control tools carried out in the Builder frontend; the loop runs on CARTO's AI API.
+  Our ablation independently arrived at the same SQL-into-context default.
+- **What our prototype adds**, all running in the browser:
+  - the agent **seeing the map** (screenshots);
+  - **user annotations as context**;
+  - image and Excel attachments;
+  - user-given URLs;
+  - web search;
+  - optional Python and DuckDB;
+  - code-defined tools.
+- **What Builder agents have that we don't:**
+  - no-code authoring by map editors;
+  - semantic models in the product;
+  - admin controls and analytics;
+  - widgets, SQL parameters and Builder maps as the canvas;
+  - a hardened, shipped prompt.
+- **Integration path:** Builder already executes map tools in the browser, so these client-side tools (screenshot,
+  annotations, attachments, URL fetch, DuckDB/Pyodide) are plausible additions to Builder agents with no new
+  backend compute (inference, not verified with the Builder team). Conversely, an agent API plus readable semantic
+  models would let hosted apps reuse CARTO's agent instead of rebuilding the loop.
+
 **Harness comparison** (demo 3, claude-sonnet-5, same prompt):
 
 | Harness | Steps | Input / output tokens | Wall time | Own bundle (gzip) | LOC |
@@ -383,6 +469,8 @@ CARTO Hosted App (static, org login)
      │   ├─ attachments: list / read (Excel via SheetJS, CSV) + images as image parts
      │   ├─ fetch_url: direct (CORS) → Gemini urlContext (HTML) → Imports API (big files)
      │   ├─ render_chart (Vega-Lite, validated) + capture_chart (agent sees its own chart)
+     │   ├─ map_* (CARTO layers via @carto/api-client, GeoJSON, styling, map_screenshot, user annotations)
+     │   ├─ semantic model in the prompt + list/describe_source from the cached catalog (no introspection)
      │   └─ mcp__<allowlisted> ── CARTO MCP (curated Workflows only)
      ├─ confirm-first tools (side effects)
      │   ├─ upload_to_warehouse / import_url_to_warehouse (agent_tmp_*, 24 h expiry)
@@ -464,7 +552,18 @@ Prioritised; each item came up in a test above.
    - CARTO-hosted DuckDB/Pyodide assets (or a documented CSP that allows jsDelivr);
    - an opt-in COOP/COEP setting;
    - token refresh without a redirect.
-9. **An `@carto/agent` kit:** these tools, guards, the confirm-first pattern and the run log, so every hosted app
+9. **Semantic models and catalog:**
+   - an API to read (and publish) the semantic models used by Builder AI Agents, so hosted apps don't maintain a
+     second copy;
+   - document the connections-resources endpoint as the catalog API, with batch lookup, column descriptions,
+     partitioning and value statistics, so most of a semantic model can be generated automatically.
+10. **Maps for agents:**
+    - query-source metadata should include the true extent and value statistics. Today the bounds cover only a
+      sample, and quantiles need extra widget-API round trips.
+    - H3 sources should report their aggregation aliases.
+    - Maps API bytes should be reported, so they can count toward a session budget.
+    - deck.gl 9.4's MapLibre overlay needs a shim for MapLibre 6.
+11. **An `@carto/agent` kit:** these tools, guards, the confirm-first pattern and the run log, so every hosted app
    doesn't rebuild them.
 
 Deliberately *not* on the list: better bulk export to files. The ablation showed the warehouse-first pattern
