@@ -10,7 +10,7 @@ as a CARTO Hosted App.
 ```bash
 npm install
 cp .env.example .env.development.local   # dev only; fill VITE_CARTO_TOKEN etc. Never used by `vite build`.
-npm run dev                              # six demo tabs
+npm run dev                              # demo tabs (1–9)
 npx playwright test                      # mock-LLM e2e suite
 REAL_LLM=1 EVAL=d6-e2e:aisdk:carto::claude-opus-5.5 npx playwright test real-eval   # real stack
 ```
