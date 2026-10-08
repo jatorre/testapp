@@ -88,7 +88,7 @@ test('LLM HTTP error is shown and UI stays usable', async ({ page }) => {
   await openApp(page, 'handrolled');
   await sendPrompt(page, 'hello');
   await expect(page.getByTestId('run-status')).toHaveText('error');
-  await expect(page.getByTestId('chat-error').first()).toContainText('401');
+  await expect(page.getByTestId('chat-error').filter({ hasText: 'Run failed' })).toContainText('401');
   // Next attempt works.
   llm.setScript([{ text: 'Recovered.' }]);
   await sendPrompt(page, 'again');

@@ -8,8 +8,16 @@ export default defineConfig({
   base: './',
   // Workers (Pyodide, DuckDB) are ES modules.
   worker: { format: 'es' },
-  // WASM-heavy packages ship their own loaders; don't let the dep optimizer rewrite them.
-  optimizeDeps: { exclude: ['@duckdb/duckdb-wasm', 'pyodide'] },
+  optimizeDeps: {
+    // WASM-heavy packages ship their own loaders; don't let the dep optimizer rewrite them.
+    exclude: ['@duckdb/duckdb-wasm', 'pyodide'],
+    // Lazily-imported deps: pre-bundle up front so the dev server doesn't reload the page mid-run.
+    include: ['ai', '@ai-sdk/openai-compatible', '@openai/agents', 'openai', 'zod', 'vega-embed', 'just-bash/browser'],
+  },
   build: { target: 'es2023', chunkSizeWarningLimit: 2000 },
-  server: { port: 5173 },
+  server: {
+    port: 5173,
+    // e2e tests set VITE_NO_OVERLAY=1 so a compile error in an unrelated module can't block clicks.
+    hmr: process.env.VITE_NO_OVERLAY ? { overlay: false } : undefined,
+  },
 });

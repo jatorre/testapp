@@ -61,6 +61,7 @@ async function real() {
   // 1) raw transport, CLI-style
   try {
     const { conn, tools } = await connectMcp({ urls: urls.slice(0, 1), token: info.accessToken, transports: ['raw'] });
+    out.annotations = Object.fromEntries(tools.map((t) => [t.name, t.annotations ? Object.entries(t.annotations).filter(([, v]) => v === true).map(([k]) => k).join(',') : '']));
     out.raw = { ok: true, toolCount: tools.length, diag: { ...conn.diagnostics, sessionId: conn.diagnostics.sessionId ? '(present)' : undefined } };
     await conn.close();
   } catch (e) {
@@ -76,7 +77,15 @@ async function real() {
   const lw = tools.find((t) => t.name === 'mcp__list_workflow_mcp_tools');
   if (lw) out.listWorkflowMcpTools = await call(tools, lw.name, {});
   const ex = tools.find((t) => t.name === 'mcp__explore_data') ?? tools.find((t) => t.name === 'mcp__list_connections');
-  if (ex) out.cheap = { tool: ex.name, res: await call(tools, ex.name, ex.name === 'mcp__explore_data' ? { method: 'list_connections' } : {}) };
+  if (ex) {
+    const res: any = await call(tools, ex.name, ex.name === 'mcp__explore_data' ? { method: 'list_connections' } : {});
+    out.cheap = { tool: ex.name, ok: res.ok, ms: res.ms, chars: String(res.out ?? res.error).length, head: String(res.out ?? res.error).slice(0, 200) };
+  }
+  const eq = tools.find((t) => t.name === 'mcp__execute_query');
+  if (eq) {
+    out.selectOne = await call(tools, eq.name, { connection_name: 'carto_dw', sql: 'SELECT 1 AS n' });
+    out.deleteBlocked = await call(tools, eq.name, { connection_name: 'carto_dw', sql: 'DROP TABLE x' });
+  }
   const sample = tools.find((t) => /getis|nyc_/.test(t.name)) ?? tools[0];
   out.sampleSchema = sample && { name: sample.name, description: sample.description.slice(0, 300) };
   // default filter view

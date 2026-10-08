@@ -19,18 +19,18 @@ export function loadDemoTools(demo: Demo): Promise<ToolLoad> {
   if (!toolCache.has(key)) {
     const p = (async () => {
       const errors: ToolLoad['errors'] = {};
-      let buildTools: ((g: ToolGroup[]) => Promise<AgentTool[]>) | null = null;
-      try {
-        buildTools = (await import('../tools')).buildTools;
-      } catch (e) {
-        errors[demo.tools.find((g) => g !== 'fs') ?? 'fs'] = `tool registry failed to load: ${msg(e)}`;
-      }
+      // fs tools are loaded directly; the registry (which statically imports every tool module)
+      // is only needed for the other groups, so a broken module can't take fs down with it.
+      let registry: Promise<(g: ToolGroup[]) => Promise<AgentTool[]>> | null = null;
+      const getRegistry = () =>
+        (registry ??= import('../tools').then(
+          (m) => m.buildTools,
+          (e) => Promise.reject(new Error(`tool registry (src/tools/index.ts) failed to load: ${msg(e)}`)),
+        ));
       const results = await Promise.allSettled(
-        demo.tools.map(async (g) => {
-          if (buildTools) return buildTools([g]);
-          if (g === 'fs') return (await import('../tools/fs')).createFsTools();
-          throw new Error('tool registry unavailable');
-        }),
+        demo.tools.map(async (g) =>
+          g === 'fs' ? (await import('../tools/fs')).createFsTools() : (await getRegistry())([g]),
+        ),
       );
       const tools: AgentTool[] = [];
       results.forEach((r, i) => {

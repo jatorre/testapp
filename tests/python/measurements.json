@@ -1,45 +1,45 @@
 {
   "cold": {
     "timings": {
-      "coreMs": 3567.899999999907,
+      "coreMs": 3497.7999999998137,
       "packages": {
-        "numpy": 906.8000000000466,
-        "pyarrow": 5847.899999999907,
-        "pandas": 0.5,
-        "import pandas": 5271.800000000047
+        "numpy": 732.4000000001397,
+        "pyarrow": 3811.899999999907,
+        "pandas": 0.6999999999534339,
+        "import pandas": 5599.90000000014
       }
     },
     "version": "314.0.7",
-    "wallMs": 15651.399999999907
+    "wallMs": 13688.5
   },
   "coldNetwork": {
     "pyodideRequests": 13,
-    "pyodideBytes": 23782405,
+    "pyodideBytes": 23782757,
     "cachedLooking": 0,
     "files": [
       {
         "file": "pyarrow-22.0.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
-        "bytes": 9911471
+        "bytes": 9911467
       },
       {
         "file": "pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
-        "bytes": 4150331
+        "bytes": 4150680
       },
       {
         "file": "pyodide.asm.wasm",
-        "bytes": 3439280
+        "bytes": 3439637
       },
       {
         "file": "numpy-2.4.6-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
-        "bytes": 2931001
+        "bytes": 2931005
       },
       {
         "file": "python_stdlib.zip",
-        "bytes": 2506429
+        "bytes": 2506077
       },
       {
         "file": "pytz-2026.1.post1-py2.py3-none-any.whl",
-        "bytes": 302886
+        "bytes": 303243
       },
       {
         "file": "pyodide.asm.mjs",
@@ -47,7 +47,7 @@
       },
       {
         "file": "python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
-        "bytes": 229113
+        "bytes": 229119
       },
       {
         "file": "pyodide-lock.json",
@@ -55,15 +55,15 @@
       },
       {
         "file": "six-1.17.0-py2.py3-none-any.whl",
-        "bytes": 11770
+        "bytes": 11404
       },
       {
         "file": "pyodide.mjs",
-        "bytes": 8429
+        "bytes": 8431
       },
       {
         "file": "pyodide_unix_timezones-1.0.0-py3-none-any.whl",
-        "bytes": 2444
+        "bytes": 2443
       },
       {
         "file": "pyodide.worker.ts?worker_file&type=module",
@@ -72,14 +72,14 @@
     ]
   },
   "statsAfterLoad": {
-    "wasmHeapBytes": 129630208,
+    "wasmHeapBytes": 129695744,
     "timings": {
-      "coreMs": 3567.899999999907,
+      "coreMs": 3497.7999999998137,
       "packages": {
-        "numpy": 906.8000000000466,
-        "pyarrow": 5847.899999999907,
-        "pandas": 0.5,
-        "import pandas": 5271.800000000047
+        "numpy": 732.4000000001397,
+        "pyarrow": 3811.899999999907,
+        "pandas": 0.6999999999534339,
+        "import pandas": 5599.90000000014
       }
     },
     "loadedPackages": [
@@ -100,49 +100,57 @@
   "warmTrivial": {
     "roundTripMedianMs": 8,
     "roundTripP95Ms": 13,
-    "execMedianMs": 1.3000000000465661
+    "execMedianMs": 1.6999999999534339
   },
   "warmSmallParquetGroupby": {
     "roundTripMs": 255,
-    "execMs": 246.5,
-    "syncMs": 0.5,
+    "execMs": 244.69999999995343,
+    "syncMs": 0.6000000000931323,
     "error": null
   },
   "scaling": [
     {
       "n": 100000,
-      "wallMs": 670,
-      "result": "{'n': 100000, 'create_s': 0.3, 'groupby_s': 0.13, 'sort_s': 0.13, 'df_mb': np.float64(6.3), 'groups': 19866}",
+      "wallMs": 383,
+      "result": "{'n': 100000, 'create_s': 0.1, 'groupby_s': 0.08, 'sort_s': 0.07, 'df_mb': np.float64(6.3), 'groups': 19866}",
       "restarted": false,
       "wasmHeapMB": 156
     },
     {
       "n": 1000000,
-      "wallMs": 2262,
-      "result": "{'n': 1000000, 'create_s': 1.38, 'groupby_s': 0.22, 'sort_s': 0.5, 'df_mb': np.float64(63.0), 'groups': 20000}",
+      "wallMs": 1523,
+      "result": "{'n': 1000000, 'create_s': 0.71, 'groupby_s': 0.18, 'sort_s': 0.47, 'df_mb': np.float64(63.0), 'groups': 20000}",
       "restarted": false,
       "wasmHeapMB": 323
     },
     {
       "n": 5000000,
-      "wallMs": 8599,
-      "result": "{'n': 5000000, 'create_s': 4.06, 'groupby_s': 0.7, 'sort_s': 3.69, 'df_mb': np.float64(315.0), 'groups': 20000}",
+      "wallMs": 7613,
+      "result": "{'n': 5000000, 'create_s': 2.48, 'groupby_s': 0.87, 'sort_s': 4.13, 'df_mb': np.float64(315.0), 'groups': 20000}",
       "restarted": false,
       "wasmHeapMB": 948
     },
     {
       "n": 10000000,
-      "wallMs": 17231,
-      "result": "{'n': 10000000, 'create_s': 7.59, 'groupby_s': 1.41, 'sort_s': 8.12, 'df_mb': np.float64(630.0), 'groups': 20000}",
+      "wallMs": 18550,
+      "result": "{'n': 10000000, 'create_s': 7.62, 'groupby_s': 1.81, 'sort_s': 8.98, 'df_mb': np.float64(630.0), 'groups': 20000}",
       "restarted": false,
-      "wasmHeapMB": 2031
+      "wasmHeapMB": 2091
     },
     {
       "n": 20000000,
-      "wallMs": 41130,
-      "result": "{'n': 20000000, 'create_s': 18.03, 'groupby_s': 2.9, 'sort_s': 20.09, 'df_mb': np.float64(1260.0), 'groups': 20000}",
+      "wallMs": 41595,
+      "result": "{'n': 20000000, 'create_s': 18.2, 'groupby_s': 2.69, 'sort_s': 20.61, 'df_mb': np.float64(1260.0), 'groups': 20000}",
       "restarted": false,
-      "wasmHeapMB": 3674
+      "wasmHeapMB": 3971
+    },
+    {
+      "n": 30000000,
+      "wallMs": 13022,
+      "result": null,
+      "error": "  File \"/lib/python3.14/site-packages/pandas/core/internals/managers.py\", line 2442, in _stack_arrays |     stacked = np.empty(shape, dtype=dtype) | numpy._core._exceptions._ArrayMemoryError: Unable to allocate 229. MiB for an array with shape (1, 30000000) and data type int64",
+      "restarted": false,
+      "wasmHeapMB": 4171
     }
   ],
   "parquetRoundTrip1M": {
@@ -153,9 +161,9 @@
           "size": 13877858
         }
       ],
-      "syncMs": 0.8000000002793968,
-      "execMs": 887,
-      "stdout": "write_s 0.5"
+      "syncMs": 0.9000000001396984,
+      "execMs": 1147.1999999999534,
+      "stdout": "write_s 0.61"
     },
     "delete": {
       "deleted": [
@@ -163,33 +171,33 @@
       ]
     },
     "inboundFreshWorker": {
-      "syncMs": 8.5,
-      "execMs": 483.60000000009313,
+      "syncMs": 9.800000000046566,
+      "execMs": 509.10000000009313,
       "result": "1000000",
-      "initWaitMs": 11571.600000000093
+      "initWaitMs": 13262.399999999907
     }
   },
   "reloadSameContext": {
     "timings": {
-      "coreMs": 2776.600000000093,
+      "coreMs": 2620.1999999999534,
       "packages": {
-        "numpy": 611.6000000000931,
-        "pyarrow": 3441,
-        "pandas": 0.19999999995343387,
-        "import pandas": 5233.09999999986
+        "numpy": 527,
+        "pyarrow": 3474.6999999999534,
+        "pandas": 0.30000000004656613,
+        "import pandas": 5033.59999999986
       }
     },
     "version": "314.0.7",
-    "wallMs": 12076.699999999953
+    "wallMs": 11671.199999999953
   },
   "reloadNetwork": {
     "pyodideRequests": 13,
-    "pyodideBytes": 9911586,
+    "pyodideBytes": 9911588,
     "cachedLooking": 0,
     "files": [
       {
         "file": "pyarrow-22.0.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
-        "bytes": 9911459
+        "bytes": 9911461
       },
       {
         "file": "pyodide.worker.ts?worker_file&type=module",

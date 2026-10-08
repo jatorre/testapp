@@ -27,5 +27,5 @@ test('real CARTO MCP from Chromium', async ({ page }) => {
   const r: any = await page.evaluate(() => (window as any).__mcp.real());
   const report = { result: r, network: net };
   writeFileSync('/tmp/claude-0/-home-user-testapp/1afe42e3-5259-5b08-b898-d1c7889579c9/scratchpad/mcp-real.json', JSON.stringify(report, null, 1));
-  console.log(JSON.stringify(report, null, 1).slice(0, 12000));
+  console.log(JSON.stringify({ ...r, toolNames: r.toolNames.length }, null, 1).slice(0, 9000));
 });

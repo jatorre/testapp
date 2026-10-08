@@ -29,6 +29,12 @@ const MAX_TOOLS = 60;
 const WRITE_TOOL_RE =
   /^(create|update|delete|remove|share|unshare|invite|cancel|apply|transfer|batch|publish|unpublish|subscribe|unsubscribe|add|move|rename|resend|submit|import|export|manage)_/;
 
+/** Consolidated admin/write tools on the real CARTO server (tools/list, Oct 2026). */
+const ADMIN_TOOLS = new Set([
+  'delete', 'admin_carto', 'superadmin_carto_resources', 'manage_users', 'manage_api_access_tokens', 'manage_oauth_clients',
+  'organize_projects', 'export_activity_data', 'schedule_workflow', 'run_workflow', 'transfer_data',
+]);
+
 let diagnostics: McpDiagnostics = { ok: false, error: 'not connected yet', attempts: [], calls: [] };
 let current: { key: string; promise: Promise<{ conn: McpConnection; tools: McpToolInfo[] }> } | null = null;
 
@@ -145,7 +151,9 @@ export function filterMcpTools(tools: McpToolInfo[], allow?: string): McpToolInf
     const pats = allow.split(',').map((s) => s.trim()).filter(Boolean);
     return tools.filter((t) => pats.some((p) => (p.endsWith('*') ? t.name.startsWith(p.slice(0, -1)) : t.name === p)));
   }
-  return tools.filter((t) => !WRITE_TOOL_RE.test(t.name) && t.annotations?.destructiveHint !== true);
+  // Not filtering on annotations.destructiveHint: on the real server it is set on execute_query and on every
+  // published workflow tool, which are exactly what an analysis agent needs (SQL is guarded below).
+  return tools.filter((t) => !WRITE_TOOL_RE.test(t.name) && !ADMIN_TOOLS.has(t.name));
 }
 
 /**
@@ -167,6 +175,17 @@ export function jsonSchemaToZod(schema: Record<string, unknown> | undefined): z.
   }
 }
 
+/** Pretty-printed JSON wastes ~30% of the model's budget: re-serialize compactly. */
+function compactJson(t: string): string {
+  const c = t.trimStart()[0];
+  if (c !== '{' && c !== '[') return t;
+  try {
+    return JSON.stringify(JSON.parse(t));
+  } catch {
+    return t;
+  }
+}
+
 /** MCP tool result → compact model-facing value. Throws on isError so the harness reports a tool error. */
 export function formatMcpResult(r: McpCallResult): unknown {
   const parts: string[] = [];
@@ -175,7 +194,7 @@ export function formatMcpResult(r: McpCallResult): unknown {
     else if (c.type === 'resource' && (c as any).resource?.text) parts.push(String((c as any).resource.text));
     else parts.push(`[${c.type} content omitted]`);
   }
-  let text = parts.join('\n');
+  let text = parts.map(compactJson).join('\n');
   if (!text && r.structuredContent !== undefined) text = JSON.stringify(r.structuredContent);
   if (text.length > MAX_RESULT_CHARS) {
     text = `${text.slice(0, MAX_RESULT_CHARS)}\n…[truncated ${text.length - MAX_RESULT_CHARS} chars; ask for less data, e.g. LIMIT / aggregate]`;
