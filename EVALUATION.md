@@ -524,7 +524,16 @@ Server-side *configuration* (no compute):
    - coarse types (INT64 > 2^53 loses precision; TIMESTAMP, DATE and DATETIME all become `timestamp`).
 
    Ask CARTO for an Arrow/Parquet response format, or fix the Exports API float precision.
-5. **Claude prompt caching through LiteLLM:** currently 0%. Probably the largest cost reduction available.
+5. **Claude prompt caching through LiteLLM:** CARTO merged cache-breakpoint injection on 2026-10-08
+   (CartoDB/cloud-native#28925). Measured on production gcp-us-east1 right after:
+   - breakpoints are injected (every call writes ~5.9k tokens to the cache), but **0 of 26 calls read from it**, on
+     Sonnet 5, Opus 5.5 and Opus 4.8;
+   - client-side `cache_control` gives the same result;
+   - all calls hit the same `global` Vertex deployment in `carto-tnt-gcp-us-east1-1`.
+
+   So today every Claude call pays the 1.25× cache-write premium with no read discount. The PR's dedicated-env test
+   got 17/20 hits, so this looks project- or endpoint-specific. Check the Vertex `token_count` metric
+   (`cache_read_input`), and try a regional endpoint. This remains the largest cost lever.
 6. **Model availability:** during the session `/v1/models` listed 10 models, 5 of which rejected chat completions. The list was later reduced to the 5 that work. `claude-sonnet-5.5` is **not enabled for this team** (401 "Team cannot access"), so it is untested; ask CARTO to enable it, since Sonnet-class models are the natural cost/quality default.
 7. **Step-cap failures look like success:** a run that hits `maxSteps` reports "done" with no answer. Surface it
    as a failure and force a final summary turn.
