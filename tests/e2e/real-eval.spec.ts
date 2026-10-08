@@ -6,7 +6,7 @@ import { DEMOS } from '../../src/demos';
  * Evaluation matrix against the real CARTO stack (LiteLLM + SQL API on carto_dw), fully in the browser.
  *   REAL_LLM=1 EVAL=d3-duckdb:aisdk:carto::claude-sonnet-5 npx playwright test real-eval
  * EVAL is a comma-separated list of demoId:harnessId:model. The prompt is the demo's first suggestion,
- * or EVAL_PROMPT. Full run logs go to test-results/eval/<demo>__<harness>__<model>.json.
+ * or EVAL_PROMPT. Full run logs go to eval-results/<demo>__<harness>__<model>.json.
  */
 const MATRIX = (process.env.EVAL ?? '').split(',').filter(Boolean).map((s) => {
   const [demoId, harnessId, ...m] = s.split(':');
@@ -36,9 +36,9 @@ for (const { demoId, harnessId, model } of MATRIX) {
       maxToolOutputChars: Math.max(0, ...run.tools.map((t: any) => t.outputChars ?? 0)),
       files: files.filter((f: string) => /^\/(data|work)\//.test(f)), charts, answer: run.finalText,
     };
-    mkdirSync('test-results/eval', { recursive: true });
+    mkdirSync('eval-results', { recursive: true });
     const name = `${demoId}__${harnessId}__${model.replace(/[^a-z0-9.-]/gi, '_')}`;
-    writeFileSync(`test-results/eval/${name}.json`, JSON.stringify({ summary, run }, null, 2));
+    writeFileSync(`eval-results/${name}.json`, JSON.stringify({ summary, run }, null, 2));
     console.log(`[eval] ${JSON.stringify({ ...summary, answer: (run.finalText ?? '').slice(0, 300) })}`);
     expect(run.status, run.error).toBe('done');
   });
@@ -56,8 +56,8 @@ test.describe('ui', () => {
     await page.getByTestId('suggestion').first().click();
     await expect(page.getByTestId('run-status')).toHaveText(/done|error|aborted/i, { timeout: 840_000 });
     await page.waitForTimeout(1500);
-    mkdirSync('test-results/eval', { recursive: true });
-    await page.screenshot({ path: `test-results/eval/ui-${demoId}.png`, fullPage: true });
+    mkdirSync('eval-results', { recursive: true });
+    await page.screenshot({ path: `eval-results/ui-${demoId}.png`, fullPage: true });
     const charts = page.locator('[data-testid=chart] .vega-embed, [data-testid=chart] canvas, [data-testid=chart] svg');
     console.log(`[ui] charts rendered: ${await page.getByTestId('chart').count()}, chart errors: ${await page.locator('[data-testid=chart] .error').count()}, svg/canvas: ${await charts.count()}`);
   });

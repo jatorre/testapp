@@ -24,6 +24,5 @@ dist-ssr
 *.sw?
 
 # Playwright output; keep eval run logs/screenshots as evidence
-test-results/*
-!test-results/eval/
+test-results/
 playwright-report/
