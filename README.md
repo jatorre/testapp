@@ -1,32 +1,26 @@
-# React + TypeScript + Vite
+# Client-side agent eval
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Evaluates whether a data-analysis AI agent can run **entirely in the browser**: agent loop, virtual FS,
+DuckDB-WASM, Pyodide and Vega-Lite, with only CARTO's LiteLLM proxy and SQL API on the other end. It is deployed
+as a CARTO Hosted App.
 
-Currently, two official plugins are available:
+**Results: [EVALUATION.md](EVALUATION.md)** · per-component findings in `tests/*/FINDINGS.md` · run logs in `eval-results/`.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend enabling type-aware lint rules by installing `oxlint-tsgolint` and editing `.oxlintrc.json`:
-
-```json
-{
-  "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["react", "typescript", "oxc"],
-  "options": {
-    "typeAware": true
-  },
-  "rules": {
-    "react/rules-of-hooks": "error",
-    "react/only-export-components": ["warn", { "allowConstantExport": true }]
-  }
-}
+## Run
+```bash
+npm install
+cp .env.example .env.development.local   # dev only; fill VITE_CARTO_TOKEN etc. Never used by `vite build`.
+npm run dev                              # six demo tabs
+npx playwright test                      # mock-LLM e2e suite
+REAL_LLM=1 EVAL=d6-e2e:aisdk:carto::claude-opus-5.5 npx playwright test real-eval   # real stack
 ```
 
-See the [Oxlint rules documentation](https://oxc.rs/docs/guide/usage/linter/rules) for the full list of rules and categories.
+## Deploy
+```bash
+npx vite build && carto app deploy dist --slug client-side-agent-eval
+```
+Hosted, the app reads the viewer's token from `./carto-info.json`; no secret ships in the bundle.
+
+## Layout
+`src/agent` (contracts + 3 harnesses) · `src/tools` (fs, bigquery, duckdb, python, chart, mcp) · `src/carto` (SQL, MCP, bootstrap) ·
+`src/data` (DuckDB + ingest) · `src/workers` (Pyodide) · `src/ui` · `src/demos.ts` (the six demos).
