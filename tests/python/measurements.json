@@ -1,0 +1,244 @@
+{
+  "cold": {
+    "timings": {
+      "coreMs": 3567.899999999907,
+      "packages": {
+        "numpy": 906.8000000000466,
+        "pyarrow": 5847.899999999907,
+        "pandas": 0.5,
+        "import pandas": 5271.800000000047
+      }
+    },
+    "version": "314.0.7",
+    "wallMs": 15651.399999999907
+  },
+  "coldNetwork": {
+    "pyodideRequests": 13,
+    "pyodideBytes": 23782405,
+    "cachedLooking": 0,
+    "files": [
+      {
+        "file": "pyarrow-22.0.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "bytes": 9911471
+      },
+      {
+        "file": "pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "bytes": 4150331
+      },
+      {
+        "file": "pyodide.asm.wasm",
+        "bytes": 3439280
+      },
+      {
+        "file": "numpy-2.4.6-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "bytes": 2931001
+      },
+      {
+        "file": "python_stdlib.zip",
+        "bytes": 2506429
+      },
+      {
+        "file": "pytz-2026.1.post1-py2.py3-none-any.whl",
+        "bytes": 302886
+      },
+      {
+        "file": "pyodide.asm.mjs",
+        "bytes": 263171
+      },
+      {
+        "file": "python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+        "bytes": 229113
+      },
+      {
+        "file": "pyodide-lock.json",
+        "bytes": 25840
+      },
+      {
+        "file": "six-1.17.0-py2.py3-none-any.whl",
+        "bytes": 11770
+      },
+      {
+        "file": "pyodide.mjs",
+        "bytes": 8429
+      },
+      {
+        "file": "pyodide_unix_timezones-1.0.0-py3-none-any.whl",
+        "bytes": 2444
+      },
+      {
+        "file": "pyodide.worker.ts?worker_file&type=module",
+        "bytes": 240
+      }
+    ]
+  },
+  "statsAfterLoad": {
+    "wasmHeapBytes": 129630208,
+    "timings": {
+      "coreMs": 3567.899999999907,
+      "packages": {
+        "numpy": 906.8000000000466,
+        "pyarrow": 5847.899999999907,
+        "pandas": 0.5,
+        "import pandas": 5271.800000000047
+      }
+    },
+    "loadedPackages": [
+      "numpy",
+      "six",
+      "python-dateutil",
+      "pytz",
+      "pyodide-unix-timezones",
+      "pandas",
+      "pyarrow"
+    ],
+    "version": "314.0.7"
+  },
+  "jsHeapAfterLoad": {
+    "used": 27600000,
+    "total": 29400000
+  },
+  "warmTrivial": {
+    "roundTripMedianMs": 8,
+    "roundTripP95Ms": 13,
+    "execMedianMs": 1.3000000000465661
+  },
+  "warmSmallParquetGroupby": {
+    "roundTripMs": 255,
+    "execMs": 246.5,
+    "syncMs": 0.5,
+    "error": null
+  },
+  "scaling": [
+    {
+      "n": 100000,
+      "wallMs": 670,
+      "result": "{'n': 100000, 'create_s': 0.3, 'groupby_s': 0.13, 'sort_s': 0.13, 'df_mb': np.float64(6.3), 'groups': 19866}",
+      "restarted": false,
+      "wasmHeapMB": 156
+    },
+    {
+      "n": 1000000,
+      "wallMs": 2262,
+      "result": "{'n': 1000000, 'create_s': 1.38, 'groupby_s': 0.22, 'sort_s': 0.5, 'df_mb': np.float64(63.0), 'groups': 20000}",
+      "restarted": false,
+      "wasmHeapMB": 323
+    },
+    {
+      "n": 5000000,
+      "wallMs": 8599,
+      "result": "{'n': 5000000, 'create_s': 4.06, 'groupby_s': 0.7, 'sort_s': 3.69, 'df_mb': np.float64(315.0), 'groups': 20000}",
+      "restarted": false,
+      "wasmHeapMB": 948
+    },
+    {
+      "n": 10000000,
+      "wallMs": 17231,
+      "result": "{'n': 10000000, 'create_s': 7.59, 'groupby_s': 1.41, 'sort_s': 8.12, 'df_mb': np.float64(630.0), 'groups': 20000}",
+      "restarted": false,
+      "wasmHeapMB": 2031
+    },
+    {
+      "n": 20000000,
+      "wallMs": 41130,
+      "result": "{'n': 20000000, 'create_s': 18.03, 'groupby_s': 2.9, 'sort_s': 20.09, 'df_mb': np.float64(1260.0), 'groups': 20000}",
+      "restarted": false,
+      "wasmHeapMB": 3674
+    }
+  ],
+  "parquetRoundTrip1M": {
+    "outbound": {
+      "files": [
+        {
+          "path": "/work/big.parquet",
+          "size": 13877858
+        }
+      ],
+      "syncMs": 0.8000000002793968,
+      "execMs": 887,
+      "stdout": "write_s 0.5"
+    },
+    "delete": {
+      "deleted": [
+        "/work/big.parquet"
+      ]
+    },
+    "inboundFreshWorker": {
+      "syncMs": 8.5,
+      "execMs": 483.60000000009313,
+      "result": "1000000",
+      "initWaitMs": 11571.600000000093
+    }
+  },
+  "reloadSameContext": {
+    "timings": {
+      "coreMs": 2776.600000000093,
+      "packages": {
+        "numpy": 611.6000000000931,
+        "pyarrow": 3441,
+        "pandas": 0.19999999995343387,
+        "import pandas": 5233.09999999986
+      }
+    },
+    "version": "314.0.7",
+    "wallMs": 12076.699999999953
+  },
+  "reloadNetwork": {
+    "pyodideRequests": 13,
+    "pyodideBytes": 9911586,
+    "cachedLooking": 0,
+    "files": [
+      {
+        "file": "pyarrow-22.0.0-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "bytes": 9911459
+      },
+      {
+        "file": "pyodide.worker.ts?worker_file&type=module",
+        "bytes": 127
+      },
+      {
+        "file": "pyodide.mjs",
+        "bytes": 0
+      },
+      {
+        "file": "pyodide-lock.json",
+        "bytes": 0
+      },
+      {
+        "file": "pyodide.asm.mjs",
+        "bytes": 0
+      },
+      {
+        "file": "python_stdlib.zip",
+        "bytes": 0
+      },
+      {
+        "file": "pyodide.asm.wasm",
+        "bytes": 0
+      },
+      {
+        "file": "numpy-2.4.6-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "bytes": 0
+      },
+      {
+        "file": "six-1.17.0-py2.py3-none-any.whl",
+        "bytes": 0
+      },
+      {
+        "file": "pyodide_unix_timezones-1.0.0-py3-none-any.whl",
+        "bytes": 0
+      },
+      {
+        "file": "python_dateutil-2.9.0.post0-py2.py3-none-any.whl",
+        "bytes": 0
+      },
+      {
+        "file": "pytz-2026.1.post1-py2.py3-none-any.whl",
+        "bytes": 0
+      },
+      {
+        "file": "pandas-3.0.2-cp314-cp314-pyemscripten_2026_0_wasm32.whl",
+        "bytes": 0
+      }
+    ]
+  }
+}

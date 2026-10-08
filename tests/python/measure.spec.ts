@@ -85,7 +85,7 @@ test('measure', async ({ browser }) => {
 
   // 3. DataFrame scaling
   out.scaling = [];
-  for (const n of [100_000, 1_000_000, 5_000_000, 10_000_000, 20_000_000]) {
+  for (const n of [100_000, 1_000_000, 5_000_000, 10_000_000, 20_000_000, 30_000_000]) {
     const code = `
 import gc, time, numpy as np, pandas as pd
 for _v in ("big", "g"):

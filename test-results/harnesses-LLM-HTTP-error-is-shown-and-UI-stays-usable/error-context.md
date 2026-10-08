@@ -9,8 +9,8 @@
         - generic [ref=e7]:
           - text: Harness
           - combobox "Harness" [ref=e8]:
-            - option "Vercel AI SDK v7" [selected]
-            - option "Hand-rolled (fetch + SSE)"
+            - option "Vercel AI SDK v7"
+            - option "Hand-rolled (fetch + SSE)" [selected]
             - option "OpenAI Agents SDK"
         - generic [ref=e9]:
           - text: Model
@@ -753,7 +753,7 @@
       - main [ref=e734]:
         - generic [ref=e735]:
           - generic [ref=e736]: Streaming chat, tool calls, in-browser filesystem and just-bash.
-          - generic [ref=e737]: "Tool group \"fs\" unavailable: tool registry failed to load: Failed to fetch dynamically imported module: http://localhost:5173/src/tools/index.ts?t=1791447032744"
+          - generic [ref=e737]: "Tool group \"fs\" unavailable: tool registry failed to load: Failed to fetch dynamically imported module: http://localhost:5173/src/tools/index.ts"
         - generic [ref=e738]:
           - generic [ref=e739]:
             - button "Create /work/notes.md with a 5-item todo list, then count the lines with bash and append…" [ref=e740] [cursor=pointer]
@@ -771,7 +771,7 @@
     - generic [ref=e754]: "[plugin:vite:import-analysis] Failed to resolve import \"./bigquery\" from \"src/tools/index.ts\". Does the file exist?"
     - generic [ref=e755]: /home/user/testapp/src/tools/index.ts:3:36
     - generic [ref=e756]: "1 | import { createFsTools } from \"./fs\"; 2 | import { createBigQueryTools } from \"./bigquery\"; | ^ 3 | import { createDuckDbTools } from \"./duckdb\"; 4 | import { createPythonTools } from \"./python\";"
-    - generic [ref=e757]: at TransformPluginContext._formatLog (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8766:39) at TransformPluginContext.error (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8763:14) at normalizeUrl (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26593:18) at async file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26663:30 at async Promise.all (index 1) at async TransformPluginContext.transform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26629:4) at async EnvironmentPluginContainer.transform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8545:14) at async loadAndTransform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:20157:26) at async viteTransformMiddleware (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:20377:20)
+    - generic [ref=e757]: at TransformPluginContext._formatLog (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8766:39) at TransformPluginContext.error (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8763:14) at normalizeUrl (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26593:18) at async file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26663:30 at async Promise.all (index 1) at async TransformPluginContext.transform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:26629:4) at async EnvironmentPluginContainer.transform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:8545:14) at async loadAndTransform (file:///home/user/testapp/node_modules/vite/dist/node/chunks/node.js:20157:26)
     - generic [ref=e758]:
       - text: Click outside, press Esc key, or fix the code to dismiss.
       - text: You can also disable this overlay by setting
