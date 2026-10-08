@@ -37,7 +37,7 @@ for (const { demoId, harnessId, model } of MATRIX) {
       files: files.filter((f: string) => /^\/(data|work)\//.test(f)), charts, answer: run.finalText,
     };
     mkdirSync('eval-results', { recursive: true });
-    const name = `${demoId}__${harnessId}__${model.replace(/[^a-z0-9.-]/gi, '_')}`;
+    const name = `${demoId}${process.env.EVAL_TAG ? `-${process.env.EVAL_TAG}` : ''}__${harnessId}__${model.replace(/[^a-z0-9.-]/gi, '_')}`;
     writeFileSync(`eval-results/${name}.json`, JSON.stringify({ summary, run }, null, 2));
     console.log(`[eval] ${JSON.stringify({ ...summary, answer: (run.finalText ?? '').slice(0, 300) })}`);
     expect(run.status, run.error).toBe('done');
