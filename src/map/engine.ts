@@ -317,7 +317,8 @@ export class MapEngine implements MapController {
           new TerraDrawRectangleMode(),
           new TerraDrawCircleMode(),
           new TerraDrawPointMode(),
-          new TerraDrawFreehandMode(),
+          // Lasso: press, drag, release (closes on release) — the natural "mark this area" gesture.
+          new TerraDrawFreehandMode({ drawInteraction: 'click-drag', autoClose: true, minDistance: 6 }),
         ],
       });
       draw.start();
@@ -385,9 +386,11 @@ export class MapEngine implements MapController {
         data: features as any,
         parameters: FLAT,
         pointType: 'circle',
-        getFillColor: (f: any) => [...col(f.properties).slice(0, 3), f.geometry.type === 'Point' ? 255 : 40] as any,
+        // Areas are outline-only: a fill tints the data underneath, and the model then reads the tint as a pattern
+        // (found in the "what's happening here?" eval). A dashed-looking double stroke keeps the mark visible.
+        getFillColor: (f: any) => [...col(f.properties).slice(0, 3), f.geometry.type === 'Point' ? 255 : 0] as any,
         getLineColor: (f: any) => col(f.properties) as any,
-        getLineWidth: 2.5,
+        getLineWidth: 3,
         lineWidthUnits: 'pixels',
         getPointRadius: 7,
         pointRadiusUnits: 'pixels',

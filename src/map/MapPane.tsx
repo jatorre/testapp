@@ -13,10 +13,10 @@ import {
 type Mode = 'static' | 'polygon' | 'rectangle' | 'circle' | 'point' | 'freehand';
 const TOOLS: { mode: Mode; icon: string; title: string }[] = [
   { mode: 'static', icon: '✋', title: 'Pan (stop drawing)' },
+  { mode: 'freehand', icon: '✎', title: 'Mark an area: press and drag around it, release to close' },
   { mode: 'polygon', icon: '⬠', title: 'Draw a polygon (click points, click the first point to close)' },
   { mode: 'rectangle', icon: '▭', title: 'Draw a rectangle' },
   { mode: 'circle', icon: '◯', title: 'Draw a circle' },
-  { mode: 'freehand', icon: '✎', title: 'Draw freehand' },
   { mode: 'point', icon: '•', title: 'Drop a point' },
 ];
 

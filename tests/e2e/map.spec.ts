@@ -99,7 +99,7 @@ for (const harness of HARNESS_IDS) {
   });
 }
 
-test('annotation: seeded A1 shows as a chip and goes with the next message as compact GeoJSON context', async ({ page }) => {
+test('annotation: seeded A1 shows as a chip and goes with the next message as WKT context plus a screenshot of the user view', async ({ page }) => {
   const llm = await installMockLlm(page, [
     { toolCalls: [{ name: 'get_annotations', args: {} }] },
     { text: 'A1 is the Texas triangle.' },
@@ -115,18 +115,24 @@ test('annotation: seeded A1 shows as a chip and goes with the next message as co
   // Sent once: the chip is deselected after sending.
   await expect(page.locator('[data-testid=annotation-chip][data-id=A1]')).toHaveAttribute('data-selected', 'false');
 
-  const user = llm.requests[0].messages.find((m: any) => m.role === 'user').content as string;
+  const content = llm.requests[0].messages.find((m: any) => m.role === 'user').content;
+  const parts: any[] = Array.isArray(content) ? content : [{ type: 'text', text: content }];
+  const user = parts.filter((p) => p.type === 'text').map((p) => p.text).join('\n');
   expect(user).toContain('How many customers are inside A1?');
   expect(user).toContain('- A1 "why so many here?": Polygon, bbox [-99, 29, -94.6, 33.3]');
-  expect(user).toContain('geojson: {"type":"Polygon","coordinates":[[[-97.3,33.3],[-96.2,33.2]');
-  expect(user).toContain('ST_GEOGFROMGEOJSON');
+  expect(user).toContain('wkt: POLYGON((-97.3 33.3, -96.2 33.2');
+  expect(user).toContain('ST_GEOGFROMTEXT');
+  expect(user).toContain('screenshot of the map as the user sees it');
+  // The user's view with the mark on it goes along as an image part.
+  expect(parts.some((p) => p.type === 'image_url' && String(p.image_url?.url).startsWith('data:image/png'))).toBe(true);
   const ann = JSON.parse(toolOutputs(llm.requests[1])[0]);
   expect(ann[0]).toMatchObject({ id: 'A1', by: 'user', note: 'why so many here?', type: 'Polygon' });
   expect(ann[0].area_km2).toBeGreaterThan(50_000);
 
   // The context stays in the history of the next turn, without re-attaching.
   await send(page, 'and now?');
-  const hist = llm.requests[2].messages.filter((m: any) => m.role === 'user').map((m: any) => m.content);
+  const text = (c: any) => (Array.isArray(c) ? c.filter((p: any) => p.type === 'text').map((p: any) => p.text).join('\n') : c);
+  const hist = llm.requests[2].messages.filter((m: any) => m.role === 'user').map((m: any) => text(m.content));
   expect(hist[0]).toContain('- A1 "why so many here?"');
   expect(hist[1]).toBe('and now?');
 });

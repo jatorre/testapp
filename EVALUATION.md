@@ -316,6 +316,21 @@ compact GeoJSON the agent uses in SQL (`ST_GEOGFROMGEOJSON`) and on the map.
 | Customers inside user-drawn A1 vs the rest of Texas | ✅ exact (1,902 / 494) | ✅ exact | ✅ exact |
 | DC nearest the largest customer cluster, shown on the map | ✅ (gave world and US readings) | ✅ | ❌ picked the wrong reading |
 
+**Marking an area ("what's happening here?").**
+- **Drawing:** the default tool is a **freehand lasso** (press, drag, release).
+- **What the model gets:** the mark as **WKT** (for `ST_GEOGFROMTEXT`), plus an automatic **screenshot of the map
+  exactly as the user sees it** with the mark on it.
+- **The test:** a Florida lasso over an H3 customer map, with only the prompt "What's happening here?", with and
+  without the screenshot:
+  - **Without it, all 3 models went and took a screenshot themselves** (they want to see the area).
+  - With it, Claude answered directly: Opus took 2 steps and 14k tokens vs 4 steps and 27k, and described the
+    visible pattern ("dark hexagons along both coasts and the I-4 corridor") alongside exact counts (1,739
+    customers, 7.8% of the US).
+- **Design lesson from the agent itself:** with filled marks, Opus said "the paler colour inside A1 is the fill of
+  your drawn shape, not a drop in customers". Marks are now outline-only so the data stays readable.
+- **One failure:** in one run Gemini 3.1 Pro spiralled to the 25-step cap with no answer; on rerun it answered in 3
+  steps. This is the same step-cap failure mode as before.
+
 **Screenshots are the feedback loop.**
 - In one run Opus noticed *in its own screenshot* that the distribution-center points weren't rendering, and told
   the user. That exposed a real depth-testing bug, which we fixed.

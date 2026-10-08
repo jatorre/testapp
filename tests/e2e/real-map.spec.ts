@@ -15,8 +15,13 @@ const TASKS = (process.env.MAP_TASKS ?? 't1t2,t3,t4').split(',');
 const HARNESS = process.env.MAP_HARNESS ?? 'aisdk';
 const A1 = { type: 'Polygon', coordinates: [[[-97.6, 33.4], [-96.0, 33.3], [-94.7, 30.2], [-94.9, 29.3], [-95.6, 29.0], [-98.9, 29.0], [-99.0, 29.8], [-97.6, 33.4]]] };
 
-async function open(page: Page) {
-  await page.goto(`./?demo=d10-map&harness=${HARNESS}`);
+const LASSO_FL = { type: 'Polygon', coordinates: [[
+  [-87.6, 31.0], [-86.2, 30.9], [-85.0, 31.0], [-83.6, 30.9], [-82.3, 30.8], [-81.3, 30.9], [-80.9, 30.0], [-80.5, 28.9],
+  [-80.0, 27.6], [-79.8, 26.4], [-80.0, 25.3], [-80.6, 24.9], [-81.4, 25.2], [-81.9, 26.0], [-82.6, 27.0], [-82.9, 28.1],
+  [-83.0, 29.0], [-83.9, 29.8], [-85.2, 29.5], [-86.4, 30.2], [-87.6, 30.2], [-87.6, 31.0]]] };
+
+async function open(page: Page, extra = '') {
+  await page.goto(`./?demo=d10-map&harness=${HARNESS}${extra}`);
   await expect(page.getByTestId('connection')).toHaveClass(/ok/);
   await expect.poll(() => page.evaluate(() => window.__evalInfo?.models.length ?? 0)).toBeGreaterThan(0);
   await expect(page.getByTestId('map-pane')).toHaveAttribute('data-ready', 'true', { timeout: 60_000 });
@@ -41,6 +46,13 @@ function grade(task: string, run: any) {
     const regions = { california: /california|west coast|los angeles/i, texas: /texas|houston|dallas/i, florida: /florida/i, northeast: /new york|northeast|east coast|boston|atlantic/i, midwest: /chicago|midwest|great lakes/i, sparse: /sparse|empty|great plains|mountain|rockies|interior|rural/i };
     const hit = Object.entries(regions).filter(([, re]) => re.test(a)).map(([k]) => k);
     return { ...base, regions: hit, correct: hit.length >= 3 && base.cartoLayers + base.geojsonLayers > 0 && base.screenshots > 0 };
+  }
+  if (task.startsWith('t5')) {
+    // Lasso around Florida on a US H3 customer map, prompt only "What's happening here?"
+    const place = /florida/i.test(a);
+    const pattern = /coast|miami|tampa|orlando|jacksonville|peninsula/i.test(a);
+    const density = /dens|concentrat|cluster|hotspot|most customers|high/i.test(a);
+    return { ...base, place, pattern, density, correct: place && pattern && density };
   }
   if (task === 't2') return { ...base, correct: base.styles + base.cartoLayers + base.geojsonLayers > 0 && base.screenshots > 0 };
   if (task === 't3') {
@@ -113,7 +125,7 @@ for (const model of MODELS) {
   for (const task of TASKS) {
     test(`map · ${task} · ${HARNESS} · ${model}`, async ({ page }) => {
       test.setTimeout(1_800_000);
-      await open(page);
+      if (!task.startsWith('t5')) await open(page);
       if (task === 't1t2') {
         const r1 = await ask(page, model, MAP_PROMPTS.t1);
         await save(page, 't1', model, r1);
@@ -121,6 +133,24 @@ for (const model of MODELS) {
         await save(page, 't2', model, r2);
         expect(r1.status, r1.error).toBe('done');
         expect(r2.status, r2.error).toBe('done');
+        return;
+      }
+      if (task.startsWith('t5')) {
+        // Same map for both variants (built without the LLM), then the user lassos Florida and asks one vague question.
+        await open(page, task === 't5noshot' ? '&annotationShot=0' : '');
+        await page.evaluate(async () => {
+          const e = (window as any).__mapEngine;
+          await e.addCartoLayer({
+            id: 'customers', kind: 'h3', aggregation_exp: 'COUNT(*) AS n', style: { color_by_column: 'n', palette: 'PurpOr', opacity: 0.85, legend_title: 'Customers per hexagon' },
+            sql: "SELECT `carto-un`.carto.H3_FROMGEOGPOINT(ST_GEOGPOINT(longitude, latitude), 4) AS h3 FROM `bigquery-public-data.thelook_ecommerce.users` WHERE country = 'United States'",
+          });
+          await e.setView({ center: [-96, 37.5], zoom: 3.3 });
+        });
+        await page.evaluate((g) => window.__addAnnotation!(g as any, ''), LASSO_FL);
+        await page.evaluate(() => new Promise((r) => setTimeout(r, 1500)));
+        const run = await ask(page, model, "What's happening here?");
+        await save(page, task, model, run);
+        expect(run.status, run.error).toBe('done');
         return;
       }
       if (task === 't3') {

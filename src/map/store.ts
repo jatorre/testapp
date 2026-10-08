@@ -195,6 +195,21 @@ export function areaKm2(g: Geometry): number | undefined {
   return Math.round(total);
 }
 
+/** WKT for BigQuery's ST_GEOGFROMTEXT (shorter than GeoJSON for the same geometry). */
+export function toWkt(g: Geometry): string {
+  const pt = (c: number[]) => `${c[0]} ${c[1]}`;
+  const ring = (r: number[][]) => `(${r.map(pt).join(', ')})`;
+  const poly = (p: number[][][]) => `(${p.map(ring).join(', ')})`;
+  const c = (g as { coordinates: any }).coordinates;
+  switch (g.type) {
+    case 'Point': return `POINT(${pt(c)})`;
+    case 'LineString': return `LINESTRING${ring(c)}`;
+    case 'Polygon': return `POLYGON${poly(c)}`;
+    case 'MultiPolygon': return `MULTIPOLYGON(${c.map(poly).join(', ')})`;
+    default: return '';
+  }
+}
+
 /** One annotation as compact structured context for the model. */
 export function describeAnnotation(a: Annotation) {
   const { geometry, simplified } = compactGeometry(a.geometry);
@@ -207,6 +222,7 @@ export function describeAnnotation(a: Annotation) {
     bbox: roundBBox(bboxOf(positions(a.geometry))!),
     ...(area !== undefined && { area_km2: area }),
     geojson: JSON.stringify(geometry),
+    wkt: toWkt(geometry),
     ...(simplified && { simplified: true }),
   };
 }
@@ -215,15 +231,17 @@ export function describeAnnotation(a: Annotation) {
  * Text appended to the user's message for the selected annotations: id, note, bbox and the geometry as compact
  * GeoJSON the agent can paste into BigQuery (ST_GEOGFROMGEOJSON) or reuse on the map.
  */
-export function annotationContext(ids: string[]): string {
+export function annotationContext(ids: string[], withScreenshot = false): string {
   const list = ids.map((id) => annotations.get(id)).filter((a): a is Annotation => !!a);
   if (!list.length) return '';
   const lines = list.map((a) => {
     const d = describeAnnotation(a);
     return `- ${d.id}${d.note ? ` "${d.note}"` : ''}: ${d.type}, bbox [${d.bbox.join(', ')}]` +
-      `${d.area_km2 !== undefined ? `, ~${d.area_km2.toLocaleString('en-US')} km²` : ''}${d.simplified ? ' (simplified)' : ''}\n  geojson: ${d.geojson}`;
+      `${d.area_km2 !== undefined ? `, ~${d.area_km2.toLocaleString('en-US')} km²` : ''}${d.simplified ? ' (simplified)' : ''}\n  wkt: ${d.wkt}`;
   });
-  return `\n\nMap annotations drawn by the user (refer to them by id; geojson is [lon, lat], usable with ST_GEOGFROMGEOJSON):\n${lines.join('\n')}`;
+  return `\n\nMap annotations marked by the user (refer to them by id; WKT is lon lat, use ST_GEOGFROMTEXT(wkt) in BigQuery; ` +
+    `get_annotations returns GeoJSON for map layers):\n${lines.join('\n')}` +
+    (withScreenshot ? `\nAttached: a screenshot of the map as the user sees it, with the marked area(s) labelled by id.` : '');
 }
 
 // ───────────────────────────── layers (metadata only) ─────────────────────────────

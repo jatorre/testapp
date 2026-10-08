@@ -3,7 +3,7 @@ import { HARNESSES } from './agent/harnesses';
 import { getCartoInfo, type CartoInfo } from './carto/info';
 import { DEMOS } from './demos';
 import { writeFile as vfsWriteFile } from './vfs/vfs';
-import { addFile, attachmentSummary, toUserMessage } from './attachments/store';
+import { addFile, addImage, attachmentSummary, toUserMessage } from './attachments/store';
 import { Chat } from './ui/Chat';
 import { FilePanel } from './ui/FilePanel';
 import { RunLogPanel } from './ui/RunLogPanel';
@@ -11,7 +11,7 @@ import { TopBar } from './ui/TopBar';
 import { applyEventToMessage, type RunLog, type ToolRow, type UiMessage } from './ui/runlog';
 import { executeRun, loadDemoTools, msg, runEval, type EvalRequest, type ToolLoad } from './ui/runner';
 import { AnnotationChips } from './map/AnnotationChips';
-import { addAnnotation, annotationContext, clearAnnotationSelection, listLayerInfos, selectedAnnotations, type Geometry } from './map/store';
+import { addAnnotation, annotationContext, bboxOf, clearAnnotationSelection, getAnnotation, getMapController, listLayerInfos, positions, selectedAnnotations, type Geometry } from './map/store';
 
 // deck.gl + MapLibre are only downloaded when the map demo is opened.
 const MapPane = lazy(() => import('./map/MapPane'));
@@ -149,7 +149,24 @@ export default function App() {
       .map((m) => (m.role === 'user' ? toUserMessage(m.modelText ?? m.text, m.attachments) : { role: m.role, content: m.text }));
     // Map demo: selected annotations go with the message as structured context (frozen at send time).
     const annotations = demo.tools.includes('map') ? selectedAnnotations() : [];
-    const modelText = annotations.length ? prompt + annotationContext(annotations) : undefined;
+    // "What is happening here?": besides the geometry (WKT for SQL), send what the user is looking at — a screenshot
+    // of the map with the marks on it — so the model understands the area visually. Best effort.
+    let shotId: string | undefined;
+    if (annotations.length && new URLSearchParams(location.search).get('annotationShot') !== '0') {
+      try {
+        const map = await getMapController(2000);
+        const pts = annotations.flatMap((id) => { const a = getAnnotation(id); return a ? positions(a.geometry) : []; });
+        const bb = bboxOf(pts);
+        const v = map.getView().bounds;
+        if (bb && !(bb[0] >= v[0] && bb[1] >= v[1] && bb[2] <= v[2] && bb[3] <= v[3])) await map.setView({ bbox: bb });
+        const shot = await map.screenshot({ maxWidth: 1024 });
+        shotId = addImage(`map view with ${annotations.join(', ')}`, shot.image.dataUrl).id;
+        attachments = [...attachments, shotId];
+      } catch {
+        /* map not ready: geometry alone still works */
+      }
+    }
+    const modelText = annotations.length ? prompt + annotationContext(annotations, !!shotId) : undefined;
     if (annotations.length) clearAnnotationSelection();
     setMessages((ms) => [
       ...ms,
