@@ -1,0 +1,152 @@
+[
+ {
+  "n": 10000,
+  "genMs": 24,
+  "jsonMB": 2.2,
+  "stringifyMs": 6,
+  "parseMs": 8,
+  "heapAfterParse": {
+   "usedMB": 39,
+   "totalMB": 45,
+   "limitMB": 4295
+  },
+  "ingestMs": 1018,
+  "ingestBreakdown": {
+   "arrowMs": 135,
+   "insertMs": 43,
+   "parquetMs": 821
+  },
+  "parquetMB": 0.22,
+  "columns": "id:BIGINT,order_id:BIGINT,user_id:BIGINT,status:VARCHAR,category:VARCHAR,created_at:TIMESTAMP,shipped_at:TIMESTAMP,order_date:DATE,sale_price:DOUBLE,is_first:BOOLEAN",
+  "aggMs": 71,
+  "aggRows": 288,
+  "heapEnd": {
+   "usedMB": 46,
+   "totalMB": 55,
+   "limitMB": 4295
+  },
+  "coldStartMs": 1753,
+  "wallMs": 1133
+ },
+ {
+  "n": 100000,
+  "genMs": 250,
+  "jsonMB": 22.4,
+  "stringifyMs": 57,
+  "parseMs": 74,
+  "heapAfterParse": {
+   "usedMB": 88,
+   "totalMB": 105,
+   "limitMB": 4295
+  },
+  "ingestMs": 1974,
+  "ingestBreakdown": {
+   "arrowMs": 681,
+   "insertMs": 144,
+   "parquetMs": 1127
+  },
+  "parquetMB": 0.68,
+  "columns": "id:BIGINT,order_id:BIGINT,user_id:BIGINT,status:VARCHAR,category:VARCHAR,created_at:TIMESTAMP,shipped_at:TIMESTAMP,order_date:DATE,sale_price:DOUBLE,is_first:BOOLEAN",
+  "aggMs": 98,
+  "aggRows": 288,
+  "heapEnd": {
+   "usedMB": 51,
+   "totalMB": 132,
+   "limitMB": 4295
+  },
+  "coldStartMs": 1581,
+  "wallMs": 2458
+ },
+ {
+  "n": 200000,
+  "genMs": 533,
+  "jsonMB": 45,
+  "stringifyMs": 141,
+  "parseMs": 153,
+  "heapAfterParse": {
+   "usedMB": 142,
+   "totalMB": 177,
+   "limitMB": 4295
+  },
+  "ingestMs": 2538,
+  "ingestBreakdown": {
+   "arrowMs": 1299,
+   "insertMs": 136,
+   "parquetMs": 1084
+  },
+  "parquetMB": 1.32,
+  "columns": "id:BIGINT,order_id:BIGINT,user_id:BIGINT,status:VARCHAR,category:VARCHAR,created_at:TIMESTAMP,shipped_at:TIMESTAMP,order_date:DATE,sale_price:DOUBLE,is_first:BOOLEAN",
+  "aggMs": 135,
+  "aggRows": 288,
+  "heapEnd": {
+   "usedMB": 158,
+   "totalMB": 215,
+   "limitMB": 4295
+  },
+  "coldStartMs": 1725,
+  "wallMs": 3510
+ },
+ {
+  "n": 1000000,
+  "genMs": 2331,
+  "jsonMB": 226.2,
+  "stringifyMs": 609,
+  "parseMs": 885,
+  "heapAfterParse": {
+   "usedMB": 580,
+   "totalMB": 618,
+   "limitMB": 4295
+  },
+  "ingestMs": 10600,
+  "ingestBreakdown": {
+   "arrowMs": 7324,
+   "insertMs": 423,
+   "parquetMs": 2830
+  },
+  "parquetMB": 5.68,
+  "columns": "id:BIGINT,order_id:BIGINT,user_id:BIGINT,status:VARCHAR,category:VARCHAR,created_at:TIMESTAMP,shipped_at:TIMESTAMP,order_date:DATE,sale_price:DOUBLE,is_first:BOOLEAN",
+  "aggMs": 174,
+  "aggRows": 288,
+  "heapEnd": {
+   "usedMB": 210,
+   "totalMB": 283,
+   "limitMB": 4295
+  },
+  "coldStartMs": 1588,
+  "wallMs": 14604
+ },
+ {
+  "n": 2000000,
+  "genMs": 4446,
+  "jsonMB": 453.8,
+  "stringifyMs": 1117,
+  "parseMs": 1716,
+  "heapAfterParse": {
+   "usedMB": 822,
+   "totalMB": 864,
+   "limitMB": 4295
+  },
+  "ingestMs": 28764,
+  "ingestBreakdown": {
+   "arrowMs": 21983,
+   "insertMs": 1794,
+   "parquetMs": 4954
+  },
+  "parquetMB": 11.14,
+  "columns": "id:BIGINT,order_id:BIGINT,user_id:BIGINT,status:VARCHAR,category:VARCHAR,created_at:TIMESTAMP,shipped_at:TIMESTAMP,order_date:DATE,sale_price:DOUBLE,is_first:BOOLEAN",
+  "aggMs": 321,
+  "aggRows": 288,
+  "heapEnd": {
+   "usedMB": 387,
+   "totalMB": 463,
+   "limitMB": 4295
+  },
+  "coldStartMs": 1603,
+  "wallMs": 36369
+ },
+ {
+  "n": 3000000,
+  "error": "page.evaluate: RangeError: Invalid string length\n    at JSON.stringify (<anonymous>)\n    at Object.bench (http://localhost:5174/tests/pages/data.ts:184:19)\n    at eval (eval at evaluate (:290:30), <an",
+  "wallMs": 8330
+ }
+]

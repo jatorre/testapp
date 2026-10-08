@@ -87,6 +87,18 @@ export default function App() {
     };
   }, [demo]);
 
+  // Pyodide takes seconds to boot: start it in the background as soon as a python demo is selected.
+  useEffect(() => {
+    if (demo.tools.includes('python')) import('./tools/python').then((m) => m.prewarmPython()).catch(() => {});
+  }, [demo]);
+
+  // MCP connection diagnostics (demo 2): refresh after tools load and after each run.
+  const [mcpDiag, setMcpDiag] = useState<unknown>();
+  useEffect(() => {
+    if (!demo.tools.includes('mcp') || !toolLoad) return setMcpDiag(undefined);
+    import('./tools/mcp').then((m) => setMcpDiag(m.getMcpDiagnostics())).catch((e) => setMcpDiag({ ok: false, error: msg(e) }));
+  }, [demo, toolLoad, runs.length]);
+
   useEffect(() => store.set('harness', harnessId), [harnessId]);
   useEffect(() => store.set('demo', demoId), [demoId]);
   useEffect(() => void (model && store.set('model', model)), [model]);
@@ -187,6 +199,15 @@ export default function App() {
         <span className="label">Tools:</span>{' '}
         {toolLoad ? toolLoad.tools.map((t) => <code key={t.name}>{t.name}</code>) : <span className="muted">loading…</span>}
         <span className="muted"> · max {demo.maxSteps} steps</span>
+        {mcpDiag != null && (
+          <details className="diag" data-testid="mcp-diagnostics">
+            <summary>
+              MCP: {(mcpDiag as { ok?: boolean }).ok ? 'connected' : 'not connected'}
+              {(mcpDiag as { toolCount?: number }).toolCount != null && ` · ${(mcpDiag as { toolCount: number }).toolCount} tools`}
+            </summary>
+            <pre>{JSON.stringify(mcpDiag, null, 2)}</pre>
+          </details>
+        )}
       </div>
       <div className="panes">
         <FilePanel />

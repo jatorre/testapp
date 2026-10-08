@@ -141,3 +141,6 @@ pre { background: var(--code-bg); padding: 8px; border-radius: 6px; overflow: au
 @media (max-width: 900px) {
   .panes { grid-template-columns: 1fr; grid-auto-rows: minmax(300px, auto); overflow: auto; }
 }
+.diag { display: inline-block; margin-left: 10px; }
+.diag summary { cursor: pointer; color: var(--muted); }
+.diag pre { position: absolute; z-index: 5; max-width: 600px; max-height: 50vh; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }

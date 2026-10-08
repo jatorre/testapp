@@ -15,6 +15,19 @@ const mockEnv = {
 const fallbackChromium = '/opt/pw-browsers/chromium';
 const executablePath = process.env.PW_CHROMIUM_PATH ?? (existsSync(fallbackChromium) && !process.env.PLAYWRIGHT_BROWSERS_PATH ? fallbackChromium : undefined);
 
+// In the cloud container outbound traffic must use the agent proxy; loopback (the Vite server) must not.
+const proxyUrl = process.env.HTTPS_PROXY || process.env.https_proxy;
+let proxy: { server: string; username?: string; password?: string; bypass?: string } | undefined;
+if (proxyUrl) {
+  const u = new URL(proxyUrl);
+  proxy = {
+    server: `${u.protocol}//${u.host}`,
+    ...(u.username && { username: decodeURIComponent(u.username), password: decodeURIComponent(u.password) }),
+    bypass: 'localhost,127.0.0.1',
+  };
+  process.env.PLAYWRIGHT_DISABLE_FORCED_CHROMIUM_PROXIED_LOOPBACK = '1';
+}
+
 export default defineConfig({
   testDir: './tests/e2e',
   testMatch: REAL ? /real-.*\.spec\.ts$/ : /\.spec\.ts$/,
@@ -30,7 +43,7 @@ export default defineConfig({
     screenshot: 'only-on-failure',
     ...devices['Desktop Chrome'],
     viewport: { width: 1400, height: 900 },
-    launchOptions: executablePath ? { executablePath } : {},
+    launchOptions: { ...(executablePath && { executablePath }), ...(proxy && { proxy }) },
   },
   webServer: {
     command: `npx vite --port ${PORT} --strictPort`,
