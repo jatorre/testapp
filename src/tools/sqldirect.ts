@@ -9,7 +9,7 @@ import { formatBytes, getSessionBytesProcessed, runReadOnlyQuery } from '../cart
  */
 const MAX_ROWS = 500;
 
-function toCsv(rows: Record<string, unknown>[]): string {
+export function toCsv(rows: Record<string, unknown>[]): string {
   if (!rows.length) return '';
   const cols = Object.keys(rows[0]);
   const cell = (v: unknown) => {

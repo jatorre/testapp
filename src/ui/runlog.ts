@@ -57,6 +57,8 @@ export interface UiMessage {
   text: string; // user prompt, or concatenated assistant text (for history)
   parts: ChatPart[];
   runId?: string;
+  /** User messages: attachment ids sent with the prompt. */
+  attachments?: string[];
 }
 
 export function newRun(p: Pick<RunLog, 'demoId' | 'harnessId' | 'model' | 'prompt'>): RunLog {

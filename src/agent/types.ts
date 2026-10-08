@@ -21,10 +21,41 @@ export interface ToolContext {
 
 export type Artifact = { kind: 'vega-lite'; title?: string; spec: unknown };
 
+/** An image as sent to the model (OpenAI-compatible `image_url` with a data URL). */
+export interface ModelImage {
+  mime: string;
+  dataUrl: string;
+}
+
 export interface ChatMessage {
   role: 'user' | 'assistant';
   content: string;
+  /** User messages only: images sent alongside the text as content parts. */
+  images?: ModelImage[];
 }
+
+/**
+ * A tool returns this (via toolImages()) to show the model images, e.g. view_image. Chat Completions tool
+ * messages are text-only in the OpenAI spec, so each harness decides how the images reach the model.
+ */
+export interface ToolImageOutput {
+  type: 'tool-images';
+  text: string;
+  images: ModelImage[];
+}
+export const toolImages = (text: string, images: ModelImage[]): ToolImageOutput => ({ type: 'tool-images', text, images });
+export function isToolImageOutput(v: unknown): v is ToolImageOutput {
+  return !!v && typeof v === 'object' && (v as ToolImageOutput).type === 'tool-images';
+}
+
+/** What runTool hands back to a harness: capped text for the model, plus any images. */
+export interface ToolModelOutput {
+  text: string;
+  images: ModelImage[];
+}
+
+/** Raw base64 payload of a data URL. */
+export const dataUrlBase64 = (dataUrl: string) => dataUrl.slice(dataUrl.indexOf(',') + 1);
 
 /** Events streamed from a harness to the UI. */
 export type AgentEvent =

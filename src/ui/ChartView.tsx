@@ -16,7 +16,13 @@ export function ChartView({ spec, title }: { spec: unknown; title?: string }) {
         const { spec: resolved } = await resolveSpecData(spec);
         if (cancelled || !ref.current) return;
         const res = await embed(ref.current, resolved as any, { actions: { export: true, source: true, compiled: false, editor: false } });
-        finalize = () => res.finalize();
+        const { registerCapturable } = await import('../attachments/capture');
+        const unregister = registerCapturable({ title: title ?? 'Chart', toPng: () => res.view.toImageURL('png') });
+        finalize = () => {
+          unregister();
+          res.finalize();
+        };
+        if (cancelled) finalize();
         setError(null);
       } catch (e) {
         if (!cancelled) setError(e instanceof Error ? e.message : String(e));

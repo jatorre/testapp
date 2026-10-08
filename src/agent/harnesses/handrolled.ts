@@ -1,6 +1,6 @@
-import type { Harness, RunOptions, Usage } from '../types';
+import type { ChatMessage, Harness, RunOptions, Usage } from '../types';
 import { ZERO_USAGE, addUsage } from '../types';
-import { runTool, toolJsonSchema } from './common';
+import { imageFollowUpText, runTool, toolJsonSchema } from './common';
 
 /**
  * Minimal hand-written agent loop: fetch + SSE against /chat/completions.
@@ -28,6 +28,15 @@ async function* sse(res: Response): AsyncGenerator<any> {
   }
 }
 
+/** User images become OpenAI-compatible content parts: [{type:'text'}, {type:'image_url', image_url:{url}}]. */
+function toChatMessage(m: ChatMessage): Msg {
+  if (!m.images?.length) return { role: m.role, content: m.content };
+  return {
+    role: m.role,
+    content: [{ type: 'text', text: m.content }, ...m.images.map((i) => ({ type: 'image_url', image_url: { url: i.dataUrl } }))],
+  };
+}
+
 export const handrolledHarness: Harness = {
   id: 'handrolled',
   label: 'Hand-rolled (fetch + SSE)',
@@ -38,7 +47,7 @@ export const handrolledHarness: Harness = {
       type: 'function',
       function: { name: t.name, description: t.description, parameters: toolJsonSchema(t) },
     }));
-    const history: Msg[] = [{ role: 'system', content: system }, ...messages];
+    const history: Msg[] = [{ role: 'system', content: system }, ...messages.map(toChatMessage)];
     let total: Usage = { ...ZERO_USAGE };
     let finalText = '';
     let step = 0;
@@ -108,11 +117,24 @@ export const handrolledHarness: Harness = {
           } catch {
             input = { _raw: c.args };
           }
-          const content = await runTool(byName.get(c.name), c.name, c.id, input, signal, onEvent);
-          return { role: 'tool', tool_call_id: c.id, content };
+          const out = await runTool(byName.get(c.name), c.name, c.id, input, signal, onEvent);
+          const content = out.images.length ? `${out.text}\n${imageFollowUpText(c.name, out.images.length)}` : out.text;
+          return { msg: { role: 'tool', tool_call_id: c.id, content }, name: c.name, images: out.images };
         }),
       );
-      history.push(...results);
+      history.push(...results.map((r) => r.msg));
+      // Tool messages are text-only in the Chat Completions spec, so images a tool returned go in ONE follow-up user
+      // message after all tool results of the step (a user message between tool results would break the sequence).
+      const withImages = results.filter((r) => r.images.length);
+      if (withImages.length) {
+        history.push({
+          role: 'user',
+          content: withImages.flatMap((r) => [
+            { type: 'text', text: `[images returned by ${r.name} (${r.msg.tool_call_id})]` },
+            ...r.images.map((i) => ({ type: 'image_url', image_url: { url: i.dataUrl } })),
+          ]),
+        });
+      }
       onEvent({ type: 'step-finish', step, usage, durationMs: Date.now() - stepStart });
       if (!toolCalls.length) break;
     }

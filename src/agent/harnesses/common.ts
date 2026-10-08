@@ -1,11 +1,12 @@
 import { z } from 'zod';
-import type { AgentEvent, AgentTool, Artifact } from '../types';
-import { toModelString } from '../types';
+import type { AgentEvent, AgentTool, Artifact, ToolModelOutput } from '../types';
+import { isToolImageOutput, toModelString } from '../types';
 
 /**
  * Shared tool execution wrapper used by every harness so that timing / output-size
  * measurements are identical regardless of the agent loop. Emits tool-call and
- * tool-result events and returns the capped string the model will see.
+ * tool-result events and returns the capped string the model will see, plus any images
+ * the tool returned (toolImages()); each harness decides how images reach the model.
  * Errors are converted into a model-visible error string (the loop continues).
  */
 export async function runTool(
@@ -15,7 +16,7 @@ export async function runTool(
   input: unknown,
   signal: AbortSignal | undefined,
   onEvent: (e: AgentEvent) => void,
-): Promise<string> {
+): Promise<ToolModelOutput> {
   const startedAt = Date.now();
   onEvent({ type: 'tool-call', id, name, input, startedAt });
   let output: unknown;
@@ -33,9 +34,22 @@ export async function runTool(
     error = e instanceof Error ? e.message : String(e);
     output = `Error: ${error}`;
   }
-  const s = toModelString(output ?? '(no output)');
+  let modelText: unknown = output ?? '(no output)';
+  let images: ToolModelOutput['images'] = [];
+  if (isToolImageOutput(output)) {
+    images = output.images;
+    modelText = output.text;
+    // Never log or stringify base64 payloads: keep the text and a short description of each image.
+    output = { text: output.text, images: images.map((i) => `${i.mime}, ${Math.round((i.dataUrl.length * 3) / 4 / 1024)} KB`) };
+  }
+  const s = toModelString(modelText);
   onEvent({ type: 'tool-result', id, name, output, error, durationMs: Date.now() - startedAt, outputChars: s.length });
-  return s;
+  return { text: s, images };
+}
+
+/** Text shown to the model in place of the image(s) when the harness delivers them in a follow-up user message. */
+export function imageFollowUpText(toolName: string, count: number) {
+  return `[${count} image${count > 1 ? 's' : ''} returned by ${toolName}, attached below]`;
 }
 
 /** JSON schema for a tool's input, OpenAI function-calling flavour. */

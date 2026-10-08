@@ -144,3 +144,7 @@ pre { background: var(--code-bg); padding: 8px; border-radius: 6px; overflow: au
 .diag { display: inline-block; margin-left: 10px; }
 .diag summary { cursor: pointer; color: var(--muted); }
 .diag pre { position: absolute; z-index: 5; max-width: 600px; max-height: 50vh; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+.att-chips { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 6px; }
+.att-chip { display: inline-flex; align-items: center; gap: 4px; font-size: 12px; border: 1px solid var(--border); border-radius: 6px; padding: 2px 6px; background: var(--panel); }
+.att-chip img { width: 28px; height: 20px; object-fit: cover; border-radius: 3px; }
+.att-chip button { border: none; background: none; padding: 0 2px; color: var(--muted); }

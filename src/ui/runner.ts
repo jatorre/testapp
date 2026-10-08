@@ -1,5 +1,6 @@
 import { HARNESSES, getHarness } from '../agent/harnesses';
 import type { AgentEvent, AgentTool, ChatMessage, LlmConfig } from '../agent/types';
+import { toUserMessage } from '../attachments/store';
 import { getCartoInfo } from '../carto/info';
 import { DEMOS, type Demo } from '../demos';
 import type { ToolGroup } from '../tools';
@@ -61,6 +62,8 @@ export interface ExecuteRunOptions {
   harnessId: string;
   model: string;
   prompt: string;
+  /** Attachment ids sent with this prompt (images as image parts, tables/text announced by id). */
+  attachments?: string[];
   history?: ChatMessage[];
   signal?: AbortSignal;
   onEvent?: (e: AgentEvent) => void;
@@ -81,7 +84,7 @@ export async function executeRun(o: ExecuteRunOptions): Promise<RunLog> {
     const text = await getHarness(o.harnessId).run({
       llm,
       system: o.demo.system,
-      messages: [...(o.history ?? []), { role: 'user', content: o.prompt }],
+      messages: [...(o.history ?? []), toUserMessage(o.prompt, o.attachments)],
       tools,
       maxSteps: o.demo.maxSteps,
       signal: o.signal,
@@ -102,6 +105,7 @@ export interface EvalRequest {
   harnessId: string;
   model: string;
   prompt: string;
+  attachments?: string[];
   /** Optional per-run timeout in ms. */
   timeoutMs?: number;
 }
@@ -116,7 +120,9 @@ export async function runEval(req: EvalRequest, onRun?: (r: RunLog) => void): Pr
   const ctrl = new AbortController();
   const timer = req.timeoutMs ? setTimeout(() => ctrl.abort(), req.timeoutMs) : undefined;
   try {
-    return await executeRun({ demo, harnessId: req.harnessId, model: req.model, prompt: req.prompt, signal: ctrl.signal, onRun });
+    return await executeRun({
+      demo, harnessId: req.harnessId, model: req.model, prompt: req.prompt, attachments: req.attachments, signal: ctrl.signal, onRun,
+    });
   } finally {
     clearTimeout(timer);
   }

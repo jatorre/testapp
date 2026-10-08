@@ -1,8 +1,20 @@
 import { createOpenAICompatible } from '@ai-sdk/openai-compatible';
-import { jsonSchema, stepCountIs, streamText, tool, type ToolSet } from 'ai';
-import type { Harness, RunOptions, Usage } from '../types';
-import { ZERO_USAGE, addUsage } from '../types';
+import { jsonSchema, stepCountIs, streamText, tool, type ModelMessage, type ToolSet } from 'ai';
+import type { ChatMessage, Harness, RunOptions, ToolModelOutput, Usage } from '../types';
+import { ZERO_USAGE, addUsage, dataUrlBase64 } from '../types';
 import { errorMessage, runTool, toolJsonSchema } from './common';
+
+/** User images become file parts (the provider turns them into image_url data URLs). */
+function toModelMessage(m: ChatMessage): ModelMessage {
+  if (m.role === 'assistant' || !m.images?.length) return { role: m.role, content: m.content };
+  return {
+    role: 'user',
+    content: [
+      { type: 'text', text: m.content },
+      ...m.images.map((i) => ({ type: 'file' as const, data: { type: 'data' as const, data: dataUrlBase64(i.dataUrl) }, mediaType: i.mime })),
+    ],
+  };
+}
 
 /** Vercel AI SDK v7: streamText + stopWhen(stepCountIs) over the OpenAI-compatible provider. */
 export const aiSdkHarness: Harness = {
@@ -15,6 +27,9 @@ export const aiSdkHarness: Harness = {
       baseURL: llm.baseURL,
       apiKey: llm.apiKey,
       includeUsage: true,
+      // Tool results with images are sent as content parts in the tool message (verified: CARTO LiteLLM accepts
+      // image_url inside role:"tool" for Claude and Gemini). Without this flag the SDK JSON-stringifies them.
+      supportsMultiPartToolContent: true,
     });
 
     // Plain JSON schema (no SDK-side validation) so invalid args reach runTool, which
@@ -27,6 +42,16 @@ export const aiSdkHarness: Harness = {
           inputSchema: jsonSchema(toolJsonSchema(t) as any),
           execute: (input: unknown, { toolCallId, abortSignal }) =>
             runTool(t, t.name, toolCallId, input, abortSignal ?? signal, onEvent),
+          toModelOutput: ({ output }: { output: ToolModelOutput }) =>
+            output.images.length
+              ? {
+                  type: 'content' as const,
+                  value: [
+                    { type: 'text' as const, text: output.text },
+                    ...output.images.map((i) => ({ type: 'file' as const, data: { type: 'data' as const, data: dataUrlBase64(i.dataUrl) }, mediaType: i.mime })),
+                  ],
+                }
+              : { type: 'text' as const, value: output.text },
         }),
       ]),
     );
@@ -34,7 +59,7 @@ export const aiSdkHarness: Harness = {
     const result = streamText({
       model: provider.chatModel(llm.model),
       instructions: system,
-      messages: messages.map((m) => ({ role: m.role, content: m.content })),
+      messages: messages.map(toModelMessage),
       tools: toolSet,
       stopWhen: stepCountIs(maxSteps),
       abortSignal: signal,

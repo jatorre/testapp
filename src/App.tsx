@@ -3,6 +3,7 @@ import { HARNESSES } from './agent/harnesses';
 import { getCartoInfo, type CartoInfo } from './carto/info';
 import { DEMOS } from './demos';
 import { writeFile as vfsWriteFile } from './vfs/vfs';
+import { addFile, attachmentSummary, toUserMessage } from './attachments/store';
 import { Chat } from './ui/Chat';
 import { FilePanel } from './ui/FilePanel';
 import { RunLogPanel } from './ui/RunLogPanel';
@@ -35,6 +36,8 @@ declare global {
     __runLogs?: RunLog[];
     /** Dev-only: seed files into the VFS for eval scenarios (e.g. prompt-injection probes). */
     __seedFile?: (path: string, content: string) => Promise<void>;
+    /** Dev-only: add an attachment from base64 bytes (evals/tests); resolves with its summary (id, sheets…). */
+    __addAttachment?: (name: string, mime: string, base64: string) => Promise<ReturnType<typeof attachmentSummary>>;
   }
 }
 
@@ -115,7 +118,11 @@ export default function App() {
   }, []);
 
   // Batch-eval hook for Playwright-driven comparisons.
-  if (import.meta.env.DEV) window.__seedFile = vfsWriteFile;
+  if (import.meta.env.DEV) {
+    window.__seedFile = vfsWriteFile;
+    window.__addAttachment = async (name, mime, b64) =>
+      attachmentSummary(await addFile(new File([Uint8Array.from(atob(b64), (c) => c.charCodeAt(0))], name, { type: mime })));
+  }
   useEffect(() => {
     window.__runEval = async (req) => {
       const r = await runEval(req, setCurrent);
@@ -125,9 +132,11 @@ export default function App() {
     window.__evalInfo = { demos: DEMOS.map((d) => d.id), harnesses: HARNESSES.map((h) => h.id), models };
   }, [models, addRun]);
 
-  const send = async (prompt: string) => {
-    const history = messages.filter((m) => m.text.trim()).map((m) => ({ role: m.role, content: m.text }));
-    setMessages((ms) => [...ms, { role: 'user', text: prompt, parts: [] }, { role: 'assistant', text: '', parts: [] }]);
+  const send = async (prompt: string, attachments: string[] = []) => {
+    const history = messages
+      .filter((m) => m.text.trim())
+      .map((m) => (m.role === 'user' ? toUserMessage(m.text, m.attachments) : { role: m.role, content: m.text }));
+    setMessages((ms) => [...ms, { role: 'user', text: prompt, parts: [], attachments }, { role: 'assistant', text: '', parts: [] }]);
     const ctrl = new AbortController();
     abortRef.current = ctrl;
     setRunning(true);
@@ -136,6 +145,7 @@ export default function App() {
       harnessId,
       model,
       prompt,
+      attachments,
       history,
       signal: ctrl.signal,
       onRun: setCurrent,
@@ -182,7 +192,7 @@ export default function App() {
   return (
     <div className="app">
       <TopBar
-        demos={DEMOS}
+        demos={DEMOS.filter((d) => !d.hidden || d.id === demo.id)}
         demoId={demo.id}
         onDemo={(id) => {
           setDemoId(id);
@@ -223,6 +233,7 @@ export default function App() {
           disabledReason={disabledReason}
           errors={errors}
           blurb={demo.blurb}
+          attachEnabled={demo.tools.includes('attach')}
           onSend={send}
           onStop={() => abortRef.current?.abort()}
           onClear={() => setMessages([])}

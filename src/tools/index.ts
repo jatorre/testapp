@@ -7,9 +7,12 @@ import { createChartTools } from './chart';
 import { createMcpTools } from './mcp';
 import { createSqlDirectTools } from './sqldirect';
 import { createWebTools } from './web';
+import { createAttachTools } from './attach';
+import { createWarehouseTools } from './warehouse';
+import { createDuckDbJoinTools } from './duckdbjoin';
 
 /** Tool groups a demo can enable. Each module owns one group. */
-export type ToolGroup = 'fs' | 'bigquery' | 'duckdb' | 'python' | 'chart' | 'mcp' | 'sql' | 'web';
+export type ToolGroup = 'fs' | 'bigquery' | 'duckdb' | 'python' | 'chart' | 'mcp' | 'sql' | 'web' | 'attach' | 'warehouse' | 'duckdb_join';
 
 const factories: Record<ToolGroup, () => Promise<AgentTool[]> | AgentTool[]> = {
   fs: createFsTools,
@@ -20,6 +23,9 @@ const factories: Record<ToolGroup, () => Promise<AgentTool[]> | AgentTool[]> = {
   mcp: createMcpTools,
   sql: createSqlDirectTools,
   web: createWebTools,
+  attach: createAttachTools,
+  warehouse: createWarehouseTools,
+  duckdb_join: createDuckDbJoinTools,
 };
 
 export async function buildTools(groups: ToolGroup[]): Promise<AgentTool[]> {

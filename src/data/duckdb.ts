@@ -344,6 +344,25 @@ export function ingestRowsToParquet(rows: Record<string, unknown>[], schema: Sql
   });
 }
 
+/**
+ * Rows → typed Arrow → a DuckDB table `name` (replaced if it exists). No file is written: used for attachments
+ * (att_<id>) and BigQuery results that are only joined locally. Empty schema = infer types from the values.
+ */
+export function loadRowsAsTable(name: string, rows: Record<string, unknown>[], schema: SqlSchemaField[] = []): Promise<{ table: string; rowCount: number; columns: QueryColumn[] }> {
+  if (!/^[A-Za-z_][A-Za-z0-9_]{0,62}$/.test(name)) throw new Error(`Invalid table name "${name}" (letters, digits, _)`);
+  return exclusive(async (h) => {
+    await h.conn.query(`DROP TABLE IF EXISTS ${quoteIdent(name)}`);
+    const plans = planColumns(schema, rows);
+    if (!rows.length || !plans.length) {
+      const cols = plans.map((p) => `${quoteIdent(p.name)} ${p.kind === 'JSON' ? 'VARCHAR' : p.kind}`).join(', ');
+      await h.conn.query(`CREATE TABLE ${quoteIdent(name)} (${cols || 'empty_result BOOLEAN'})`);
+    } else await h.conn.insertArrowFromIPCStream(tableToIPC(rowsToArrow(plans, rows), 'stream'), { name, create: true });
+    const d = await h.conn.query(`DESCRIBE ${quoteIdent(name)}`);
+    const columns = d.toArray().map((r: any) => ({ name: String(r.column_name), type: String(r.column_type) }));
+    return { table: name, rowCount: rows.length, columns };
+  });
+}
+
 /** Bulk path: store a parquet file (e.g. from the CARTO Exports API) in the VFS and describe it. */
 export function storeParquet(bytes: Uint8Array, path: string): Promise<{ path: string; rowCount: number; columns: QueryColumn[]; bytesInFile: number }> {
   return exclusive(async (h) => {

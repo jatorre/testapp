@@ -1,4 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
+import { captureLatest } from '../attachments/capture';
+import { addFile, addImage, getAttachment, type Attachment } from '../attachments/store';
 import { ChartView } from './ChartView';
 import { Markdown } from './Markdown';
 import { fmtMs, type ToolRow, type UiMessage } from './runlog';
@@ -49,6 +51,22 @@ function ToolCard({ row }: { row?: ToolRow }) {
   );
 }
 
+function AttachmentChip({ id, onRemove }: { id: string; onRemove?: () => void }) {
+  const a = getAttachment(id);
+  if (!a) return null;
+  return (
+    <span className="att-chip" data-testid={onRemove ? 'pending-attachment' : 'msg-attachment'} data-kind={a.kind} title={`${a.id} · ${a.mime}`}>
+      {a.kind === 'image' ? <img src={a.data} alt="" /> : <span>{a.kind === 'table' ? '▦' : '¶'}</span>}
+      {a.name}
+      {onRemove && (
+        <button type="button" onClick={onRemove} aria-label={`Remove ${a.name}`}>
+          ✕
+        </button>
+      )}
+    </span>
+  );
+}
+
 export interface ChatProps {
   messages: UiMessage[];
   toolRows: Map<string, ToolRow>;
@@ -56,7 +74,9 @@ export interface ChatProps {
   running: boolean;
   disabledReason?: string;
   errors: string[];
-  onSend: (text: string) => void;
+  onSend: (text: string, attachments: string[]) => void;
+  /** Show the attach / drop / paste / capture controls (demos with the 'attach' tool group). */
+  attachEnabled?: boolean;
   onStop: () => void;
   onClear: () => void;
   blurb: string;
@@ -64,7 +84,33 @@ export interface ChatProps {
 
 export function Chat(p: ChatProps) {
   const [input, setInput] = useState('');
+  const [pending, setPending] = useState<string[]>([]);
+  const [attachError, setAttachError] = useState<string>();
   const endRef = useRef<HTMLDivElement>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const attach = async (files: FileList | File[] | null) => {
+    if (!p.attachEnabled || !files?.length) return;
+    setAttachError(undefined);
+    for (const f of Array.from(files)) {
+      try {
+        const a: Attachment = await addFile(f);
+        setPending((ids) => [...ids, a.id]);
+      } catch (e) {
+        setAttachError(e instanceof Error ? e.message : String(e));
+      }
+    }
+  };
+  const capture = async () => {
+    setAttachError(undefined);
+    try {
+      const shot = await captureLatest();
+      const a = addImage(`${shot.title}.png`, shot.dataUrl);
+      setPending((ids) => [...ids, a.id]);
+    } catch (e) {
+      setAttachError(e instanceof Error ? e.message : String(e));
+    }
+  };
   const last = p.messages[p.messages.length - 1];
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: 'end' });
@@ -72,18 +118,33 @@ export function Chat(p: ChatProps) {
 
   const send = (text: string) => {
     if (!text.trim() || p.running || p.disabledReason) return;
-    p.onSend(text.trim());
+    p.onSend(text.trim(), pending);
     setInput('');
+    setPending([]);
   };
 
   return (
-    <main className="pane chat" data-testid="chat">
+    <main
+      className="pane chat"
+      data-testid="chat"
+      onDragOver={(e) => p.attachEnabled && e.preventDefault()}
+      onDrop={(e) => {
+        if (!p.attachEnabled) return;
+        e.preventDefault();
+        void attach(e.dataTransfer.files);
+      }}
+    >
       <div className="messages">
         {p.messages.length === 0 && <div className="muted intro">{p.blurb}</div>}
         {p.messages.map((m, i) => (
           <div key={i} className={`msg ${m.role}`} data-testid={`msg-${m.role}`}>
             {m.role === 'user' ? (
-              <div className="bubble">{m.text}</div>
+              <div className="bubble">
+                {!!m.attachments?.length && (
+                  <div className="att-chips">{m.attachments.map((id) => <AttachmentChip key={id} id={id} />)}</div>
+                )}
+                {m.text}
+              </div>
             ) : (
               m.parts.map((part, j) =>
                 part.kind === 'text' ? (
@@ -113,6 +174,12 @@ export function Chat(p: ChatProps) {
             </button>
           ))}
         </div>
+        {(pending.length > 0 || attachError) && (
+          <div className="att-chips">
+            {pending.map((id) => <AttachmentChip key={id} id={id} onRemove={() => setPending((ids) => ids.filter((x) => x !== id))} />)}
+            {attachError && <span className="error" data-testid="attach-error">{attachError}</span>}
+          </div>
+        )}
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -124,6 +191,12 @@ export function Chat(p: ChatProps) {
             value={input}
             placeholder={p.disabledReason ?? 'Ask something… (Enter to send, Shift+Enter for newline)'}
             onChange={(e) => setInput(e.target.value)}
+            onPaste={(e) => {
+              if (p.attachEnabled && e.clipboardData.files.length) {
+                e.preventDefault();
+                void attach(e.clipboardData.files);
+              }
+            }}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
@@ -132,6 +205,23 @@ export function Chat(p: ChatProps) {
             }}
             rows={2}
           />
+          {p.attachEnabled && (
+            <>
+              <input ref={fileRef} type="file" multiple hidden data-testid="attach-input"
+                accept="image/*,.xlsx,.xlsm,.xls,.ods,.csv,.tsv,.txt,.md,.json"
+                onChange={(e) => {
+                  void attach(e.target.files);
+                  e.target.value = '';
+                }}
+              />
+              <button type="button" className="secondary" onClick={() => fileRef.current?.click()} title="Attach images, Excel, CSV or text (or drop / paste them)" data-testid="attach">
+                📎
+              </button>
+              <button type="button" className="secondary" onClick={capture} title="Capture the latest chart/map as an image attachment" data-testid="capture">
+                📷 capture
+              </button>
+            </>
+          )}
           {p.running ? (
             <button type="button" className="stop" onClick={p.onStop} data-testid="stop">Stop</button>
           ) : (

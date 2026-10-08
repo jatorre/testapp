@@ -181,6 +181,13 @@ async function cartoFetch(path: string, init: RequestInit & { timeoutMs?: number
   }
 }
 
+/** GET a CARTO API path (e.g. /v3/connections/{c}/resources) as JSON. */
+export async function cartoGetJson<T = any>(path: string, signal?: AbortSignal): Promise<T> {
+  const res = await cartoFetch(path, { method: 'GET', signal });
+  if (!res.ok) throw await readError(res);
+  return res.json() as Promise<T>;
+}
+
 // ───────────────────────────── SQL API ─────────────────────────────
 
 export interface SqlSchemaField {
