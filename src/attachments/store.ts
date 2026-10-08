@@ -55,6 +55,27 @@ export async function parseWorkbook(bytes: ArrayBuffer | Uint8Array): Promise<Sh
   });
 }
 
+const isRecord = (v: unknown): v is Record<string, unknown> => !!v && typeof v === 'object' && !Array.isArray(v);
+/**
+ * Rows from common JSON data shapes: [{…}], [meta, [{…}]] (World Bank), {data|results|value|items: [{…}]},
+ * GeoJSON features (properties). Nested values are kept as JSON. null when it isn't tabular.
+ */
+function jsonRows(text: string): Record<string, unknown>[] | null {
+  let v: unknown;
+  try {
+    v = JSON.parse(text);
+  } catch {
+    return null;
+  }
+  const arrs: unknown[] = Array.isArray(v) ? [v, ...v.filter(Array.isArray)] : isRecord(v) ? ['features', 'data', 'results', 'value', 'items', 'rows'].map((k) => v && (v as any)[k]) : [];
+  const arr = arrs.find((a): a is unknown[] => Array.isArray(a) && a.length > 0 && a.every(isRecord));
+  if (!arr) return null;
+  return (arr as Record<string, unknown>[]).map((r) => {
+    const flat = r.type === 'Feature' && isRecord(r.properties) ? r.properties : r;
+    return Object.fromEntries(Object.entries(flat).map(([k, x]) => [k, x && typeof x === 'object' ? JSON.stringify(x) : x]));
+  });
+}
+
 export async function addFile(file: File): Promise<Attachment> {
   if (file.size > MAX_ATTACHMENT_BYTES) throw new Error(`${file.name} is larger than ${MAX_ATTACHMENT_BYTES / 1024 / 1024} MB`);
   const base = { name: file.name, mime: file.type || 'application/octet-stream', size: file.size };
@@ -68,6 +89,12 @@ export async function addFile(file: File): Promise<Attachment> {
     return add({ ...base, kind: 'image', data });
   }
   if (TABLE_EXT.test(file.name)) return add({ ...base, kind: 'table', data: await parseWorkbook(await file.arrayBuffer()) });
+  if (/\.(geo)?json$/i.test(file.name)) {
+    const text = await file.text();
+    const rows = jsonRows(text);
+    if (rows) return add({ ...base, kind: 'table', data: [{ name: 'data', columns: [...new Set(rows.slice(0, 200).flatMap(Object.keys))], rows }] });
+    return add({ ...base, kind: 'text', data: text });
+  }
   if (file.type.startsWith('text/') || TEXT_EXT.test(file.name)) return add({ ...base, kind: 'text', data: await file.text() });
   throw new Error(`Unsupported attachment type: ${file.name} (${file.type || 'unknown'})`);
 }

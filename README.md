@@ -23,4 +23,4 @@ Hosted, the app reads the viewer's token from `./carto-info.json`; no secret shi
 
 ## Layout
 `src/agent` (contracts + 3 harnesses) · `src/tools` (fs, bigquery, duckdb, python, chart, mcp) · `src/carto` (SQL, MCP, bootstrap) ·
-`src/data` (DuckDB + ingest) · `src/workers` (Pyodide) · `src/ui` · `src/demos.ts` (the six demos).
+`src/attachments` (in-memory upload store + chart capture) · `src/data` (DuckDB + ingest) · `src/workers` (Pyodide) · `src/ui` · `src/demos.ts` (the six demos).

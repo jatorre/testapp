@@ -1,0 +1,179 @@
+{
+  "summary": {
+    "task": "f-fallback",
+    "demoId": "d8-attach",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "status": "done",
+    "steps": 2,
+    "toolCalls": 1,
+    "toolErrors": 0,
+    "toolCounts": {
+      "fetch_url": 1
+    },
+    "usage": {
+      "inputTokens": 6634,
+      "outputTokens": 370,
+      "cachedInputTokens": 0
+    },
+    "wallMs": 11824,
+    "toolMs": 6481,
+    "llmMs": 5343,
+    "uploads": [
+      {
+        "ms": 6481,
+        "output": {
+          "via": "read_url",
+          "directError": "blocked by CORS or network",
+          "answer": "Based on the table on the page, the 5 most populous countries and their populations (2026) are:\n\n1. **India**: 1,476,625,576\n2. **China**: 1,412,914,089\n3. **United States**: 349,035,494\n4. **Indonesia**: 287,886,782\n5. **Pakistan**: 259,299,791",
+          "ms": 6478
+        }
+      }
+    ],
+    "grade": {
+      "top5": true
+    },
+    "answer": "Here are the 5 most populous countries as shown on the Worldometers page, which labels these figures as 2026:\n\n| Rank | Country | Population |\n|---|---|---|\n| 1 | India | 1,476,625,576 |\n| 2 | China | 1,412,914,089 |\n| 3 | United States | 349,035,494 |\n| 4 | Indonesia | 287,886,782 |\n| 5 | Pakistan | 259,299,791 |\n\nThe site blocked direct access, so these numbers came from a backup page-reading tool rather than straight from the page. Worldometers figures are estimates and projections, and they change as the site updates, so check the page if you need exact current values."
+  },
+  "run": {
+    "demoId": "d8-attach",
+    "harnessId": "aisdk",
+    "model": "carto::claude-opus-5.5",
+    "prompt": "From https://www.worldometers.info/world-population/population-by-country/ list the 5 most populous countries with their population as shown on that page.",
+    "id": "run_muzd5tbo",
+    "startedAt": 1791453502644,
+    "status": "done",
+    "tools": [
+      {
+        "id": "toolu_vrtx_01WCkgcjqLYSqX6tyByBakGc",
+        "name": "fetch_url",
+        "input": {
+          "url": "https://www.worldometers.info/world-population/population-by-country/",
+          "question": "List the 5 most populous countries with their population as shown in the table."
+        },
+        "startedAt": 1791453504575,
+        "output": {
+          "via": "read_url",
+          "directError": "blocked by CORS or network",
+          "answer": "Based on the table on the page, the 5 most populous countries and their populations (2026) are:\n\n1. **India**: 1,476,625,576\n2. **China**: 1,412,914,089\n3. **United States**: 349,035,494\n4. **Indonesia**: 287,886,782\n5. **Pakistan**: 259,299,791",
+          "ms": 6478
+        },
+        "durationMs": 6481,
+        "outputChars": 347
+      }
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "usage": {
+          "inputTokens": 3180,
+          "outputTokens": 109,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 7060,
+        "at": 1791453511058
+      },
+      {
+        "step": 2,
+        "usage": {
+          "inputTokens": 3454,
+          "outputTokens": 261,
+          "cachedInputTokens": 0
+        },
+        "durationMs": 11,
+        "at": 1791453514466
+      }
+    ],
+    "events": [
+      {
+        "t": 1931,
+        "type": "tool-call",
+        "data": {
+          "id": "toolu_vrtx_01WCkgcjqLYSqX6tyByBakGc",
+          "name": "fetch_url",
+          "input": {
+            "url": "https://www.worldometers.info/world-population/population-by-country/",
+            "question": "List the 5 most populous countries with their population as shown in the table."
+          },
+          "startedAt": 1791453504575
+        }
+      },
+      {
+        "t": 8412,
+        "type": "tool-result",
+        "data": {
+          "id": "toolu_vrtx_01WCkgcjqLYSqX6tyByBakGc",
+          "name": "fetch_url",
+          "output": {
+            "via": "read_url",
+            "directError": "blocked by CORS or network",
+            "answer": "Based on the table on the page, the 5 most populous countries and their populations (2026) are:\n\n1. **India**: 1,476,625,576\n2. **China**: 1,412,914,089\n3. **United States**: 349,035,494\n4. **Indonesia**: 287,886,782\n5. **Pakistan**: 259,299,791",
+            "ms": 6478
+          },
+          "durationMs": 6481,
+          "outputChars": 347
+        }
+      },
+      {
+        "t": 8414,
+        "type": "step-finish",
+        "data": {
+          "step": 1,
+          "usage": {
+            "inputTokens": 3180,
+            "outputTokens": 109,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 7060
+        }
+      },
+      {
+        "t": 11811,
+        "type": "text-delta",
+        "data": "Here are the 5 most populous countries as shown on the Worldometers page, which labels these figures as 2026:\n\n| Rank | Country | Population |\n|---|---|---|\n| 1 | India | 1,476,625,576 |\n| 2 | China | 1,412,914,089 |\n| 3 | United States | 349,035,494 |\n| 4 | Indonesia | 287,886,782 |\n| 5 | Pakistan | 259,299,791 |\n\nThe site blocked direct access, so these numbers came from a backup page-reading tool rather than straight from the page. Worldometers figures are estimates and projections, and they change as the site updates, so check the page if you need exact current values."
+      },
+      {
+        "t": 11822,
+        "type": "step-finish",
+        "data": {
+          "step": 2,
+          "usage": {
+            "inputTokens": 3454,
+            "outputTokens": 261,
+            "cachedInputTokens": 0
+          },
+          "durationMs": 11
+        }
+      },
+      {
+        "t": 11824,
+        "type": "finish",
+        "data": {
+          "totalUsage": {
+            "inputTokens": 6634,
+            "outputTokens": 370,
+            "cachedInputTokens": 0
+          },
+          "steps": 2,
+          "durationMs": 11727
+        }
+      }
+    ],
+    "totals": {
+      "usage": {
+        "inputTokens": 6634,
+        "outputTokens": 370,
+        "cachedInputTokens": 0
+      },
+      "steps": 2,
+      "toolCalls": 1,
+      "toolErrors": 0,
+      "wallMs": 11824,
+      "toolMs": 6481,
+      "llmMs": 5343,
+      "outputChars": 347
+    },
+    "finalText": "Here are the 5 most populous countries as shown on the Worldometers page, which labels these figures as 2026:\n\n| Rank | Country | Population |\n|---|---|---|\n| 1 | India | 1,476,625,576 |\n| 2 | China | 1,412,914,089 |\n| 3 | United States | 349,035,494 |\n| 4 | Indonesia | 287,886,782 |\n| 5 | Pakistan | 259,299,791 |\n\nThe site blocked direct access, so these numbers came from a backup page-reading tool rather than straight from the page. Worldometers figures are estimates and projections, and they change as the site updates, so check the page if you need exact current values.",
+    "endedAt": 1791453514468
+  }
+}

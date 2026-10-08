@@ -159,3 +159,26 @@ test('capture: a rendered point map is captured by the tool and by the 📷 butt
   await expect(page.getByTestId('pending-attachment')).toHaveAttribute('data-kind', 'image');
   await expect(page.getByTestId('pending-attachment')).toContainText('Distribution centers.png');
 });
+
+test('fetch_url: CORS data file → attachment summary; blocked URL → fallback reader refuses an unverified answer', async ({ page }) => {
+  await page.route('https://data.example.test/**', (route) =>
+    route.request().url().endsWith('/pop.csv')
+      ? route.fulfill({ body: 'country;pop\nSpain;48\nFrance;68\n', headers: { 'content-type': 'text/plain', 'access-control-allow-origin': '*' } })
+      : route.abort('failed'),
+  );
+  const llm = await installMockLlm(page, [
+    { toolCalls: [{ name: 'fetch_url', args: { url: 'https://data.example.test/pop.csv' } }] },
+    { toolCalls: [{ name: 'fetch_url', args: { url: 'https://data.example.test/page.html' } }] },
+    { text: 'a page summary with no url_context metadata' }, // consumed by the read_url fallback (grounded Gemini call)
+    { text: 'done' },
+  ]);
+  await openDemo(page, 'handrolled');
+  await send(page, 'fetch these');
+  const tools = llm.requests[3].messages.filter((m: any) => m.role === 'tool').map((m: any) => m.content);
+  const direct = JSON.parse(tools[0]);
+  expect(direct).toMatchObject({ via: 'direct', id: 'a1', name: 'pop.csv', kind: 'table', sample: 'country,pop\nSpain,48\nFrance,68' });
+  expect(direct.sheets[0]).toMatchObject({ rows: 2, columns: 'country, pop' });
+  expect(tools[1]).toContain('Direct fetch failed (blocked by CORS or network)');
+  expect(tools[1]).toContain('its answer would be made up');
+  expect(llm.requests[2].tools).toEqual([{ urlContext: {} }]); // the fallback is a separate grounded call, no function tools
+});

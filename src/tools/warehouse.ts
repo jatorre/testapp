@@ -2,7 +2,8 @@ import { z } from 'zod';
 import type { AgentTool } from '../agent/types';
 import { getAttachment, getSheet } from '../attachments/store';
 import { getConnectionName } from '../carto/info';
-import { cartoGetJson, runSql } from '../carto/sql';
+import { cartoGetJson, cartoPostJson, getTableSizes, runReadOnlyQuery, runSql } from '../carto/sql';
+import { toCsv } from './sqldirect';
 import { planColumns, type ColumnKind } from '../data/ingest';
 
 /**
@@ -10,8 +11,9 @@ import { planColumns, type ColumnKind } from '../data/ingest';
  * scratch table in the viewer's own CARTO Data Warehouse dataset with one CREATE TABLE … AS SELECT FROM UNNEST(…)
  * over the synchronous SQL API (measured: 2 rows 1.8 s, 20k rows / 0.8 MB of SQL 5.9 s). The statement is built here
  * from the data, never from model SQL; the table name is forced to `agent_tmp_*` and the table expires after 24 h.
- * Alternative we did not use: the Imports API (POST workspace /storage/sign → PUT signed GCS URL → submit import →
- * poll), ~20 s even for 2 rows, but no 1 MB SQL limit (5 GB files).
+ * For local files we did not use the Imports API (POST workspace /storage/sign → PUT signed GCS URL → submit import →
+ * poll: ~20 s even for 2 rows). For REMOTE files it is the right tool: import_url_to_warehouse = POST /v3/imports
+ * {connection, url, destination} → poll GET /v3/imports/{jobId}; CARTO fetches the URL server-side (no CORS, 5 GB).
  */
 export const SCRATCH_PREFIX = 'agent_tmp_';
 const MAX_SQL_CHARS = 900_000; // BigQuery's query text limit is 1 MB
@@ -69,6 +71,12 @@ export function buildUploadSql(table: string, rows: Record<string, unknown>[], d
   return { sql, columns: columns.map(({ name, type }) => ({ name, type })) };
 }
 
+async function scratchTable(table_name: string) {
+  const short = table_name.toLowerCase().replace(new RegExp(`^${SCRATCH_PREFIX}`), '');
+  if (!/^[a-z0-9_]{1,50}$/.test(short)) throw new Error('table_name must be 1-50 chars of a-z, 0-9, _');
+  return `${await getScratchDataset()}.${SCRATCH_PREFIX}${short}`;
+}
+
 export function createWarehouseTools(): AgentTool[] {
   const upload: AgentTool<{ id: string; sheet?: string; table_name: string }> = {
     name: 'upload_to_warehouse',
@@ -86,9 +94,7 @@ export function createWarehouseTools(): AgentTool[] {
       if (!a) throw new Error(`No attachment "${id}". Call list_attachments.`);
       const s = getSheet(a, sheet);
       if (!s.rows.length) throw new Error(`Sheet ${s.name} is empty`);
-      const short = table_name.toLowerCase().replace(new RegExp(`^${SCRATCH_PREFIX}`), '');
-      if (!/^[a-z0-9_]{1,50}$/.test(short)) throw new Error('table_name must be 1-50 chars of a-z, 0-9, _');
-      const table = `${await getScratchDataset()}.${SCRATCH_PREFIX}${short}`;
+      const table = await scratchTable(table_name);
       const { sql, columns } = buildUploadSql(table, s.rows, `Uploaded by the client-side agent from ${a.name} / ${s.name}`);
       if (sql.length > MAX_SQL_CHARS)
         throw new Error(`Sheet too large for an inline upload (${sql.length} chars of SQL > ${MAX_SQL_CHARS}). Use fewer rows/columns.`);
@@ -97,5 +103,43 @@ export function createWarehouseTools(): AgentTool[] {
       return { table, rows: s.rows.length, columns, expiresInHours: EXPIRY_HOURS, elapsedMs: Math.round(performance.now() - t0) };
     },
   };
-  return [upload];
+
+  const importUrl: AgentTool<{ url: string; table_name: string }> = {
+    name: 'import_url_to_warehouse',
+    description:
+      'Import a remote data file (CSV, GeoJSON, GeoPackage, GeoParquet, KML/KMZ, zipped Shapefile; up to 5 GB) into a temporary ' +
+      `BigQuery table ${SCRATCH_PREFIX}<table_name> in your private dataset (CARTO fetches it server-side: works without CORS, ` +
+      `takes ~15-60 s). Use it for large files or when fetch_url cannot load them; then query with run_sql. Expires after ${EXPIRY_HOURS} h.`,
+    inputSchema: z.object({ url: z.string().url(), table_name: z.string().describe('Short name, letters/digits/underscore') }),
+    async execute({ url, table_name }, ctx) {
+      if (!/^https?:\/\//i.test(url)) throw new Error('Only http(s) URLs can be imported');
+      const table = await scratchTable(table_name);
+      const t0 = performance.now();
+      const { jobId } = await cartoPostJson(
+        '/v3/imports',
+        { connection: getConnectionName(), url, destination: table, overwrite: true, autoguessing: true },
+        ctx.signal,
+      );
+      let job: any;
+      for (const deadline = Date.now() + 10 * 60_000; ; ) {
+        await new Promise((r) => setTimeout(r, 2000));
+        job = await cartoGetJson(`/v3/imports/${jobId}`, ctx.signal);
+        if (job.status === 'success') break;
+        if (job.status === 'failure' || job.status === 'cancelled') throw new Error(`Import ${job.status}: ${JSON.stringify(job.error).slice(0, 500)}`);
+        if (Date.now() > deadline) throw new Error(`Import ${jobId} still ${job.status} after 10 min`);
+      }
+      const importMs = Math.round(performance.now() - t0);
+      // The Imports API has no expiry option: set the same 24 h expiry as upload_to_warehouse (our table, our statement).
+      await runSql(`ALTER TABLE \`${table}\` SET OPTIONS(expiration_timestamp = TIMESTAMP_ADD(CURRENT_TIMESTAMP(), INTERVAL ${EXPIRY_HOURS} HOUR))`, { signal: ctx.signal });
+      const [sample, sizes] = await Promise.all([
+        runReadOnlyQuery(`SELECT * FROM \`${table}\` LIMIT 5`, { signal: ctx.signal }),
+        getTableSizes([table], { signal: ctx.signal }),
+      ]);
+      return {
+        table, rows: sizes[table]?.rows, columns: sample.schema.map((c) => `${c.name} ${c.type}`).join(', '),
+        sample: toCsv(sample.rows), importMs, expiresInHours: EXPIRY_HOURS,
+      };
+    },
+  };
+  return [upload, importUrl];
 }

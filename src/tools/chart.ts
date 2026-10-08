@@ -3,6 +3,7 @@ import { compile } from 'vega-lite';
 import { read } from 'vega';
 import type { AgentTool } from '../agent/types';
 import { fs, readText } from '../vfs/vfs';
+import { noteChartSpec } from '../attachments/capture';
 
 /**
  * render_chart: the model sends a Vega-Lite spec; we validate + compile it (returning precise errors so the
@@ -317,6 +318,7 @@ export function createChartTools(): AgentTool[] {
       }
       const finalTitle = title ?? (typeof r.spec.title === 'string' ? r.spec.title : r.spec.title?.text) ?? 'Chart';
       ctx.emitArtifact({ kind: 'vega-lite', title: finalTitle, spec: r.spec });
+      noteChartSpec(finalTitle, r.spec);
       return { ok: true, rendered: finalTitle, rows: r.rows, ...(r.warnings.length ? { warnings: r.warnings } : {}) };
     },
   };

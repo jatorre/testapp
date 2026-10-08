@@ -187,6 +187,12 @@ export async function cartoGetJson<T = any>(path: string, signal?: AbortSignal):
   if (!res.ok) throw await readError(res);
   return res.json() as Promise<T>;
 }
+/** POST JSON to a CARTO API path (e.g. /v3/imports) and return the JSON reply. */
+export async function cartoPostJson<T = any>(path: string, body: unknown, signal?: AbortSignal): Promise<T> {
+  const res = await cartoFetch(path, { method: 'POST', body: JSON.stringify(body), signal });
+  if (!res.ok) throw await readError(res);
+  return res.json() as Promise<T>;
+}
 
 // ───────────────────────────── SQL API ─────────────────────────────
 

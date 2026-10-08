@@ -48,6 +48,9 @@ inventory_items). Answer concisely, with numbers.`;
     'are DuckDB tables att_<id>; JOIN them with duckdb_query.';
   const chart =
     'render_chart draws a Vega-Lite chart; for a map, use a point map (projection + longitude/latitude encodings, inline data.values; no remote URLs).';
+  const fetchHint =
+    'fetch_url loads a URL: data files become attachments (summary only), pages come back as text. For large data files, ' +
+    'or ones fetch_url cannot load, import_url_to_warehouse imports the URL into a temporary BigQuery table for run_sql.';
   const suggestions = [
     'Here is a screenshot of a chart. What does it show, and is anything wrong with it?',
     TARGETS_PROMPT,
@@ -58,8 +61,8 @@ inventory_items). Answer concisely, with numbers.`;
       id: 'd8-attach',
       title: '8 · Attachments: images + Excel',
       blurb: 'Attach images, Excel or CSV (button, drag & drop, paste) or 📷 capture a chart; join uploads with BigQuery.',
-      tools: ['attach', 'sql', 'warehouse', 'duckdb_join', 'chart'],
-      system: base(`${sql}\n${wh}\n${local}\n${chart}`),
+      tools: ['attach', 'sql', 'warehouse', 'duckdb_join', 'chart', 'fetch'],
+      system: base(`${sql}\n${wh}\n${local}\n${chart}\n${fetchHint}`),
       suggestions,
       maxSteps: 20,
     },
