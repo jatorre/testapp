@@ -6,9 +6,10 @@ import { createPythonTools } from './python';
 import { createChartTools } from './chart';
 import { createMcpTools } from './mcp';
 import { createSqlDirectTools } from './sqldirect';
+import { createWebTools } from './web';
 
 /** Tool groups a demo can enable. Each module owns one group. */
-export type ToolGroup = 'fs' | 'bigquery' | 'duckdb' | 'python' | 'chart' | 'mcp' | 'sql';
+export type ToolGroup = 'fs' | 'bigquery' | 'duckdb' | 'python' | 'chart' | 'mcp' | 'sql' | 'web';
 
 const factories: Record<ToolGroup, () => Promise<AgentTool[]> | AgentTool[]> = {
   fs: createFsTools,
@@ -18,6 +19,7 @@ const factories: Record<ToolGroup, () => Promise<AgentTool[]> | AgentTool[]> = {
   chart: createChartTools,
   mcp: createMcpTools,
   sql: createSqlDirectTools,
+  web: createWebTools,
 };
 
 export async function buildTools(groups: ToolGroup[]): Promise<AgentTool[]> {
